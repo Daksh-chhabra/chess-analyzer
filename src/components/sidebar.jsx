@@ -1,0 +1,30 @@
+import React, { useState } from "react";
+import './css/sidebar.css';
+import { useNavigate } from 'react-router-dom';
+
+const Sidebars = () => {
+    const navigate = useNavigate();
+    const handleclick = () =>{
+        navigate("/matches");
+    }
+
+    const clicked =() =>{
+        navigate("/home");
+    }
+
+    const [isCollapsed,setIsCollapsed] = useState(false);
+    const toggleSidebar  =  ()=>{
+        setIsCollapsed(!isCollapsed);
+    }
+    return (
+        <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
+        <div className="toggle"> <button onClick={toggleSidebar}><h1>☰</h1></button></div>
+        <div className="Logo ">{!isCollapsed && <h1 > Fchess</h1>}</div>
+        <div className="Home"><button  onClick={clicked}>{!isCollapsed && <h1> Home</h1>}</button></div>
+        <div className ="Matches"><button onClick={handleclick}> {!isCollapsed && <h1 > Matches</h1>}</button></div>
+    
+        </div>
+    )
+};
+
+export default Sidebars ;

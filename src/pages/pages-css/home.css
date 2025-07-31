@@ -1,0 +1,16 @@
+body{
+    background-image:url(../images/bgimage.png);
+    height: 100vh;
+    width: 100vw;
+}
+.home{
+    display: flex;
+}
+.card{
+
+    position: relative;
+    left: 10%;
+    top: 20%;
+    text-align: center;
+    margin-left: 5%;
+}

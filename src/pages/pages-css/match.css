@@ -1,0 +1,7 @@
+body{
+    background-color: rgb(34, 26, 26);
+}
+.match{
+    display: flex;
+    flex-direction: row;
+}

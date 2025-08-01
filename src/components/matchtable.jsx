@@ -17,6 +17,8 @@ function Matchtable() {
 
   const [userrated, setuserrated] = useState("");
   const [opprated, setopprated] = useState("");
+  const[userusername ,setuserusername] =useState("");
+  const [oppusername ,setoppusername] = useState("");
 
   const navigate = useNavigate();
 
@@ -45,10 +47,14 @@ function Matchtable() {
     if (isWhite) {
       setuserrated(game.white.rating);
       setopprated(game.black.rating);
+      setuserusername(game.white.username);
+      setoppusername(game.black.username);
     }
     else {
       setuserrated(game.black.rating);
       setopprated(game.white.rating);
+      setuserusername(game.black.username);
+      setoppusername(game.white.username);
     }
 
 
@@ -73,10 +79,12 @@ function Matchtable() {
       const grading = dataweget.grades;
       const cpforevalbar = dataweget.cpforevalbar
       const cpbar =dataweget.cpbar
+      const userevalrating = isWhite ?  dataweget.whiterating : dataweget.blackrating
+      const oppevalrating =isWhite ? dataweget.blackrating :dataweget.whiterating
       console.log("data in matchtable that is coming", dataweget);
       console.log(Movesweget);
       console.log("grading here ", grading);
-      (navigate('/analysis', { state: { pgn: pgn, moves: Movesweget, bestmoves: bestmoves, userrating: userrated, grading: grading, opprating: opprated, evalbar: cpforevalbar ,cpbar : cpbar } }));
+      (navigate('/analysis', { state: { pgn: pgn, moves: Movesweget, bestmoves: bestmoves, userrating: userrated, grading: grading, opprating: opprated, evalbar: cpforevalbar ,cpbar : cpbar ,userevalrating : userevalrating , oppevalrating :oppevalrating ,userusername :userusername ,oppusername :oppusername } }));
     }
     catch (error) {
       console.error("couldnt SAVE PGN", error);

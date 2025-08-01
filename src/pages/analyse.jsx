@@ -7,14 +7,26 @@ import Ansidebar from "../components/ansidebar";
 import iconMap from "../components/icons";
 import Evalbar from "../components/evalbar";
 import analyse from "./pages-css/analyse.css";
+import GameSummaryBox from "../components/startingevals.jsx";
 
 const Analytics = () => {
     const location = useLocation();
-    const { pgn = "", moves = [], bestmoves = [] ,grading =[] ,evalbar =[],cpbar =[] } = location.state || {};
+    const { pgn = "", moves = [], bestmoves = [] ,grading =[] ,evalbar =[],cpbar =[],userevalrating ="",oppevalrating ="",userrated = "",opprated ="",userusername ="",oppusername ="" } = location.state || {};
     const [whiteuname, setwhiteuname] = useState("White Player");
     const [blackuname, setblackuname] = useState("Black Player");
     const [Count, setCount] = useState(0);
     const [arrows, setarrows] = useState([]);
+    const [showIcon, setShowIcon] = useState(false);
+    const [displyansidebar,setdisplayansidebar] =useState("none");
+
+useEffect(() => {
+  const timer = setTimeout(() => setShowIcon(true), 3000); 
+  return () => clearTimeout(timer);
+}, []);
+
+
+
+
     let anotate = [];
     function gradestoanotations(array) {
       for (const g of array) {
@@ -48,6 +60,14 @@ const Analytics = () => {
         }
       }
     }
+const userrealrating = Math.round(((0.4 * userrated) + (0.6 * userevalrating))/50)*50;
+const opprealrating = Math.round(((0.4 * opprated) + (0.6 * oppevalrating))/50 )*50;
+console.log("userrealrating",userrealrating);
+console.log("opprealrating",opprealrating);
+
+
+
+
     gradestoanotations(grading);
     useEffect(() => {
         if (!pgn) return;
@@ -140,6 +160,26 @@ const Analytics = () => {
         arrows,
     };
 
+
+let currentturn ='w';
+if(fens[safeCount])
+{
+    try{
+    const chessinstance = new Chess(fens[safeCount]);
+    currentturn = chessinstance.turn();
+    }
+    catch(e)
+    {
+        console.log("invalid fen or something ",e);
+    }
+}
+
+
+
+
+
+
+
 function squareCornerPosition(square, boardSize = 640, iconSize = 36, corner = "top-left") {
   const file = square.charCodeAt(0) - 'a'.charCodeAt(0);
   const rank = 8 - parseInt(square[1], 10);
@@ -178,13 +218,25 @@ function squareCornerPosition(square, boardSize = 640, iconSize = 36, corner = "
     } 
     console.log(toSquare);
 
-const evaled = Math.max(0, Count );
+    console.log("count",Count);
+const evaled = Count >1 ? Math.floor((Count -1))  : -1;
+console.log( "cp bar of cpbar ",cpbar);
+
+
+
+
+
+
+const onstartreview = () =>
+{
+    setdisplayansidebar("");
+}
 
     return (
         <div style={{ display: "flex", justifyContent: "space-between", position : "absolute" ,width: "100%"}}>
             <Sidebars />
             <div className="evalbar">
-           <Evalbar cp = {evalbar[evaled] ?? 0}/> 
+           <Evalbar cp = {evalbar[evaled] ?? 0} turn = {currentturn} /> 
            </div>
             <div style={{ height: "640px", width: "640px", marginTop: "1.5%", flexShrink: "0" ,position :"relative"}}>
                 <div style={{ color: "WHITE", fontSize: "1.5rem", display: "flex" }}>
@@ -220,11 +272,27 @@ const evaled = Math.max(0, Count );
                                 boxShadow: "0 0 2px rgba(0,0,0,0.3)"
                             }}
                         >
-                            <Icon style={{ width: iconSize , height: iconSize , fill: "#fff" }} />
+                        {showIcon && (
+                            <Icon style={{ width: iconSize , height: iconSize , fill: "#fff" }} /> )}
                         </div>
                     );
                 })()}
             </div>
+
+                <GameSummaryBox white = {{name : `${userusername}`,accuracy : "85" ,elo :`${userrealrating}`,good :{Sigma :2,Awesome:2,best :2,Nice :3},bad :{Strange :0,Bad:1,Clown :0}}}
+
+                         black = {{name : `${oppusername}`,accuracy : "85" ,elo :`${opprealrating}`,good :{Sigma :2,Awesome:2,best :2,Nice :3},bad :{Strange :0,Bad:1,Clown :0}}}
+
+                         onreview = {onstartreview}
+
+                />
+
+
+
+
+
+
+
             <Ansidebar 
                 onIncrease={increase} 
                 onDecrease={decrease} 
@@ -232,6 +300,7 @@ const evaled = Math.max(0, Count );
                 movelist={moves} 
                 pgn={pgn} 
                 counting={Count}
+                display = {displyansidebar}
             />
         </div>
     );

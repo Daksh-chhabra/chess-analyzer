@@ -1,8 +1,10 @@
-import React from "react";
+import React, {  useState } from "react";
 
-const GameSummaryBox = ({ white, black }) => {
+
+const GameSummaryBox = ({ white, black ,onreview }) => {
+  const [display,setdisplay] = useState("");
   return (
-    <div style={styles.container}>
+    <div style={{...styles.container ,display : display}}>
       {/* Top Header */}
       <div style={styles.header}>
         <div style={styles.playerBox}>
@@ -35,16 +37,10 @@ const GameSummaryBox = ({ white, black }) => {
         <div style={styles.elo}>{black.elo}</div>
       </div>
 
-      {/* Eval Bar */}
-      <div style={styles.evalBar}>
-        <div style={{ ...styles.evalLeft, width: `${white.evalBarWidth}%` }} />
-        <div style={{ ...styles.evalRight, width: `${100 - white.evalBarWidth}%` }} />
-      </div>
-
       {/* Good Moves Section */}
       <div style={styles.moveSection}>
         <div style={styles.sectionHeader}>Good</div>
-        {["Sigma", "Awesome", "Best", "Nice"].map((type) => (
+        {["Great", "Best", "Good", "Okay"].map((type) => (
           <div style={styles.row} key={type}>
             <div style={styles.labelMove}>{type}</div>
             <div style={styles.count}>{white.good[type] || 0}</div>
@@ -56,7 +52,7 @@ const GameSummaryBox = ({ white, black }) => {
       {/* Bad Moves Section */}
       <div style={styles.moveSectionRed}>
         <div style={styles.sectionHeaderRed}>Bad</div>
-        {["Strange", "Bad", "Clown"].map((type) => (
+        {["Inaccuracy", "Mistake", "Blunder"].map((type) => (
           <div style={styles.row} key={type}>
             <div style={styles.labelMove}>{type}</div>
             <div style={styles.count}>{white.bad[type] || 0}</div>
@@ -64,6 +60,9 @@ const GameSummaryBox = ({ white, black }) => {
           </div>
         ))}
       </div>
+
+      {/* Start Review Button */}
+      <button onClick={  () => {setdisplay("none"); onreview();}} style={styles.reviewButton}>Start Review</button>
     </div>
   );
 };
@@ -146,22 +145,6 @@ const styles = {
     fontSize: "0.8rem",
     color: "#aaa"
   },
-  evalBar: {
-    height: "16px",
-    width: "100%",
-    display: "flex",
-    borderRadius: "8px",
-    overflow: "hidden",
-    backgroundColor: "#333",
-    marginTop: "10px",
-    marginBottom: "10px"
-  },
-  evalLeft: {
-    backgroundColor: "#99ff99"
-  },
-  evalRight: {
-    backgroundColor: "#ff9999"
-  },
   moveSection: {
     backgroundColor: "#1e1e1e",
     padding: "10px",
@@ -194,6 +177,19 @@ const styles = {
   count: {
     width: "24px",
     textAlign: "center"
+  },
+  reviewButton: {
+    width: "100%",
+    padding: "12px",
+    backgroundColor: "#4CAF50",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "1rem",
+    fontWeight: "bold",
+    cursor: "pointer",
+    marginTop: "12px",
+    transition: "background-color 0.3s ease"
   }
 };
 

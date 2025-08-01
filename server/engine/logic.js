@@ -25,7 +25,7 @@ export async function handlemovelist(mdata) {
     }
     catch(error)
     {
-      console.error("error getting evals from user moves");
+      console.error("error getting evals from user moves",error);
       userevals.push(null);
     }
   } 

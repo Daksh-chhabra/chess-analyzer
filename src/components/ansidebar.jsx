@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const Ansidebar = ({ onIncrease, onDecrease, onReset, movelist, pgn,counting}) => {
+const Ansidebar = ({ onIncrease, onDecrease, onReset, movelist, pgn,counting,display}) => {
  const myarray = movelist.slice(0, counting);
  const [opening,setopening] = useState("");
 
@@ -20,17 +20,7 @@ if (match && match[1]) {
  }
  getopening();
 },[pgn]);
-  /*const addmove = () =>
-  {
-  setmyarray(prev => [...prev,movelist[counting]]);
-  }
-  useEffect ( ()=>
-  {
-    if(movelist[counting])
-    {
-     addmove();
-    }
-  },[counting])*/
+
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === "ArrowRight") {
@@ -55,7 +45,7 @@ if (match && match[1]) {
 
 
   return (
-    <div style={styles.sidebar}>
+    <div style={{...styles.sidebar ,display}}>
       
       <div style={styles.moveBox}>
         <h3 style={styles.moveTitle}>Move Log </h3>

@@ -1,32 +1,38 @@
-# ♟ Chess Game Evaluator
+# ♟️ Chess Analysis Platform
 
-A visual and interactive chess game analysis tool built using React.
+An interactive chess analysis tool built with React.js that fetches and analyzes recent games from a user's Chess.com account.
 
-## 🔍 Overview
+## 🎯 Features
 
-This app allows users to:
-- Upload and parse PGN (Portable Game Notation) files
-- Visualize move-by-move gameplay
-- See evaluation bars and accuracy scores
-- Track annotations like blunders, mistakes, and best moves
-- Estimate adjusted ELO ratings for both players
+- 🔍 **Fetch Games by Username**: Enter a Chess.com username to view their recent games.
+- 📋 **Match Summary Table**: Displays accuracy, ELO, and move grading for each game.
+- ♟️ **Interactive Game Analysis**:
+  - Move-by-move PGN replay.
+  - Keyboard navigation (`←`, `→`, `Esc`).
+  - Graded move icons (e.g. Blunder, Best, Good).
+  - Evaluation bar to show who’s ahead.
+- 📊 **Summary Panel**:
+  - Real-time accuracy display.
+  - Custom ELO estimation based on evaluation.
+  - Good and bad move breakdowns.
+- 🧠 **Local Engine Logic**:
+  - Uses JavaScript-based logic to simulate move evaluation and grading.
+  - PGN parsing and move visualization.
 
-## ✨ Features
+---
 
-- Interactive chessboard using `react-chessboard`
-- Keyboard controls: ⬅️ for back, ➡️ for forward, ⎋ for reset
-- Dynamic evaluation bar per move
-- Summary of good and bad moves
-- ELO estimation based on engine evaluation + user rating
-- Inline review system with grade icons and chess engine moves
+## 🧰 Tech Stack
 
-## 🧠 Technologies
+- **React.js** – Frontend framework
+- **react-chessboard** – Interactive chessboard UI
+- **Chess.js** – PGN parsing and FEN generation
+- **Custom JS Engine** – For evaluation and move grading
+- **SVG Icons** – For annotated moves
 
-- **Frontend**: React, JavaScript
-- **Visualization**: Chess.js, react-chessboard
-- **Styles**: Inline CSS (soon to migrate to modules)
+---
 
-## 🗂 File Structure
+
+
 # chess-analyzer
 Built a chess analyzer from scratch using html css js node react and APIs and integrated stockfish for move analysis and best moves with ratings and accuracy
 >>>>>>> e5f6e57caf832a663d286b662a06e2782ec33a27

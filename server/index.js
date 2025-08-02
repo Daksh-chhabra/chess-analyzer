@@ -92,7 +92,9 @@ app.post("/pgn",async (req,res) =>
             whiterating : bestmoved.whiterating,
             grades : bestmoved.actualgrading,
             cpforevalbar :bestmoved.userevals,
-            cpbar :bestmoved.diffed
+            cpbar :bestmoved.diffed,
+            grademovenumber : bestmoved.grademovenumbers,
+            userwinpercents : bestmoved.userwinpercents
             
         });
     }
@@ -126,6 +128,7 @@ app.post("/pgnfromuser" ,async (req ,res) =>
         const bestmovedfromuser = await handlemovelist(pgnfromuserArray);
         res.status(200).json({
             moves: pgnfromuserArray,
+            pgn :pgnfromuser,
             bestmoves : bestmovedfromuser.bestMoves,
             whiteacpl: bestmovedfromuser.whiteACPL,
             blackacpl: bestmovedfromuser.blackACPL,
@@ -133,13 +136,15 @@ app.post("/pgnfromuser" ,async (req ,res) =>
             whiterating : bestmovedfromuser.whiterating,
             grades : bestmovedfromuser.actualgrading,
             cpforevalbar :bestmovedfromuser.userevals,
-            cpbar :bestmovedfromuser.diffed
+            cpbar :bestmovedfromuser.diffed,
+            grademovenumber : bestmovedfromuser.grademovenumbers,
+            userwinpercents : bestmovedfromuser.userwinpercents
             
         });
     }
     catch(error)
     {
-        console.error("1234546787887");
+        console.error("error" ,error);
     }
 
 
@@ -195,7 +200,8 @@ function movesarray()
     try{
         const ok = chess.loadPgn(fixedPgn);
         console.log("parsed",ok);
-         mArray = chess.history();
+         mArray = chess.history().map(m => m.replace(/[+#?!]+/g, ''));
+
         console.log(mArray)
     }
     catch(err)
@@ -216,7 +222,8 @@ function pgnfromarraymoves()
     try{
         const ok = chess.loadPgn(fixedPgn);
         console.log("parsed",ok);
-         pgnfromuserArray = chess.history();
+         pgnfromuserArray = chess.history().map(m => m.replace(/[+#?!]+/g, ''));
+
         //console.log(pgnfromuserArray)
     }
     catch(err)

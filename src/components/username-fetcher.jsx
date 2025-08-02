@@ -56,7 +56,7 @@ function CreateCards(props) {
                         headers: {
                             "Content-Type": "application/json",
                         },
-                        body: JSON.stringify({ pgnfromuser })
+                        body: JSON.stringify({ pgnfromuser,username })
                     });
 
                     if(!dep.ok)
@@ -66,7 +66,9 @@ function CreateCards(props) {
                         return ;
                     }
                     const result = await dep.json();
-                    Navigate("/analysis" ,{state : {pgn :pgnfromuser , bestmoves : result.bestmoves, moves :result.moves ,whiteacpl : result.whiteacpl ,blackacpl : result.blackacpl ,grading : result.grades , evalbar : result. cpforevalbar ,cpbar :result.cpbar} });
+                        const userrated =  result.whiterating 
+                        const opprated = result.blackrating 
+                    Navigate("/analysis" ,{state : {pgn :pgnfromuser , bestmoves : result.bestmoves, moves :result.moves ,whiteacpl : result.whiteacpl ,blackacpl : result.blackacpl ,grading : result.grades , evalbar : result. cpforevalbar ,cpbar :result.cpbar ,userwinpercents : result.userwinpercents , userrated :userrated ,opprated :opprated} });
                 }
                 
                 

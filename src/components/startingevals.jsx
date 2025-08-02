@@ -39,7 +39,7 @@ const GameSummaryBox = ({ white, black ,onreview }) => {
 
       {/* Good Moves Section */}
       <div style={styles.moveSection}>
-        <div style={styles.sectionHeader}>Good</div>
+        <div style={styles.sectionHeader}>Good  <span style={{marginLeft : "88%",color : "#fff", }}>W</span>    <span>B</span></div>
         {["Great", "Best", "Good", "Okay"].map((type) => (
           <div style={styles.row} key={type}>
             <div style={styles.labelMove}>{type}</div>
@@ -90,14 +90,15 @@ const styles = {
     flex: 1
   },
   nameWhite: {
-    color: "#90ee90",
+     color: "#ffffff",
     fontWeight: "bold",
     fontSize: "1rem"
   },
   nameBlack: {
-    color: "#ffffff",
+        color: "#90ee90",
     fontWeight: "bold",
     fontSize: "1rem"
+
   },
   label: {
     fontSize: "0.8rem",

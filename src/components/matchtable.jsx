@@ -44,19 +44,10 @@ function Matchtable() {
   const analyze = async (game) => {
 
     const isWhite = game.white.username === currentUser;
-    if (isWhite) {
-      setuserrated(game.white.rating);
-      setopprated(game.black.rating);
-      setuserusername(game.white.username);
-      setoppusername(game.black.username);
-    }
-    else {
-      setuserrated(game.black.rating);
-      setopprated(game.white.rating);
-      setuserusername(game.black.username);
-      setoppusername(game.white.username);
-    }
-
+  const userrated = isWhite ? game.white.rating : game.black.rating;
+  const opprated = isWhite ? game.black.rating : game.white.rating;
+  const userusername = game.white.username 
+  const oppusername = game.black.username ;
 
     NProgress.start();
     setLoading(true);
@@ -81,10 +72,15 @@ function Matchtable() {
       const cpbar =dataweget.cpbar
       const userevalrating = isWhite ?  dataweget.whiterating : dataweget.blackrating
       const oppevalrating =isWhite ? dataweget.blackrating :dataweget.whiterating
+      const whiteacpl = dataweget.whiteacpl;
+      const blackacpl = dataweget.blackacpl;
+      const grademovenumber =dataweget.grademovenumber;
+      const userwinpercents =dataweget.userwinpercents;
+      const blackgradeno =dataweget.blackgradeno;
       console.log("data in matchtable that is coming", dataweget);
       console.log(Movesweget);
       console.log("grading here ", grading);
-      (navigate('/analysis', { state: { pgn: pgn, moves: Movesweget, bestmoves: bestmoves, userrating: userrated, grading: grading, opprating: opprated, evalbar: cpforevalbar ,cpbar : cpbar ,userevalrating : userevalrating , oppevalrating :oppevalrating ,userusername :userusername ,oppusername :oppusername } }));
+      (navigate('/analysis', { state: { pgn: pgn, moves: Movesweget, bestmoves: bestmoves, userrating: userrated, grading: grading, opprating: opprated, evalbar: cpforevalbar ,cpbar : cpbar ,userevalrating : userevalrating , oppevalrating :oppevalrating ,userusername :userusername ,oppusername :oppusername,whiteacpl :whiteacpl,blackacpl:blackacpl ,grademovenumber : grademovenumber,userwinpercents :userwinpercents,blackgradeno :blackgradeno } }));
     }
     catch (error) {
       console.error("couldnt SAVE PGN", error);

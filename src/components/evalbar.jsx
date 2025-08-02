@@ -1,22 +1,18 @@
   import React ,{useRef} from "react";
 
-  const Evalbar = ({cp , turn }) =>
+  const Evalbar = ({cp}) =>
   {
       const maxcp =1000;
-      const safeEval = Math.max(-maxcp, Math.min(maxcp, cp));
+     const safeEval = Math.max(-maxcp, Math.min(maxcp, cp));
       let whitebarpercent = 50;
 
-    let adjustedcp =cp;
-    if(turn === 'w')
-    {
-      adjustedcp = -cp;
-    }
+
 
 
 
       if(cp !== null && cp !== undefined )
       {
-          whitebarpercent = ((safeEval  + maxcp)/(2*maxcp)) *100 ;
+          whitebarpercent = cp;
           
           
       }
@@ -37,8 +33,8 @@
           
         }}
       >
-        <div style={{ height: `${whitebarpercent}%`, backgroundColor: "#fff" ,transition : "height 0.14s ease" }} />
-        <div style={{ height: `${blackbarpercent}%`, backgroundColor: "#000", transition : "height 0.14s ease" }} />
+        <div style={{ height: `${whitebarpercent}%`, backgroundColor: "#fff" ,transition : "height 0.34s ease" }} />
+        <div style={{ height: `${blackbarpercent}%`, backgroundColor: "#000", transition : "height 0.34s ease" }} />
       </div>
     );
 

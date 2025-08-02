@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const Ansidebar = ({ onIncrease, onDecrease, onReset, movelist, pgn,counting,display}) => {
+const Ansidebar = ({ onIncrease, onDecrease, onReset, movelist, pgn,counting,display ,onflip}) => {
  const myarray = movelist.slice(0, counting);
  const [opening,setopening] = useState("");
 
@@ -62,7 +62,7 @@ if (match && match[1]) {
         <button style={styles.buttonn} onClick={onIncrease}  >▶</button>
         <button style={styles.buttonn} onClick={onDecrease} > ◀</button>
         <button style={styles.buttonn} onClick={onReset}>Reset</button>
-        <button style={styles.buttonn}>🔁</button>
+        <button style={styles.buttonn} onClick={onflip}>🔁</button>
       </div>
     </div>
   );

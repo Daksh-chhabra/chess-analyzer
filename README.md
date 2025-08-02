@@ -1,75 +1,87 @@
-<<<<<<< HEAD
-# Getting Started with Create React App
+# ♟️ Chess Insight – PGN Analyzer & Game Visualizer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A fast and intuitive web app to analyze chess games using **Stockfish**, with detailed move grading, accuracy stats, and a clean board interface. Built using **React**, served through a **Node.js backend** — not WebAssembly-based yet.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Features
 
-### `npm start`
+- 📥 Upload and Analyze any PGN file
+- 📈 **Move-by-Move Evaluation** (Best, Great, Good, Inaccuracy, Mistake, Blunder)
+- 🎯 **Accuracy Calculation** based on ACPL (Average Centipawn Loss)
+- 🧠 **Dynamic Annotations** on board for easy visual understanding
+- 🔁 Flip board orientation and player names
+- 🧮 Summary box showing player ratings, ACPL, accuracy, and move quality counts
+- ⬅️➡️ Navigate through move list with evaluation bar and arrow guidance
+- 🛠️ Fully frontend-backend integrated with Stockfish running on the server
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+📦 Tech Stack
+⚛️ React (frontend)
 
-### `npm run build`
+♟️ chess.js (move validation and FEN generation)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+🧠 Stockfish (running on Node.js backend)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+📁 PGN parsing & evaluation pipelines handled in backend
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
+⚠️ Notes
+❌ Not responsive yet – best viewed on desktop.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+❌ Not using WASM – analysis is done server-side.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-### Analyzing the Bundle Size
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-### Making a Progressive Web App
+💡 Future Features (Coming Soon 🔮)
+♟ Opening Stats
+Win/loss breakdown by opening name
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+ECO codes and success rate indicators
 
-### Advanced Configuration
+🧭 Game Phase Analysis
+Classify mistakes by Opening / Middlegame / Endgame
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Based on move numbers (e.g. moves ≤10 = opening)
 
-### Deployment
+⚪⚫ Color Performance
+Track win rate and accuracy as White vs Black
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+🏆 Best & Worst Games
+View top 3 and bottom 3 games by accuracy
 
-### `npm run build` fails to minify
+Click to re-analyze with one tap
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-=======
-# chess-analyzer
-Built a chess analyzer from scratch using html css js node react and APIs and integrated stockfish for move analysis and best moves with ratings and accuracy
->>>>>>> e5f6e57caf832a663d286b662a06e2782ec33a27
+📋 Sortable Game Table
+Table of all analyzed games
+
+Sort by Accuracy, Result, Time Control, Opening
+
+⏱ Time Control Tagging
+Auto-tag games as Bullet / Blitz / Rapid
+
+Uses Chess.com timeClass info
+
+🔗 Chess.com Integration
+“View on Chess.com” button with external icon
+
+🧩 Most-Used Pieces
+Track frequency of piece moves
+
+Show visual pie/bar chart
+
+Insights like: “You favor knights over bishops”
+
+📈 Eval Graph & Eval Bar
+Dynamic evaluation line chart

@@ -128,7 +128,7 @@ function Matchtable() {
           {games.slice().reverse().map((game, index) => {
 
 
-            const isWhite = game.white.username === currentUser;
+            const isWhite = game.white.username.toLowerCase() === currentUser.toLowerCase();
 
 
             return (
@@ -137,7 +137,7 @@ function Matchtable() {
                 <td>{`${game.white.username} vs ${game.black.username}`}</td>
                 <td>{isWhite ? game.white.result : game.black.result}</td>
                 <td>{isWhite ? game.white.rating : game.black.rating}</td>
-                <td><a href={game.url}>View Game</a></td>
+                <td><a href={game.url} rel="noopener noreferrer" target="_blank">View Game</a></td>
                 <td><button onClick={() => analyze(game)}>Analyse</button></td>
               </tr>
             );

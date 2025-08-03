@@ -158,15 +158,19 @@ export async function handlemovelist(mdata) {
   });
 
 
-  for (let i = 0; i < userwinpercents.length; i++) {
+  for (let i = 0; i < userwinpercents.length -1; i++) {
     if (userwinpercents[i] !== null) {
       if (i % 2 == 0) {
         userwinpercents[i] = 100 - userwinpercents[i];
       }
-    } else {
+    } else if(i%2 ==1) {
       userwinpercents[i] = 100
     }
+    else{
+      userwinpercents[i] = 0;
+    }
   }
+  userwinpercents[userwinpercents.length - 1] = userwinpercents[userwinpercents.length -2];
 
 
 
@@ -326,7 +330,7 @@ export async function handlemovelist(mdata) {
 
 
 
-
+//TODO : add voilitality and weighted standard deviation as in lichess accuracy function and grade moves according to position 
 
 
   let blackbest = 0;

@@ -94,7 +94,8 @@ app.post("/pgn",async (req,res) =>
             cpforevalbar :bestmoved.userevals,
             cpbar :bestmoved.diffed,
             grademovenumber : bestmoved.grademovenumbers,
-            userwinpercents : bestmoved.userwinpercents
+            userwinpercents : bestmoved.userwinpercents,
+            blackgradeno : bestmoved.blackgradeno
             
         });
     }
@@ -138,7 +139,8 @@ app.post("/pgnfromuser" ,async (req ,res) =>
             cpforevalbar :bestmovedfromuser.userevals,
             cpbar :bestmovedfromuser.diffed,
             grademovenumber : bestmovedfromuser.grademovenumbers,
-            userwinpercents : bestmovedfromuser.userwinpercents
+            userwinpercents : bestmovedfromuser.userwinpercents,
+            blackgradeno : bestmovedfromuser.blackgradeno
             
         });
     }

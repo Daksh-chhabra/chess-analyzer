@@ -78,7 +78,8 @@ function Matchtable() {
       const userwinpercents =dataweget.userwinpercents;
       const blackgradeno =dataweget.blackgradeno;
       console.log("data in matchtable that is coming", dataweget);
-      console.log(Movesweget);
+      //console.log(Movesweget);
+      console.log("blackgrade no" ,blackgradeno);
       console.log("grading here ", grading);
       (navigate('/analysis', { state: { pgn: pgn, moves: Movesweget, bestmoves: bestmoves, userrating: userrated, grading: grading, opprating: opprated, evalbar: cpforevalbar ,cpbar : cpbar ,userevalrating : userevalrating , oppevalrating :oppevalrating ,userusername :userusername ,oppusername :oppusername,whiteacpl :whiteacpl,blackacpl:blackacpl ,grademovenumber : grademovenumber,userwinpercents :userwinpercents,blackgradeno :blackgradeno } }));
     }

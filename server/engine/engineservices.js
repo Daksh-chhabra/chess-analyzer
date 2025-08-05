@@ -31,7 +31,12 @@ export async function analyzefen(fen) {
           engine.kill();
           resolve(bestmove);
         }
+
+
+
+        
       }
+
     });
 
     engine.stderr.on("data", (err) => {

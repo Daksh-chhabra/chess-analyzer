@@ -18,7 +18,9 @@ const Analytics = () => {
     const [arrows, setarrows] = useState([]);
     const [showIcon, setShowIcon] = useState(false);
     const [displyansidebar, setdisplayansidebar] = useState("none");
-    const[boardOrientation,setboardOrientation] =useState("white");
+    const[boardOrientation,setboardOrientation] =useState("white");;
+    const [mainboard,setmainboard] =useState("");
+    const [tryboard,settryboard] =useState("none");
     console.log("blackgrades ", blackgradeno);
 
     useEffect(() => {
@@ -45,6 +47,11 @@ const Analytics = () => {
 
     const whiteaccuracy = acplToAccuracy(whiteacpl);
     const blackaccuracy = acplToAccuracy(blackacpl);
+
+
+
+
+
 
 
 
@@ -81,12 +88,16 @@ const Analytics = () => {
             }
         }
     }
-    console.log("userelo ", userrating);
-    console.log("opp elo ", opprating);
+
+
+
+
     const userrealrating = Math.round(((0.4 * userrating) + (0.6 * userevalrating)) / 50) * 50;
     const opprealrating = Math.round(((0.4 * opprating) + (0.6 * oppevalrating)) / 50) * 50;
-    console.log("userrealrating", userrealrating);
-    console.log("opprealrating", opprealrating);
+
+    
+
+
 
     const flipboard =() =>
     {
@@ -104,6 +115,8 @@ const Analytics = () => {
                 setblackuname(temp);
         }
     }
+
+
 
 
 
@@ -127,6 +140,12 @@ const Analytics = () => {
         }
     }, [pgn]);
 
+
+
+
+
+
+
     const fens = useMemo(() => {
         if (!moves || moves.length === 0) return [new Chess().fen()];
         const chess = new Chess();
@@ -141,6 +160,14 @@ const Analytics = () => {
         });
         return arr;
     }, [moves]);
+
+
+
+
+
+
+
+
 
     const { fromSquares, toSquares } = useMemo(() => {
         const fromSquares = [];
@@ -157,6 +184,11 @@ const Analytics = () => {
         return { fromSquares, toSquares };
     }, [bestmoves]);
 
+
+
+
+
+
     const increase = () => {
         if (Count < fens.length - 1) {
             setCount(Count + 1);
@@ -168,6 +200,13 @@ const Analytics = () => {
         }
     };
     const reset = () => setCount(0);
+
+
+
+
+
+
+    
     useEffect(() => {
         const arrowcount = Count - 1;
         if (arrowcount >= 0 &&
@@ -263,6 +302,13 @@ const Analytics = () => {
         }
     }
     console.log(toSquare);
+
+
+
+
+
+
+    
 
     console.log("count", Count);
     const evaled = Count > 1 ? Math.floor((Count - 1)) : -1;

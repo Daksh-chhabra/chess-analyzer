@@ -6,6 +6,7 @@ import Homepage from './pages/home';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Matchpage from './pages/matches';
 import Analytics from './pages/analyse';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
       <Route path='/matches' element = {<Matchpage />} />
       <Route path='/home' element ={<Homepage />} />
       <Route path='/analysis' element ={<Analytics />} />
+      <Route path ='/Dashboard' element ={<Dashboard />} />
     </Routes>
     </div>
     </Router>

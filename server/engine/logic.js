@@ -203,13 +203,13 @@ export async function handlemovelist(mdata) {
     if (diff >= 300) {
       actualgrading.push("Blunder");
     }
-    else if (diff >= 150) {
+    else if (diff >= 200) {
       actualgrading.push("Mistake");
     }
-    else if (diff >= 50) {
+    else if (diff >= 100) {
       actualgrading.push("Inaccuracy");
     }
-    else if (diff >= 20) {
+    else if (diff >= 50) {
       actualgrading.push("Okay");
     }
     else if (diff >= 10) {
@@ -341,7 +341,7 @@ export async function handlemovelist(mdata) {
   let blackInaccuracy = 0;
   let blackgreat = 0;
 
-  for (let i = 0; i < actualgrading.length; i++) {
+  for (let i = 0; i < actualgrading.length -1; i++) {
     if (i % 2 === 0) {
       const grade = actualgrading[i];
 

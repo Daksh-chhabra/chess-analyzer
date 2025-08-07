@@ -70,9 +70,8 @@ export async function handlemovelist(mdata) {
 
 
 
-
-
-  const bestMoves = await Promise.all(
+ 
+  const bestMovesobj = await Promise.all(
     fens.map(async (fen) => {
       try {
         return await analyzefen(fen);
@@ -82,10 +81,13 @@ export async function handlemovelist(mdata) {
       }
     })
   );
-  console.log("bestmoves for analysis ", bestMoves);
+  //console.log("bestmoves for analysis ", bestMovesobj);
+
+  const bestMoves = bestMovesobj.map(r => r?.bestmove || null);
+  const pvhistory =bestMovesobj.map(r => r?.pvhistory || null);
 
 
-
+ 
 
   const bestfens = [];
 
@@ -136,9 +138,26 @@ export async function handlemovelist(mdata) {
     diff.push(differ);
   }
   const cleaneddiff = diff.filter(val => val !== null && !isNaN(val));
-  console.log("cleaned diff", cleaneddiff);
+  //console.log("cleaned diff", cleaneddiff);
 
 
+  
+
+ let pvfen = [];
+
+for(let i = 0; i< pvhistory.length; i++)
+{
+  const pvchess = new Chess(fens[i]);
+  const pvline = pvhistory[i];
+   const thisLineFens = [pvchess.fen()];
+  for(const move of pvline){
+    pvchess.move(move);
+     thisLineFens.push(pvchess.fen());
+  }
+ 
+
+  pvfen.push(thisLineFens);
+} 
 
 
 
@@ -366,7 +385,7 @@ export async function handlemovelist(mdata) {
     blackgreat,
     blackInaccuracy,
   ];
-  console.log("blackgrades", blackgradeno);
+  //console.log("blackgrades", blackgradeno);
 
 
 
@@ -381,9 +400,10 @@ export async function handlemovelist(mdata) {
 
 
   //console.log(bestfens);
+  //console.log("pvfen",pvfen);
   console.log("userwin percetn ", userwinpercents)
   console.log("cploss", diff);
-  console.log("cploss without absolute value ", diffed);
+  //console.log("cploss without absolute value ", diffed);
   console.log("user move evals", userevals);
   console.log("best eval cp ", bestevalcp);
   console.log("Best moves:", bestMoves);
@@ -393,5 +413,5 @@ export async function handlemovelist(mdata) {
   console.log("white rating ", acplToRating(whiteACPL));
   console.log("black rating ", acplToRating(blackACPL));
   //console.log("Grades:", grades);
-  return { bestMoves, actualgrading, blackACPL, whiteACPL, blackrating, whiterating, userevals, diffed, grademovenumbers, userwinpercents, blackgradeno };
+  return { bestMoves, actualgrading, blackACPL, whiteACPL, blackrating, whiterating, userevals, diffed, grademovenumbers, userwinpercents, blackgradeno ,pvfen };
 }

@@ -11,6 +11,7 @@ export async function analyzefen(fen) {
     const engine = spawn(stockfishPath);
 
     let bestmove = null;
+    let pvhistory = [];
 
     engine.stdin.write("uci\n");
     engine.stdin.write("isready\n");
@@ -25,19 +26,27 @@ export async function analyzefen(fen) {
       const lines = output.split("\n");
 
       for (const line of lines) {
-        if (line.startsWith("bestmove")) {
-          const parts = line.split(" ");
-          bestmove = parts[1]; 
-          engine.kill();
-          resolve(bestmove);
+
+        if (line.includes(" pv ")) {
+          const parts = line.split(" pv");
+          if (parts.length > 1) {
+            const currentpv = parts[1].trim().split(" ");
+            pvhistory = currentpv;
+          }
+          
         }
 
+        if (line.startsWith("bestmove")) {
+          const parts = line.split(" ");
+          bestmove = parts[1];
+          engine.kill();
 
-
-        
+          //console.log("Final pvhistory:", pvhistory);
+          resolve({ bestmove, pvhistory }); 
+        }
       }
-
     });
+
 
     engine.stderr.on("data", (err) => {
       console.error("stockfish error:", err.toString());

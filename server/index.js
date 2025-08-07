@@ -95,7 +95,8 @@ app.post("/pgn",async (req,res) =>
             cpbar :bestmoved.diffed,
             grademovenumber : bestmoved.grademovenumbers,
             userwinpercents : bestmoved.userwinpercents,
-            blackgradeno : bestmoved.blackgradeno
+            blackgradeno : bestmoved.blackgradeno,
+            pvfen : bestmoved.pvfen
             
         });
     }

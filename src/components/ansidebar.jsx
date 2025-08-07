@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const Ansidebar = ({ onIncrease, onDecrease, onReset, movelist, pgn,counting,display ,onflip}) => {
+const Ansidebar = ({ onIncrease, onDecrease, onReset, movelist, pgn,counting,display ,onflip ,showtactic ,pvtrying}) => {
  const myarray = movelist.slice(0, counting);
  const [opening,setopening] = useState("");
 
@@ -21,8 +21,12 @@ if (match && match[1]) {
  getopening();
 },[pgn]);
 
+
+
+
     useEffect(() => {
         const handleKeyDown = (e) => {
+          if (pvtrying ) return;
             if (e.key === "ArrowRight") {
                 onIncrease();
                 e.preventDefault();
@@ -36,18 +40,21 @@ if (match && match[1]) {
               e.preventDefault();
             }
         };
+      
 
         document.addEventListener("keydown", handleKeyDown);
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
     }, [onIncrease, onDecrease]);
+  
 
 
   return (
     <div style={{...styles.sidebar ,display}}>
       
       <div style={styles.moveBox}>
+      
         <h3 style={styles.moveTitle}>Move Log </h3>
         <h4>{opening}</h4>
         <div style={{display:"flex", gap :"10px",flexWrap :"wrap"}}>
@@ -59,10 +66,11 @@ if (match && match[1]) {
       </div>
 
       <div style={styles.controls} >
-        <button style={styles.buttonn} onClick={onIncrease}  >▶</button>
-        <button style={styles.buttonn} onClick={onDecrease} > ◀</button>
-        <button style={styles.buttonn} onClick={onReset}>Reset</button>
-        <button style={styles.buttonn} onClick={onflip}>🔁</button>
+      <button style={styles.btnn} onClick={showtactic}>{!pvtrying ? "Show Tactic" : "Hide tactic"}</button>
+        <button style={styles.buttonn} onClick={onIncrease} disabled ={pvtrying} >▶</button>
+        <button style={styles.buttonn} onClick={onDecrease} disabled ={pvtrying}> ◀</button>
+        <button style={styles.buttonn} onClick={onReset} disabled = {pvtrying}>Reset</button>
+        <button style={styles.buttonn} onClick={onflip} disabled ={pvtrying}>🔁</button>
       </div>
     </div>
   );
@@ -112,6 +120,7 @@ const styles = {
     padding : "0",
     gap :"0px"
   },
+
   buttonn: {
     padding: "10px",
     fontSize: "2rem",
@@ -122,6 +131,12 @@ const styles = {
     transition: "all 0.2s",
     color :"black"
   },
+  btnn :{
+    color : "white",
+    width : "fit-content",
+    screenLeft :" 0px"
+   
+  }
 };
 
 export default Ansidebar;

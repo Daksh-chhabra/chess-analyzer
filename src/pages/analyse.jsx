@@ -11,7 +11,7 @@ import GameSummaryBox from "../components/startingevals.jsx";
 
 const Analytics = () => {
     const location = useLocation();
-    const { pgn = "", moves = [], bestmoves = [], grading = [], evalbar = [], cpbar = [], userevalrating = "", oppevalrating = "", userrating = "", opprating = "", userusername = "", oppusername = "", whiteacpl = "", blackacpl = "", grademovenumber = [], userwinpercents = [], blackgradeno = [] } = location.state || {};
+    const { pgn = "", moves = [], bestmoves = [], grading = [], evalbar = [], cpbar = [], userevalrating = "", oppevalrating = "", userrating = "", opprating = "", userusername = "", oppusername = "", whiteacpl = "", blackacpl = "", grademovenumber = [], userwinpercents = [], blackgradeno = [],pvfen =[] } = location.state || {};
     const [whiteuname, setwhiteuname] = useState("White Player");
     const [blackuname, setblackuname] = useState("Black Player");
     const [Count, setCount] = useState(0);
@@ -21,7 +21,14 @@ const Analytics = () => {
     const[boardOrientation,setboardOrientation] =useState("white");;
     const [mainboard,setmainboard] =useState("");
     const [tryboard,settryboard] =useState("none");
-    console.log("blackgrades ", blackgradeno);
+    const [pvtrying,setpvtrying] = useState(false);
+    const [pvindex, setpvindex] = useState(0);
+    const [pvframe, setpvframe] = useState(0);
+    let currentpv = [];
+    const [dchess,setdchess] = useState();
+    
+    //console.log("blackgrades ", blackgradeno);
+    //console.log("pvfens",pvfen);
 
     useEffect(() => {
         const timer = setTimeout(() => setShowIcon(true), 3000);
@@ -29,7 +36,22 @@ const Analytics = () => {
     }, []);
 
 
+ useEffect( () =>
+{
+    if(!pvtrying) return ;
+    if(pvfen.length === 0 || !pvfen) return ;
+ 
 
+    const interval =setInterval(() => {
+        setpvframe((prev) =>
+        {
+            if(prev < Math.min(5, currentpv.length) ) return prev +1;
+            clearInterval(interval);
+            return prev;
+        });
+    }, 800);
+return () => clearInterval(interval);
+},[currentpv ,pvtrying]); 
 
 
 
@@ -116,6 +138,17 @@ const Analytics = () => {
         }
     }
 
+
+
+
+    const showtactic = () =>
+    { 
+        setpvtrying(prev => !prev);
+        setpvindex(Count +1);
+            setmainboard(pvtrying ? "" : "none");
+            settryboard(pvtrying ? "none" : "");
+            setpvframe(0);
+    }
 
 
 
@@ -209,10 +242,10 @@ const Analytics = () => {
     
     useEffect(() => {
         const arrowcount = Count - 1;
-        if (arrowcount >= 0 &&
+        if (arrowcount >= 5 &&
             arrowcount < fromSquares.length &&
             fromSquares[arrowcount] &&
-            toSquares[arrowcount]) {
+            toSquares[arrowcount] && !pvtrying) {
             setarrows([{
                 startSquare: fromSquares[arrowcount],
                 endSquare: toSquares[arrowcount],
@@ -231,26 +264,37 @@ const Analytics = () => {
         );
     }
 
+ 
+ currentpv = pvfen[pvindex -1];
+const currentfens =  fens ;
+
+
     const safeCount = Math.min(Math.max(Count, 0), fens.length - 1);
     const options = {
-        position: fens[safeCount],
+        position: currentfens[safeCount],
         id: "board",
         arrows,boardOrientation :boardOrientation
     };
 
+    
 
-    /* let currentturn ='w';
-   if(fens[safeCount])
-   {
-       try{
-       const chessinstance = new Chess(fens[safeCount]);
-       currentturn = chessinstance.turn();
-       }
-       catch(e)
-       {
-           console.log("invalid fen or something ",e);
-       }
-   } */
+
+
+
+
+
+
+
+
+
+    
+     const pvoptions = {
+        position :pvtrying && currentpv ? currentpv[pvframe] || new Chess().fen() : new Chess().fen()
+    }
+
+
+
+
 
 
 
@@ -323,13 +367,36 @@ const Analytics = () => {
         setdisplayansidebar("");
     }
 
+console.log("pvindex",pvindex);
+console.log("pvfen",pvfen[pvindex]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     return (
         <div style={{ display: "flex", justifyContent: "space-between", position: "absolute", width: "100%" }}>
             <Sidebars />
             <div className="evalbar">
                 <Evalbar cp={userwinpercents[evaled] ?? 53} />
             </div>
-            <div style={{ height: "640px", width: "640px", marginTop: "1.5%", flexShrink: "0", position: "relative" }}>
+            <div style={{ height: "640px", width: "640px", marginTop: "1.5%", flexShrink: "0", position: "relative" ,display :`${mainboard}` }}>
                 <div style={{ color: "WHITE", fontSize: "1.5rem", display: "flex" }}>
                     <header>{blackuname}</header>
                 </div>
@@ -343,6 +410,7 @@ const Analytics = () => {
                     const square = toSquare[moveindex];
                     const grade = grading[moveindex - 1];
                     const Icon = iconMap[grade];
+                    if(pvtrying) return null;
                     if (!square || !Icon) return null;
                     const iconSize = 32;
                     const { left, top } = squareCornerPosition(square, 640, iconSize, "top-left");
@@ -370,6 +438,11 @@ const Analytics = () => {
                 })()}
             </div>
 
+
+
+
+
+
             <GameSummaryBox white={{ name: `${userusername}`, accuracy: `${whiteaccuracy}`, elo: `${opprealrating}`, good: { Best: grademovenumber[0], Great: grademovenumber[5], Okay: grademovenumber[3], Good: grademovenumber[4] }, bad: { Mistake: grademovenumber[1], Inaccuracy: grademovenumber[6], Blunder: grademovenumber[2] } }}
 
                 black={{ name: `${oppusername}`, accuracy: `${blackaccuracy}`, elo: `${userrealrating}`, good: { Best: blackgradeno[0], Great: blackgradeno[5], Okay: blackgradeno[3], Good: blackgradeno[4] }, bad: { Mistake: blackgradeno[1], Inaccuracy: blackgradeno[6], Blunder: blackgradeno[2] } }}
@@ -377,6 +450,28 @@ const Analytics = () => {
                 onreview={onstartreview}
 
             />
+
+
+
+
+
+
+                
+                {pvtrying && (
+
+            <div style={{ height: "640px", width: "640px", marginTop: "1.5%", flexShrink: "0", position: "relative" ,/*display :`${tryboard}`*/ }}>
+
+                <div style={{ color: "WHITE", fontSize: "1.5rem", display: "flex" }}>
+                    <header>{blackuname}</header>
+                </div>
+                <Chessboard options ={pvoptions}/>
+                <div style={{ color: "WHITE", fontSize: "1.5rem", display: "flex" }}>
+                <footer>{whiteuname}</footer>
+                </div>
+                
+
+            </div>
+            )}
 
 
 
@@ -393,6 +488,8 @@ const Analytics = () => {
                 counting={Count}
                 display={displyansidebar}
                 onflip ={flipboard}
+                showtactic ={showtactic}
+                pvtrying ={pvtrying}
             />
         </div>
     );

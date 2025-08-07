@@ -19,7 +19,7 @@ function App() {
       <Route path='/matches' element = {<Matchpage />} />
       <Route path='/home' element ={<Homepage />} />
       <Route path='/analysis' element ={<Analytics />} />
-      <Route path ='/Dashboard' element ={<Dashboard />} />
+      <Route path ='/Dashboard' element ={<Dashboard name="Jonathan"/>} />
     </Routes>
     </div>
     </Router>

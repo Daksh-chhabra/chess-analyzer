@@ -12,6 +12,10 @@ const Sidebars = () => {
         navigate("/home");
     }
 
+    const dboard =() =>
+    {
+        navigate("/Dashboard");
+    }
     const [isCollapsed,setIsCollapsed] = useState(false);
     const toggleSidebar  =  ()=>{
         setIsCollapsed(!isCollapsed);
@@ -22,6 +26,7 @@ const Sidebars = () => {
         <div className="Logo ">{!isCollapsed && <h1 > Fchess</h1>}</div>
         <div className="Home"><button  onClick={clicked}>{!isCollapsed && <h1> Home</h1>}</button></div>
         <div className ="Matches"><button onClick={handleclick}> {!isCollapsed && <h1 > Matches</h1>}</button></div>
+        <div className="Dashboard"><button onClick={dboard}>{!isCollapsed && <h1> Dashboard</h1>}</button></div>
     
         </div>
     )

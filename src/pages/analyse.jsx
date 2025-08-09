@@ -11,7 +11,7 @@ import GameSummaryBox from "../components/startingevals.jsx";
 
 const Analytics = () => {
     const location = useLocation();
-    const { pgn = "", moves = [], bestmoves = [], grading = [], evalbar = [], cpbar = [], userevalrating = "", oppevalrating = "", userrating = "", opprating = "", userusername = "", oppusername = "", whiteacpl = "", blackacpl = "", grademovenumber = [], userwinpercents = [], blackgradeno = [],pvfen =[] } = location.state || {};
+    const { pgn = "", moves = [], bestmoves = [], grading = [], evalbar = [], cpbar = [], userevalrating = "", oppevalrating = "", userrating = "", opprating = "", userusername = "", oppusername = "", whiteacpl = "", blackacpl = "", grademovenumber = [], userwinpercents = [], blackgradeno = [],pvfen =[] ,booknames = [] } = location.state || {};
     const [whiteuname, setwhiteuname] = useState("White Player");
     const [blackuname, setblackuname] = useState("Black Player");
     const [Count, setCount] = useState(0);
@@ -494,6 +494,7 @@ console.log("pvfen",pvfen[pvindex]);
                 onflip ={flipboard}
                 showtactic ={showtactic}
                 pvtrying ={pvtrying}
+                booknames = {booknames}
             />
         </div>
     );

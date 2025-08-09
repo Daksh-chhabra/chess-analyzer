@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const Ansidebar = ({ onIncrease, onDecrease, onReset, movelist, pgn,counting,display ,onflip ,showtactic ,pvtrying}) => {
+const Ansidebar = ({ onIncrease, onDecrease, onReset, movelist, pgn,counting,display ,onflip ,showtactic ,pvtrying ,booknames}) => {
  const myarray = movelist.slice(0, counting);
  const [opening,setopening] = useState("");
 
@@ -15,7 +15,7 @@ const match = pgn.match(/\[ECOUrl\s*"\s*https:\/\/www\.chess\.com\/openings\/(.+
 if (match && match[1]) {
   setopening(match[1]);
 } else {
-  setopening("");
+  setopening(booknames[counting]);
 }
  }
  getopening();

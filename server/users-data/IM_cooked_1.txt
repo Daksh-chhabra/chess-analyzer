@@ -847,6 +847,34 @@
         "uuid": "05b7c4f6-0add-11ee-a012-afc25f5bfa15"
       },
       "eco": "https://www.chess.com/openings/Scandinavian-Defense-2.e5-c5"
+    },
+    {
+      "url": "https://www.chess.com/game/live/141685049868",
+      "pgn": "[Event \"Live Chess\"]\n[Site \"Chess.com\"]\n[Date \"2025.08.09\"]\n[Round \"-\"]\n[White \"IlAlessandro\"]\n[Black \"IM_cooked_1\"]\n[Result \"0-1\"]\n[CurrentPosition \"1k1r3r/ppp2p2/4pb2/7p/5Q2/P1NP3b/1PP2PqN/1R2R1K1 w - - 2 20\"]\n[Timezone \"UTC\"]\n[ECO \"B01\"]\n[ECOUrl \"https://www.chess.com/openings/Scandinavian-Defense-Closed-2...dxe4-3.Nxe4\"]\n[UTCDate \"2025.08.09\"]\n[UTCTime \"18:28:54\"]\n[WhiteElo \"950\"]\n[BlackElo \"998\"]\n[TimeControl \"60\"]\n[Termination \"IM_cooked_1 won by checkmate\"]\n[StartTime \"18:28:54\"]\n[EndDate \"2025.08.09\"]\n[EndTime \"18:29:53\"]\n[Link \"https://www.chess.com/game/live/141685049868\"]\n\n1. e4 {[%clk 0:00:59.1]} 1... d5 {[%clk 0:00:59.7]} 2. Nc3 {[%clk 0:00:58.4]} 2... dxe4 {[%clk 0:00:58.5]} 3. Nxe4 {[%clk 0:00:57.4]} 3... Nc6 {[%clk 0:00:58.1]} 4. Nc3 {[%clk 0:00:56.3]} 4... Bf5 {[%clk 0:00:57.3]} 5. Bb5 {[%clk 0:00:55.2]} 5... Qd6 {[%clk 0:00:54.3]} 6. Bxc6+ {[%clk 0:00:54.6]} 6... Qxc6 {[%clk 0:00:53.3]} 7. Nf3 {[%clk 0:00:54.4]} 7... Nf6 {[%clk 0:00:50.2]} 8. d3 {[%clk 0:00:53.6]} 8... e6 {[%clk 0:00:49.4]} 9. Bg5 {[%clk 0:00:52.7]} 9... Be7 {[%clk 0:00:47.5]} 10. Bxf6 {[%clk 0:00:52]} 10... Bxf6 {[%clk 0:00:47.4]} 11. Qd2 {[%clk 0:00:51.6]} 11... O-O-O {[%clk 0:00:45.9]} 12. O-O {[%clk 0:00:49.9]} 12... h6 {[%clk 0:00:44.2]} 13. Rab1 {[%clk 0:00:49]} 13... Kb8 {[%clk 0:00:42.7]} 14. a3 {[%clk 0:00:48.3]} 14... g5 {[%clk 0:00:41.8]} 15. Rfe1 {[%clk 0:00:44.9]} 15... h5 {[%clk 0:00:40.3]} 16. h3 {[%clk 0:00:42.6]} 16... g4 {[%clk 0:00:39.6]} 17. Nh2 {[%clk 0:00:41.9]} 17... gxh3 {[%clk 0:00:38.5]} 18. gxh3 {[%clk 0:00:40.3]} 18... Bxh3 {[%clk 0:00:37.7]} 19. Qf4 {[%clk 0:00:36.3]} 19... Qg2# {[%clk 0:00:36.2]} 0-1\n",
+      "time_control": "60",
+      "end_time": 1754764193,
+      "rated": true,
+      "tcn": "mCZJbsJCsC5QCs6LfH7RHQRQgv!Tlt0ScM90MT0Tdl86eg3Vab65iq2MfeVNpxMEvpExoxLxlDQo",
+      "uuid": "b43dc0e0-754e-11f0-ae92-a246ef01000f",
+      "initial_setup": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "fen": "1k1r3r/ppp2p2/4pb2/7p/5Q2/P1NP3b/1PP2PqN/1R2R1K1 w - - 2 20",
+      "time_class": "bullet",
+      "rules": "chess",
+      "white": {
+        "rating": 950,
+        "result": "checkmated",
+        "@id": "https://api.chess.com/pub/player/ilalessandro",
+        "username": "IlAlessandro",
+        "uuid": "af510f78-c0a3-11ee-bba4-ff754a4f39e1"
+      },
+      "black": {
+        "rating": 998,
+        "result": "win",
+        "@id": "https://api.chess.com/pub/player/im_cooked_1",
+        "username": "IM_cooked_1",
+        "uuid": "0719e046-5ca6-11f0-88ad-b7a56484ccb9"
+      },
+      "eco": "https://www.chess.com/openings/Scandinavian-Defense-Closed-2...dxe4-3.Nxe4"
     }
   ]
 }

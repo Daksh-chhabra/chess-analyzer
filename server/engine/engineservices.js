@@ -17,7 +17,7 @@ export async function analyzefen(fen) {
     engine.stdin.write("isready\n");
     engine.stdin.write(`position fen ${fen}\n`);
     engine.stdin.write("go depth 15\n");
-    //engine.stdin.write("go movetime 100\n");
+    //engine.stdin.write("go movetime 10\n");
 
     engine.stdout.on("data", (data) => {
       const output = data.toString();

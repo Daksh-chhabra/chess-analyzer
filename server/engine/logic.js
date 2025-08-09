@@ -249,15 +249,19 @@ for(let i = 0; i< pvhistory.length; i++)
   return fen.split(' ')[0]; 
 }
 const bookfens = openings.map(o=> o.fen);
+const openingname = openings.map(o => o.name);
+let booknames = [];
 
 for(let i =0; i<fens.length ; i++)
 {
   const trimmedfen =trimFen(fens[i]);
     //console.log(`Checking fen[${i}]:`, trimmedfen);
   //console.log(`Is in bookfens?`, bookfens.includes(fens[i]));
+  const bookIndex = bookfens.indexOf(trimmedfen);
   if(bookfens.includes(trimmedfen))
   {
     actualgrading[i] = "Book";
+    booknames.push(openingname[bookIndex]);
   }
 }
 
@@ -433,5 +437,5 @@ for(let i =0; i<fens.length ; i++)
   console.log("white rating ", acplToRating(whiteACPL));
   console.log("black rating ", acplToRating(blackACPL));
   //console.log("Grades:", grades);
-  return { bestMoves, actualgrading, blackACPL, whiteACPL, blackrating, whiterating, userevals, diffed, grademovenumbers, userwinpercents, blackgradeno ,pvfen };
+  return { bestMoves, actualgrading, blackACPL, whiteACPL, blackrating, whiterating, userevals, diffed, grademovenumbers, userwinpercents, blackgradeno ,pvfen ,booknames };
 }

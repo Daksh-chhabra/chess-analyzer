@@ -68,7 +68,7 @@ function CreateCards(props) {
                     const result = await dep.json();
                         const userrated =  result.whiterating 
                         const opprated = result.blackrating 
-                    Navigate("/analysis" ,{state : {pgn :pgnfromuser , bestmoves : result.bestmoves, moves :result.moves ,whiteacpl : result.whiteacpl ,blackacpl : result.blackacpl ,grading : result.grades , evalbar : result. cpforevalbar ,cpbar :result.cpbar ,userwinpercents : result.userwinpercents , userrated :userrated ,opprated :opprated} });
+                    Navigate("/analysis" ,{state : {pgn :pgnfromuser , bestmoves : result.bestmoves, moves :result.moves ,whiteacpl : result.whiteacpl ,blackacpl : result.blackacpl ,grading : result.grades , evalbar : result. cpforevalbar ,cpbar :result.cpbar ,userwinpercents : result.userwinpercents , userrated :userrated ,opprated :opprated ,pvfen : result.pvfen,booknames: result.booknames} });
                 }
                 
                 

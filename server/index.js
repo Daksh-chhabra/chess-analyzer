@@ -141,9 +141,11 @@ app.post("/pgnfromuser" ,async (req ,res) =>
             cpbar :bestmovedfromuser.diffed,
             grademovenumber : bestmovedfromuser.grademovenumbers,
             userwinpercents : bestmovedfromuser.userwinpercents,
-            blackgradeno : bestmovedfromuser.blackgradeno
+            blackgradeno : bestmovedfromuser.blackgradeno,
+            pvfen : bestmovedfromuser.pvfen,
+            booknames :bestmovedfromuser.booknames
             
-        });
+        }); 
     }
     catch(error)
     {

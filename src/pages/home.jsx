@@ -10,11 +10,13 @@ const Homepage = () =>{
         <div className="home">
         
         <Sidebars />
+        <div className="card-container">
         <div className="card">
         <CreateCards  image ={chessLogo} platform ="chess.com" action ="fetch"/>
         </div>
         <div className="card">
         <CreateCards image  ={PGN} platform ="Import PGN" action ="analyze" />
+        </div>
         </div>
         </div>
     );

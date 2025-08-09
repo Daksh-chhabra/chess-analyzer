@@ -45,7 +45,7 @@ const Analytics = () => {
     const interval =setInterval(() => {
         setpvframe((prev) =>
         {
-            if(prev < Math.min(5, currentpv.length) ) return prev +1;
+            if(prev < Math.min(13, currentpv.length) ) return prev +1;
             clearInterval(interval);
             return prev;
         });
@@ -289,7 +289,8 @@ const currentfens =  fens ;
 
     
      const pvoptions = {
-        position :pvtrying && currentpv ? currentpv[pvframe] || new Chess().fen() : new Chess().fen()
+        position :pvtrying && currentpv ? currentpv[pvframe] || new Chess().fen() : new Chess().fen(),
+        boardOrientation :boardOrientation
     }
 
 

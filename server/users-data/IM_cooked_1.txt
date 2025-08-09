@@ -819,6 +819,34 @@
         "uuid": "0719e046-5ca6-11f0-88ad-b7a56484ccb9"
       },
       "eco": "https://www.chess.com/openings/Queens-Pawn-Opening-Chigorin-Variation-2...Nf6-3.Bf4-Bf5-4.e3"
+    },
+    {
+      "url": "https://www.chess.com/game/live/141682677982",
+      "pgn": "[Event \"Live Chess\"]\n[Site \"Chess.com\"]\n[Date \"2025.08.09\"]\n[Round \"-\"]\n[White \"IM_cooked_1\"]\n[Black \"Logshome\"]\n[Result \"0-1\"]\n[CurrentPosition \"2r3k1/1p4pp/p3pp2/2r5/3p4/P2P2QP/q1P1NPP1/2R3K1 w - - 0 23\"]\n[Timezone \"UTC\"]\n[ECO \"B01\"]\n[ECOUrl \"https://www.chess.com/openings/Scandinavian-Defense-2.e5-c5\"]\n[UTCDate \"2025.08.09\"]\n[UTCTime \"17:17:03\"]\n[WhiteElo \"1400\"]\n[BlackElo \"1431\"]\n[TimeControl \"600\"]\n[Termination \"Logshome won by resignation\"]\n[StartTime \"17:17:03\"]\n[EndDate \"2025.08.09\"]\n[EndTime \"17:20:14\"]\n[Link \"https://www.chess.com/game/live/141682677982\"]\n\n1. e4 {[%clk 0:09:59.9]} 1... d5 {[%clk 0:09:58]} 2. e5 {[%clk 0:09:57.4]} 2... c5 {[%clk 0:09:56.6]} 3. Nf3 {[%clk 0:09:51.5]} 3... Nc6 {[%clk 0:09:55.4]} 4. Bb5 {[%clk 0:09:47]} 4... Bg4 {[%clk 0:09:52.7]} 5. h3 {[%clk 0:09:44.6]} 5... Bxf3 {[%clk 0:09:48.5]} 6. Qxf3 {[%clk 0:09:44.5]} 6... Rc8 {[%clk 0:09:46.2]} 7. Nc3 {[%clk 0:09:33.6]} 7... e6 {[%clk 0:09:45.2]} 8. d3 {[%clk 0:09:30.4]} 8... Ne7 {[%clk 0:09:42.9]} 9. Bg5 {[%clk 0:09:23.8]} 9... Qd7 {[%clk 0:09:36.9]} 10. O-O {[%clk 0:09:21.9]} 10... a6 {[%clk 0:09:35.7]} 11. Bxc6 {[%clk 0:09:10.6]} 11... Nxc6 {[%clk 0:09:35.6]} 12. a3 {[%clk 0:09:07.1]} 12... Nxe5 {[%clk 0:09:34.1]} 13. Qg3 {[%clk 0:08:56.2]} 13... Bd6 {[%clk 0:09:32.1]} 14. Bf4 {[%clk 0:08:55.3]} 14... O-O {[%clk 0:09:28.2]} 15. b4 {[%clk 0:08:51.6]} 15... Rc6 {[%clk 0:09:06.2]} 16. Bxe5 {[%clk 0:08:50.3]} 16... Bxe5 {[%clk 0:09:04]} 17. Qxe5 {[%clk 0:08:49.9]} 17... f6 {[%clk 0:08:56.1]} 18. Qg3 {[%clk 0:08:44.1]} 18... d4 {[%clk 0:08:54.6]} 19. Ne2 {[%clk 0:08:32.2]} 19... Qd5 {[%clk 0:08:49.4]} 20. bxc5 {[%clk 0:08:30.7]} 20... Rxc5 {[%clk 0:08:48.2]} 21. Rfc1 {[%clk 0:08:24.1]} 21... Rfc8 {[%clk 0:08:46.1]} 22. Ra2 {[%clk 0:08:21.6]} 22... Qxa2 {[%clk 0:08:44.8]} 0-1\n",
+      "time_control": "600",
+      "end_time": 1754760014,
+      "rated": true,
+      "tcn": "mCZJCKYIgv5QfH6EpxEvdv46bs0Slt!0cM7ZegWOHQ0QiqQKvw9RMD8!jz6QDKRKwK1TKwJBsmZJzIQIfc96aiJi",
+      "uuid": "aad9edf5-7544-11f0-8fff-9244c801000f",
+      "initial_setup": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "fen": "2r3k1/1p4pp/p3pp2/2r5/3p4/P2P2QP/q1P1NPP1/2R3K1 w - - 0 23",
+      "time_class": "rapid",
+      "rules": "chess",
+      "white": {
+        "rating": 1400,
+        "result": "resigned",
+        "@id": "https://api.chess.com/pub/player/im_cooked_1",
+        "username": "IM_cooked_1",
+        "uuid": "0719e046-5ca6-11f0-88ad-b7a56484ccb9"
+      },
+      "black": {
+        "rating": 1431,
+        "result": "win",
+        "@id": "https://api.chess.com/pub/player/logshome",
+        "username": "Logshome",
+        "uuid": "05b7c4f6-0add-11ee-a012-afc25f5bfa15"
+      },
+      "eco": "https://www.chess.com/openings/Scandinavian-Defense-2.e5-c5"
     }
   ]
 }

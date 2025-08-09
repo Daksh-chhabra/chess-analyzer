@@ -107,6 +107,9 @@ return () => clearInterval(interval);
             if (typeof g === "string" && g === "Blunder") {
                 const IconComponent = iconMap[g];
                 anotate.push(< IconComponent className="icon-svg" />);
+            }if (typeof g === "string" && g === "Book") {
+                const IconComponent = iconMap[g];
+                anotate.push(< IconComponent className="icon-svg" />);
             }
         }
     }

@@ -1,6 +1,7 @@
 import { Chess } from "chess.js";
 import { analyzefen } from "./engineservices.js";
 import { getEvalFromFen, /*gradeMovesFromFens */ } from "./evalservice.js";
+import { openings } from "./openings.js";
 
 function addDefaultPromotion(move, chess) {
   if (typeof move !== "string" || move.includes("=")) return move;
@@ -228,13 +229,13 @@ for(let i = 0; i< pvhistory.length; i++)
     else if (diff >= 100) {
       actualgrading.push("Inaccuracy");
     }
-    else if (diff >= 50) {
+    else if (diff >= 40) {
       actualgrading.push("Okay");
     }
-    else if (diff >= 10) {
+    else if (diff >= 5) {
       actualgrading.push("Good");
     }
-    else if (diff > 0) {
+    else if (diff > 0 ) {
       actualgrading.push("Great");
     }
     else {
@@ -243,6 +244,25 @@ for(let i = 0; i< pvhistory.length; i++)
 
 
   }
+  function trimFen(fen) {
+  if (!fen) return null;
+  return fen.split(' ')[0]; 
+}
+const bookfens = openings.map(o=> o.fen);
+
+for(let i =0; i<fens.length ; i++)
+{
+  const trimmedfen =trimFen(fens[i]);
+    //console.log(`Checking fen[${i}]:`, trimmedfen);
+  //console.log(`Is in bookfens?`, bookfens.includes(fens[i]));
+  if(bookfens.includes(trimmedfen))
+  {
+    actualgrading[i] = "Book";
+  }
+}
+
+
+
 
 
   let whiteCP = 0;

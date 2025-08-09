@@ -18,6 +18,7 @@ const iconMap = {
   Good: Excellent,    
   Great: GreatFind,    
   Best: Best,
+  Book :Book,
 };
 
 export default iconMap;

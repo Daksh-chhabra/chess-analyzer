@@ -17,6 +17,7 @@ const Dashboard = ({name}) =>
 
         <div className="welcome">
          <header><h1>Welcome Back {name}</h1></header>
+         <div className="details"></div>
             
             <div className="griddiv">
                 <Dboardcard heading={"Opening Stats"} route = {"/Opening"} />

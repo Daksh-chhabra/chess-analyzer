@@ -875,6 +875,34 @@
         "uuid": "0719e046-5ca6-11f0-88ad-b7a56484ccb9"
       },
       "eco": "https://www.chess.com/openings/Scandinavian-Defense-Closed-2...dxe4-3.Nxe4"
+    },
+    {
+      "url": "https://www.chess.com/game/live/141723320378",
+      "pgn": "[Event \"Live Chess\"]\n[Site \"Chess.com\"]\n[Date \"2025.08.10\"]\n[Round \"-\"]\n[White \"IM_cooked_1\"]\n[Black \"Babelx\"]\n[Result \"0-1\"]\n[CurrentPosition \"5rk1/p1p2pp1/3n3p/8/8/2PPR2P/P5P1/3R3K w - - 0 31\"]\n[Timezone \"UTC\"]\n[ECO \"B01\"]\n[ECOUrl \"https://www.chess.com/openings/Scandinavian-Defense-2.e5\"]\n[UTCDate \"2025.08.10\"]\n[UTCTime \"18:08:20\"]\n[WhiteElo \"971\"]\n[BlackElo \"985\"]\n[TimeControl \"60\"]\n[Termination \"Babelx won on time\"]\n[StartTime \"18:08:20\"]\n[EndDate \"2025.08.10\"]\n[EndTime \"18:10:29\"]\n[Link \"https://www.chess.com/game/live/141723320378\"]\n\n1. e4 {[%clk 0:00:59.9]} 1... d5 {[%clk 0:00:59.9]} 2. e5 {[%clk 0:00:58.6]} 2... d4 {[%clk 0:00:59.1]} 3. Nf3 {[%clk 0:00:56.8]} 3... Nc6 {[%clk 0:00:59]} 4. Bc4 {[%clk 0:00:55.3]} 4... Bg4 {[%clk 0:00:58.4]} 5. h3 {[%clk 0:00:54.1]} 5... Bxf3 {[%clk 0:00:56.7]} 6. Qxf3 {[%clk 0:00:54]} 6... Nxe5 {[%clk 0:00:55.9]} 7. Qxb7 {[%clk 0:00:50.1]} 7... Nxc4 {[%clk 0:00:54.2]} 8. d3 {[%clk 0:00:48.9]} 8... Nd6 {[%clk 0:00:52.8]} 9. Qc6+ {[%clk 0:00:44]} 9... Qd7 {[%clk 0:00:48.4]} 10. Qxa8+ {[%clk 0:00:43]} 10... Nc8 {[%clk 0:00:48.1]} 11. Qf3 {[%clk 0:00:40.6]} 11... Nf6 {[%clk 0:00:47.5]} 12. O-O {[%clk 0:00:39.4]} 12... e5 {[%clk 0:00:47.1]} 13. Bg5 {[%clk 0:00:37.5]} 13... Be7 {[%clk 0:00:47]} 14. Bxf6 {[%clk 0:00:36.6]} 14... Bxf6 {[%clk 0:00:46.5]} 15. Re1 {[%clk 0:00:36.1]} 15... O-O {[%clk 0:00:46]} 16. Nd2 {[%clk 0:00:34.6]} 16... Nd6 {[%clk 0:00:45.6]} 17. Ne4 {[%clk 0:00:33.1]} 17... Nf5 {[%clk 0:00:44.2]} 18. Nc5 {[%clk 0:00:29.4]} 18... Qd6 {[%clk 0:00:42]} 19. Nb7 {[%clk 0:00:28.3]} 19... Qd7 {[%clk 0:00:40.5]} 20. c3 {[%clk 0:00:26.1]} 20... Nh4 {[%clk 0:00:37.9]} 21. Qg3 {[%clk 0:00:22.6]} 21... dxc3 {[%clk 0:00:33.2]} 22. bxc3 {[%clk 0:00:21.5]} 22... Qd5 {[%clk 0:00:29.2]} 23. f3 {[%clk 0:00:18.7]} 23... Qxb7 {[%clk 0:00:27.8]} 24. Rad1 {[%clk 0:00:14.2]} 24... e4 {[%clk 0:00:24.8]} 25. fxe4 {[%clk 0:00:12.1]} 25... Qb6+ {[%clk 0:00:23]} 26. Kh1 {[%clk 0:00:10.4]} 26... Qd6 {[%clk 0:00:20.5]} 27. e5 {[%clk 0:00:08.8]} 27... Bxe5 {[%clk 0:00:17.4]} 28. Rxe5 {[%clk 0:00:06.6]} 28... h6 {[%clk 0:00:11.6]} 29. Re3 {[%clk 0:00:05.5]} 29... Nf5 {[%clk 0:00:10]} 30. Qxd6 {[%clk 0:00:01.9]} 30... Nxd6 {[%clk 0:00:08.2]} 0-1\n",
+      "time_control": "60",
+      "end_time": 1754849429,
+      "rated": true,
+      "tcn": "mCZJCKJBgv5QfA6EpxEvdvQKvXKAltARXQ7ZQ4R64v!Teg0KcM90MT0Tfe8!bl6RlCRLCIZRIXRZksLFvwBsjsZJnvJXadKCvCXPghPRCKTKeK3VKuFLwRLR",
+      "uuid": "ff905e39-7614-11f0-8fff-9244c801000f",
+      "initial_setup": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "fen": "5rk1/p1p2pp1/3n3p/8/8/2PPR2P/P5P1/3R3K w - - 0 31",
+      "time_class": "bullet",
+      "rules": "chess",
+      "white": {
+        "rating": 971,
+        "result": "timeout",
+        "@id": "https://api.chess.com/pub/player/im_cooked_1",
+        "username": "IM_cooked_1",
+        "uuid": "0719e046-5ca6-11f0-88ad-b7a56484ccb9"
+      },
+      "black": {
+        "rating": 985,
+        "result": "win",
+        "@id": "https://api.chess.com/pub/player/babelx",
+        "username": "Babelx",
+        "uuid": "9caced44-abb7-11ed-bf12-97f555512f3d"
+      },
+      "eco": "https://www.chess.com/openings/Scandinavian-Defense-2.e5"
     }
   ]
 }

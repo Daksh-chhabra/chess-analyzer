@@ -15,14 +15,14 @@ const match = pgn.match(/\[ECOUrl\s*"\s*https:\/\/www\.chess\.com\/openings\/(.+
 if (match && match[1]) {
   setopening(match[1]);
 } else {
-  setopening(booknames[counting]);
+  setopening(booknames[booknames.length-1]);
 }
  }
  getopening();
-},[pgn]);
+},[pgn ,counting ,booknames] );
 
-
-
+console.log("counting",counting );
+console.log("booknames",booknames);
 
     useEffect(() => {
         const handleKeyDown = (e) => {

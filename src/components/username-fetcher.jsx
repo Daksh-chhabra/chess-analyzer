@@ -9,8 +9,8 @@ import { Chess } from "chess.js";
 function CreateCards(props) {
     const [loading, setLoading] = useState(false)
     const Navigate = useNavigate();
-    const [username, setusername] = useState("")
-    const [pgnfromuser, setpgnfromuser] = useState("")
+    const [username, setusername] = useState("");
+    const [pgnfromuser, setpgnfromuser] = useState("");
     const handleclick = async () => {
 
         if (props.action === "fetch") {
@@ -30,7 +30,7 @@ function CreateCards(props) {
                         return;
                     }
                     localStorage.setItem("currentUser", username);
-                    setLoading(false);
+                    
                     Navigate("/matches");
                 }
                 catch (error) {
@@ -66,9 +66,20 @@ function CreateCards(props) {
                         return ;
                     }
                     const result = await dep.json();
-                        const userrated =  result.whiterating 
-                        const opprated = result.blackrating 
-                    Navigate("/analysis" ,{state : {pgn :pgnfromuser , bestmoves : result.bestmoves, moves :result.moves ,whiteacpl : result.whiteacpl ,blackacpl : result.blackacpl ,grading : result.grades , evalbar : result. cpforevalbar ,cpbar :result.cpbar ,userwinpercents : result.userwinpercents , userrated :userrated ,opprated :opprated ,pvfen : result.pvfen,booknames: result.booknames} });
+                    const currentUser = localStorage.getItem("currentUser");
+                    
+                    //console.log("pgn",result.pgn);
+                    const whiteName = result.pgn.match(/\[White\s+"([^"]+)"\]/)[1];
+                    const blackName = result.pgn.match(/\[Black\s+"([^"]+)"\]/)[1];
+                     const isWhite = whiteName.toLowerCase() === currentUser.toLowerCase();
+                     
+                        const userevalrating =  isWhite ? result.whiterating : result.blackrating
+                        const oppevalrating = isWhite ? result.blackrating  :result.whiterating
+                        const userrated = isWhite ?  result.pgn.match(/\[WhiteElo\s+"(\d+)"\]/)[1] :  result.pgn.match(/\[BlackElo\s+"(\d+)"\]/)[1]
+                        const opprated = isWhite ? result.pgn.match(/\[BlackElo\s+"(\d+)"\]/)[1] : result.pgn.match(/\[WhiteElo\s+"(\d+)"\]/)[1]
+                        console.log("userrated",userrated);
+                        console.log("opprated",opprated);
+                    Navigate("/analysis" ,{state : {pgn :pgnfromuser , bestmoves : result.bestmoves, moves :result.moves ,whiteacpl : result.whiteacpl ,blackacpl : result.blackacpl ,grading : result.grades , evalbar : result. cpforevalbar ,cpbar :result.cpbar ,userwinpercents : result.userwinpercents , userevalrating :userevalrating ,oppevalrating:oppevalrating ,pvfen : result.pvfen,booknames: result.booknames ,grademovenumber : result.grademovenumber ,blackgradeno :result.blackgradeno ,userevalrating : userevalrating ,oppevalrating :oppevalrating, userusername : whiteName ,oppusername :blackName ,userrating :userrated ,opprating :opprated } });
                 }
                 
                 

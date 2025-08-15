@@ -237,6 +237,31 @@ function pgnfromarraymoves()
     }
 }
 
+
+
+app.get("/refresh", async (req, res) => {
+    if (!name) return res.status(400).send("No username stored yet");
+
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+    const filePath = path.join(__dirname, 'users-data', `${name}.txt`);
+
+    try {
+        const rep = await axios.get(`https://api.chess.com/pub/player/${name}/games/${currentYear}/${currentMonth.toString().padStart(2, '0')}`);
+        fs.writeFileSync(filePath, JSON.stringify(rep.data, null, 2), 'utf8');
+        res.send(`${name} data refreshed successfully`);
+    } catch (error) {
+        console.error("Error fetching data:", error.message);
+        res.status(500).send("Failed to refresh data");
+    }
+});
+
+
+
+
+
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

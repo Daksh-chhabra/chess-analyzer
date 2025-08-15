@@ -70,7 +70,7 @@ function CreateCards(props) {
                     
                     //console.log("pgn",result.pgn);
                     const whiteName = result.pgn.match(/\[White\s+"([^"]+)"\]/)[1];
-                    const blackName = result.pgn.match(/\[Black\s+"([^"]+)"\]/)[1];
+                   const blackName = result.pgn.match(/\[Black\s+"([^"]+)"\]/)[1];
                      const isWhite = whiteName.toLowerCase() === currentUser.toLowerCase();
                      
                         const userevalrating =  isWhite ? result.whiterating : result.blackrating

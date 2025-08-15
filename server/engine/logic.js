@@ -235,15 +235,24 @@ for(let i = 0; i< pvhistory.length; i++)
     else if (diff >= 5) {
       actualgrading.push("Good");
     }
-    else if (diff > 0 ) {
+    /*else if (diff > 0 ) {
       actualgrading.push("Great");
-    }
+    }*/
     else {
       actualgrading.push("Best");
     }
 
 
   }
+  for(let i =0; i<actualgrading.length -1; i++)
+  {
+    if(diff[i] === 0 && Math.abs((userwinpercents[i] - userwinpercents[i+1])) >3  && actualgrading[i] === "Best")
+    {
+      actualgrading[i] = "Great"
+    }
+  }
+
+
   function trimFen(fen) {
   if (!fen) return null;
   return fen.split(' ')[0]; 

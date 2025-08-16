@@ -13,7 +13,7 @@ import 'nprogress/nprogress.css';
 let Moves = [];
 
 
-function Matchtable() {
+function Matchtable(rf) {
 
   const [userrated, setuserrated] = useState("");
   const [opprated, setopprated] = useState("");
@@ -39,7 +39,7 @@ function Matchtable() {
         })
         .catch(err => console.error("couldnt get Data", err));
     }
-  }, []);
+  }, [rf]);
 
   const analyze = async (game) => {
 

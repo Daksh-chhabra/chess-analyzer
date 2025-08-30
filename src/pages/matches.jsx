@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Sidebars from "../components/sidebar";
 import Matchtable from "../components/matchtable";
 import './pages-css/match.css'
+import { API_URL } from "../pathconfig";
 
 const Matchpage =()=>{
     const [refreshcount ,setrefreshcount] = useState(0);
@@ -15,7 +16,7 @@ const Matchpage =()=>{
             setrefreshcount( c=> c+1);
             console.log("rfc",refreshcount);
     try {
-        const res = await fetch("http://localhost:5000/refresh");
+        const res = await fetch(`${API_URL}/refresh`);
         const text = await res.text();
         console.log(text); 
     } catch (err) {

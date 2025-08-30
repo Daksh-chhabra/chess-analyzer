@@ -1,5 +1,6 @@
 import { UciEngine } from "./engine/logic.js";
 import { Chess } from "chess.js";
+import { API_URL } from "./pathconfig.js";
 
 console.log("Imported createStockfishService =", UciEngine);
 
@@ -7,7 +8,7 @@ async function analyte() {
     let stockfishService;
     try {
         console.log("Calling /analyzewithstockfish...");
-        const response = await fetch("http://localhost:5000/analyzewithstockfish", {
+        const response = await fetch(`${API_URL}/analyzewithstockfish`, {
             method: "POST",
             headers: { 'Content-Type': "application/json" },
             body: JSON.stringify({})
@@ -65,7 +66,7 @@ for (let i = 0; i < results.length; i++) {
         }
 
         // Step 4: Send everything together into wasmresults
-        await fetch("http://localhost:5000/wasmresults", {
+        await fetch(`${API_URL}/wasmresults`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 

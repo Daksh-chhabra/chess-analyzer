@@ -3,6 +3,7 @@ import './css/card.css';
 import { Navigate, useNavigate } from "react-router-dom";
 import Matchpage from "../pages/matches";
 import { Chess } from "chess.js";
+import { API_URL } from "../pathconfig";
 
 
 
@@ -17,7 +18,7 @@ function CreateCards(props) {
             setLoading(true);
             if (typeof username === "string") {
                 try {
-                    const res = await fetch("http://localhost:5000/username", {
+                    const res = await fetch(`${API_URL}/username`, {
                         method: "POST", headers: {
                             "Content-Type": "application/json",
                         },
@@ -29,7 +30,7 @@ function CreateCards(props) {
                         setLoading(false);
                         return;
                     }
-                    const replied = await fetch ('http://localhost:5000/statsuser',{
+                    const replied = await fetch (`${API_URL}/statsuser`,{
                         method : "POST",
                         headers : {"Content-Type" : "application/json"},
                         body : JSON.stringify({username}),
@@ -58,7 +59,7 @@ function CreateCards(props) {
 
             if (typeof pgnfromuser === "string" ) {
                 try {
-                    const dep = await fetch("http://localhost:5000/pgnfromuser", {
+                    const dep = await fetch(`${API_URL}/pgnfromuser`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",

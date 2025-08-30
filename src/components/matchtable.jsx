@@ -10,6 +10,7 @@ import {
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import analyte from "../wasmanalysis";
+import { API_URL } from "../pathconfig";
 
 let Moves = [];
 
@@ -32,7 +33,7 @@ function Matchtable(rf) {
     const username = localStorage.getItem("currentUser");
     setCurrentUser(`${username}`);
     if (username) {
-      fetch(`http://localhost:5000/userdata/${username}`)
+      fetch(`${API_URL}/userdata/${username}`)
         .then(res => res.json())
         .then(reply => {
           setGames(reply.games);
@@ -56,7 +57,7 @@ function Matchtable(rf) {
 
     try {
       const pgn = game.pgn;
-      const resp = await fetch(`http://localhost:5000/pgn`, {
+      const resp = await fetch(`${API_URL}/pgn`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

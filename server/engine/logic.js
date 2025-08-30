@@ -59,6 +59,7 @@ export async function handlemovelist(mdata) {
   }
 
   mdata = sanToUciMoves(mdata);
+  //console.log("mdata",mdata);
 
   let diff = [];
   let diffed = [];
@@ -125,6 +126,8 @@ export async function handlemovelist(mdata) {
 
   let actualgrading = [];
 
+
+
   function grading(value, useWin = false) {
     if (useWin) {
       if (value >= 30) actualgrading.push("Blunder");
@@ -137,8 +140,8 @@ export async function handlemovelist(mdata) {
       if (value >= 300) actualgrading.push("Blunder");
       else if (value >= 200) actualgrading.push("Mistake");
       else if (value >= 100) actualgrading.push("Inaccuracy");
-      else if (value >= 40) actualgrading.push("Okay");
-      else if (value >= 15) actualgrading.push("Good");
+      else if (value >= 35) actualgrading.push("Okay");
+      else if (value >= 5) actualgrading.push("Good");
       else actualgrading.push("Best");
     }
   }
@@ -176,9 +179,7 @@ for (let i = 0; i < userevals.length - 1; i++) {
     }
   }
 
-  for (let i = 0; i < actualgrading.length - 1; i++) {
-    if (mdata[i] === bestMoves[i + 1]) actualgrading[i] = "Best";
-  }
+
 
   for (let i = 0; i < actualgrading.length - 1; i++) {
     if (diff[i] === 0 && Math.abs(userwinpercents[i] - userwinpercents[i + 1]) > 3 && actualgrading[i] === "Best") {
@@ -193,6 +194,16 @@ for (let i = 0; i < userevals.length - 1; i++) {
   }
 }
 convertLostMateToBlunder(actualgrading);
+
+for (let i = 0; i < mdata.length ; i++) {
+if(bestMoves[i] === mdata[i+1])
+{
+  actualgrading[i] = "Best"
+  //console.log(" moves matched ",mdata[i+1], bestMoves[i]);
+}
+}
+
+
   function trimFen(fen) {
     if (!fen) return null;
     return fen.split(' ')[0];

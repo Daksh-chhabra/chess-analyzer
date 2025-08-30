@@ -7,7 +7,7 @@ console.log("Imported createStockfishService =", UciEngine);
 async function analyte() {
     let stockfishService;
     try {
-        console.log("Calling /analyzewithstockfish...");
+        //console.log("Calling /analyzewithstockfish...");
         const response = await fetch(`${API_URL}/analyzewithstockfish`, {
             method: "POST",
             headers: { 'Content-Type': "application/json" },
@@ -16,14 +16,14 @@ async function analyte() {
 
         if (!response.ok) throw new Error(`HTTP error ${response.status}`);
         const data = await response.json();
-        console.log("Data received from /analyzewithstockfish:", data);
+        //console.log("Data received from /analyzewithstockfish:", data);
 
         stockfishService = await UciEngine.create("stockfish-17.js", 2);
         const { fens } = data;
         const results = [];
 
         for (const fen of fens) {
-            console.log("Analyzing FEN with Stockfish:", fen);
+           // console.log("Analyzing FEN with Stockfish:", fen);
             const analysis = await stockfishService.analyzeFen(fen, { depth: 15 });
             results.push({ fen, analysis });
         }
@@ -31,7 +31,7 @@ async function analyte() {
         const bestfens = [];
 for (let i = 0; i < results.length; i++) {
     if (i === results.length - 1) {
-        console.log("Skipping last fen in bestfens");
+        //console.log("Skipping last fen in bestfens");
         continue;
     }
 
@@ -64,8 +64,6 @@ for (let i = 0; i < results.length; i++) {
             const bestanalysis = await stockfishService.analyzeFen(bestfen, { depth: 15 });
             bestresults.push({ fen: bestfen, analysis: bestanalysis });
         }
-
-        // Step 4: Send everything together into wasmresults
         await fetch(`${API_URL}/wasmresults`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },

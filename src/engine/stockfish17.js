@@ -11,6 +11,9 @@ export class Stockfish17 {
     const multiThread = isMultiThreadSupported();
     if (!multiThread) console.log("Single thread mode");
 
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if (isMobile) lite = true;
+
     const enginePath =  `stockfish-17${lite ? "-lite" : ""}${multiThread ? "" : "-single"}.js`;
 
 

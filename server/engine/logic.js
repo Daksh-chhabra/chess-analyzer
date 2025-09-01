@@ -16,8 +16,9 @@ function addDefaultPromotion(move, chess) {
   return move;
 }
 
-export async function handlemovelist(mdata) {
+export async function handlemovelist(mdata ,username) {
   console.log("got data from index.js", mdata);
+  console.log("username from handlemovelist",username);
 
   const chess = new Chess();
   const fens = [];
@@ -33,7 +34,8 @@ export async function handlemovelist(mdata) {
     }
   }
 
-  const res = await fetch("http://localhost:5000/getAnalysis", {
+
+  const res = await fetch(`http://localhost:5000/getAnalysis?username=${encodeURIComponent(username)}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" }
   });
@@ -65,16 +67,22 @@ export async function handlemovelist(mdata) {
   let diffed = [];
 
   for (let i = 0; i < userevals.length; i++) {
-    const userVal = userevals[i + 1];
-    const bestVal = bestevalcp[i];
-    if (typeof userVal === "number" && typeof bestVal === "number") {
-      const differ = Math.abs(bestVal - userVal);
+    //const userVal = userevals[i + 1];
+    //const bestVal = bestevalcp[i];
+    if (typeof userevals[i +1] === "number" && typeof bestevalcp[i] === "number") {
+      const differ = Math.abs(bestevalcp[i] - userevals[i+1]);
       diff.push(differ);
-      diffed.push(bestVal - userVal);
-    } else {
+      //diffed.push(bestVal - userVal);
+    }
+    else if(typeof userevals[i +1] === "string" && typeof bestevalcp[i] === "number")
+      {
+        diff.push(bestevalcp[i]);
+      } 
+      else {
       diff.push(null);
       diffed.push(null);
     }
+    
   }
 
   const cleaneddiff = diff.filter(val => val !== null && !isNaN(val));
@@ -224,8 +232,8 @@ if(bestMoves[i] === mdata[i+1])
   let whiteCP = 0, blackCP = 0, whitemoves = 1, blackmoves = 0;
 
   function ratings(diff) {
-    for (let i = 1; i < diff.length - 1; i++) {
-      const iswhite = (i % 2 === 1);
+    for (let i = 0; i < diff.length - 1; i++) {
+      const iswhite = (i % 2 === 0);
       if (!iswhite) {
         blackCP += diff[i];
         blackmoves++;

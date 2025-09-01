@@ -42,7 +42,7 @@ function CreateCards(props) {
                     Navigate("/matches");
                 }
                 catch (error) {
-                    console.log("errorws");
+                    console.log("errorws",error);
                 }
 
 
@@ -59,12 +59,13 @@ function CreateCards(props) {
 
             if (typeof pgnfromuser === "string" ) {
                 try {
+                    const currentUser = localStorage.getItem("currentUser");
                     const dep = await fetch(`${API_URL}/pgnfromuser`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                         },
-                        body: JSON.stringify({ pgnfromuser,username })
+                        body: JSON.stringify({ pgnfromuser : pgnfromuser,username : currentUser })
                     });
 
                     if(!dep.ok)
@@ -74,7 +75,7 @@ function CreateCards(props) {
                         return ;
                     }
                     const result = await dep.json();
-                    const currentUser = localStorage.getItem("currentUser");
+                    
                     
                     //console.log("pgn",result.pgn);
                     const whiteName = result.pgn.match(/\[White\s+"([^"]+)"\]/)[1];

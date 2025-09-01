@@ -44,6 +44,10 @@ function Matchtable(rf) {
   }, [rf]);
 
   const analyze = async (game) => {
+        if (!currentUser) {
+      console.error("No current user in localStorage");
+      return;
+    }
 
     const isWhite = game.white.username.toLowerCase() === currentUser.toLowerCase();
     console.log('isWhite',isWhite);
@@ -56,14 +60,22 @@ function Matchtable(rf) {
     setLoading(true);
 
     try {
-      const pgn = game.pgn;
-      const resp = await fetch(`${API_URL}/pgn`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ pgn })
-      });
+      const currentUser = localStorage.getItem("currentUser");
+      let pgn = game.pgn;
+      //console.log("pgn",pgn);
+      console.log("matchtabeleone pgn endpoint hit ");
+      console.log("currentUser:", currentUser);
+    console.log("PGN:", pgn);
+    console.log("API_URL:", API_URL);
+
+  const resp = await fetch(`${API_URL}/pgn`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pgn, username: currentUser }),
+  });
+  console.log("Fetch completed. Status:", resp.status);
+
+      console.log("Fetch completed. Status:", resp.status);
       if (!resp.ok) {
         throw new Error(`PGN save failed: ${await resp.text()}`);
       }
@@ -82,7 +94,7 @@ function Matchtable(rf) {
       const blackgradeno =dataweget.blackgradeno;
       const pvfen = dataweget.pvfen
       console.log("data in matchtable that is coming", dataweget);
-      //console.log(Movesweget);
+      console.log(Movesweget);
       console.log("blackgrade no" ,blackgradeno);
       console.log("grading here ", grading);
       (navigate('/analysis', { state: { pgn: pgn, moves: Movesweget, bestmoves: bestmoves, userrating: userrated, grading: grading, opprating: opprated, evalbar: cpforevalbar ,cpbar : cpbar ,userevalrating : userevalrating , oppevalrating :oppevalrating ,userusername :userusername ,oppusername :oppusername,whiteacpl :whiteacpl,blackacpl:blackacpl ,grademovenumber : grademovenumber,userwinpercents :userwinpercents,blackgradeno :blackgradeno ,pvfen:pvfen,isWhite : isWhite } }));

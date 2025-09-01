@@ -16,7 +16,8 @@ const Matchpage =()=>{
             setrefreshcount( c=> c+1);
             console.log("rfc",refreshcount);
     try {
-        const res = await fetch(`${API_URL}/refresh`);
+        const username = localStorage.getItem("currentUser");
+        const res = await fetch(`${API_URL}/refresh?username=${encodeURIComponent(username)}`);
         const text = await res.text();
         console.log(text); 
     } catch (err) {

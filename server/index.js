@@ -10,7 +10,7 @@ import { handlemovelist } from './engine/logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-var name =""
+ /*var name =""
 let npg;
 let mArray =[];
 let png;
@@ -18,7 +18,7 @@ let pgnfromuserArray = [];
 let statsUser = "";
 let cachedPGNData = null;
 let storedanalysis=[];
-let bestanalysis =[];
+let bestanalysis =[];*/
 
 
 
@@ -39,26 +39,59 @@ app.use(express.json());
     res.send("backend is running ");
 });*/
 
+const sessions = {};
+
+function getUserSession(username) {
+  if (!sessions[username]) {
+    sessions[username] = {
+      npg: null,
+      mArray: [],
+      png: null,
+      pgnfromuserArray: [],
+      statsUser: "",
+      cachedPGNData: null,
+      storedanalysis: [],
+      bestanalysis: []
+    };
+  }
+  return sessions[username];
+}
+
 app.post("/username", async (req, res) => {
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
     const uname = req.body.username;
+    const sessionUser = getUserSession(uname);
     const filePath = path.join(__dirname, 'users-data', `${uname}.txt`);
     console.log(`${uname}`);
-    name =(`${uname}`);
+    sessionUser.name =(`${uname}`);
+
+    let fetchMonth = currentMonth;
+let fetchYear = currentYear;
+if (new Date().getDate() === 1) { 
+    fetchMonth = currentMonth - 1;
+    if (fetchMonth === 0) {
+        fetchMonth = 12;
+        fetchYear = currentYear - 1;
+    }
+}
     
     try {
-        const rep = await axios.get(`https://api.chess.com/pub/player/${uname}/games/${currentYear}/${currentMonth.toString().padStart(2, '0')}`);
+       const rep = await axios.get(`https://api.chess.com/pub/player/${uname}/games/${fetchYear}/${fetchMonth.toString().padStart(2,'0')}`);
         fs.writeFileSync(filePath,JSON.stringify(rep.data,null,2),'utf8');
         console.log("file created succesfully");
         res.send(`${uname}received succesfully`);
         return ;
     }
     catch (error) {
-        res.status(404).send("invalid username or user not found");
-         console.log("error Fetching Data",error.message);
-        return ;
+    if (error.response) {
+        console.log("Chess.com responded with:", error.response.status, error.response.data);
+        res.status(error.response.status).send(error.response.data);
+    } else {
+        console.log("Request failed:", error.message);
+        res.status(500).send("Internal error fetching data");
+    }
        
     }
     
@@ -67,18 +100,22 @@ app.post("/username", async (req, res) => {
 
 app.post("/statsuser", (req, res) => {
     const usedname = req.body.username;
+    const sessionUser = getUserSession(usedname);
+    sessionUser.statsUser = usedname;
     if (!usedname || typeof usedname !== "string") {
         return res.status(400).json({ error: "Invalid username" });
     }
-    statsUser = usedname; 
+    //statsUser = usedname; 
     console.log("Stats user set to:", usedname);
     res.json({ message: `Stats user ${usedname} stored successfully` });
 });
 
 
 app.get("/statsuser", (req, res) => {
+      const uname = req.query.username;
+  const sessionUser = getUserSession(uname);
     if (!statsUser) return res.status(404).json({ error: "No stats user set" });
-    res.json({ usedname: statsUser });
+    res.json({  usedname: sessionUser.statsUser });
 })
 
 
@@ -116,23 +153,33 @@ app.get("/userdata/:username" , (req,res) =>
 });
 app.post("/pgn",async (req,res) =>
 {
-    const pgn = req.body.pgn;
+    const { username, pgn } = req.body;
+        if (!username || !pgn) {
+      throw new Error("Missing username or PGN");
+    }
+     console.log("username:", username);
+     const sessionUser = getUserSession(username);
     if(typeof pgn !== "string" || !pgn.trim()) {
         return res.status(403).send("Missing or invalid PGN");
     }
-    npg = {pgn};
+
+    sessionUser.npg = {pgn};
+    //console.log("pgn receive",sessionUser.npg);
+    
     if(pgn)
     {
         //res.status(200).send("PGN received succesfully");
-        cachedPGNData = null;
-        if (!npg || !npg.pgn) {
+        sessionUser.cachedPGNData = null;
+        //console.log(sessionUser.npg)
+        if (!sessionUser.npg /*|| !sessionUser.npg.pgn*/) {
         return res.status(400).json({ error: "No PGN data provided yet." });
     }
-    movesarray();
+    movesarray(username);
     try{
-        const bestmoved = await handlemovelist(mArray);
-        cachedPGNData = { pgn : npg,
-            moves: mArray,
+      //console.log('sessionuser.marray',sessionUser.mArray);
+        const bestmoved = await handlemovelist(sessionUser.mArray,username);
+        sessionUser.cachedPGNData = { pgn : sessionUser.npg,
+            moves: sessionUser.mArray,
             bestmoves :bestmoved.bestMoves,
             whiteacpl: bestmoved.whiteACPL,
             blackacpl: bestmoved.blackACPL,
@@ -146,27 +193,13 @@ app.post("/pgn",async (req,res) =>
             blackgradeno : bestmoved.blackgradeno,
             pvfen : bestmoved.pvfen}
 
-        res.status(200).json({
-            pgn : npg,
-            moves: mArray,
-            bestmoves :bestmoved.bestMoves,
-            whiteacpl: bestmoved.whiteACPL,
-            blackacpl: bestmoved.blackACPL,
-            blackrating :bestmoved.blackrating,
-            whiterating : bestmoved.whiterating,
-            grades : bestmoved.actualgrading,
-            cpforevalbar :bestmoved.userevals,
-            cpbar :bestmoved.diffed,
-            grademovenumber : bestmoved.grademovenumbers,
-            userwinpercents : bestmoved.userwinpercents,
-            blackgradeno : bestmoved.blackgradeno,
-            pvfen : bestmoved.pvfen
-            
-        });
+        res.status(200).json(
+        sessionUser.cachedPGNData);
+        //console.log("session user cached pgndata",sessionUser.cachedPGNData)
     }
     catch(err)
     {
-        cachedPGNData = null;
+        sessionUser.cachedPGNData = null;
         console.log("couldnt get best moves",err);
     }
     
@@ -177,7 +210,8 @@ app.post("/pgn",async (req,res) =>
     }
     else
     {
-        res.status(400).send("ERROR receiving PGN");
+            console.error("Error in /pgn endpoint:", err); 
+    res.status(500).json({ error: err.message });  
     }
 });
 
@@ -187,11 +221,13 @@ app.post("/pgn",async (req,res) =>
 
 app.post("/analyzewithstockfish",async (req,res) =>
 {
-storedanalysis = [];
+     const { username } = req.body;
+     const sessionUser = getUserSession(username);
+sessionUser.storedanalysis = [];
  console.log("POST /analyzewithstockfish hit");
  const chess = new Chess();
  const fens = [];
-for (const move of mArray) {
+for (const move of sessionUser.mArray) {
  try {
 chess.move(move);
 fens.push(chess.fen());
@@ -207,18 +243,21 @@ console.warn("Invalid move:", move, err.message);
 app.post("/wasmresults",async (req,res) =>
 {
  console.log("wasmresults hit");
-    storedanalysis = req.body;
-//console.log("storedanalysis updated:", storedanalysis);
+  const { username} = req.body;
+  console.log("usernameinwasm results",username);
+  const sessionUser = getUserSession(username);
+  sessionUser.storedanalysis =  req.body;
+      //console.log("sessionUser.storedanalysis:", sessionUser.storedanalysis);
+    //console.log("typeof storedanalysis:", typeof sessionUser.storedanalysis);
  res.json({status : "ok"});
 });
 
 
-
-function waitForResults(intervalMs = 500) {
+function waitForResults(sessionUser,intervalMs = 500) {
   return new Promise((resolve) => {
     const check = () => {
-      if (storedanalysis && Object.keys(storedanalysis).length > 0) {
-        return resolve(storedanalysis);
+      if (sessionUser.storedanalysis?.results?.length > 0){
+        return resolve(sessionUser.storedanalysis);
       }
       setTimeout(check, intervalMs);
     };
@@ -228,110 +267,34 @@ function waitForResults(intervalMs = 500) {
 
 
 
-
-
-
-
-
-
-
 app.get("/getAnalysis", async (req, res) => {
-  try {
-    const analysis = await waitForResults(); 
+  try {  
+    const uname = req.query.username;
+    console.log("uname ",uname);
+    const sessionUser = getUserSession(uname);
+    const analysis = await waitForResults(sessionUser); 
+    //console.log("analysis is this ",analysis);
     res.json(analysis);
+     //console.log("sessionUser.storedanalysis:", sessionUser.storedanalysis);
+    //console.log("typeof storedanalysis:", typeof sessionUser.storedanalysis);
   } catch (err) {
     console.error("Error in /getAnalysis:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
-
-
-
-
-
-
-
-/* app.post("/analyzebestmoveswithstockfish", async (req, res) => {
-  console.log("POST /analyzebestmoveswithstockfish hit");
-
-  try {
-    const results = await waitForResults(); 
-
-    const bestMoves = results.map(r => r.analysis?.bestmove || null);
-    const fens = results.map(r => r.fen || null);
-    let bestfens =[];
-     for (let i = 0; i < bestMoves.length - 1; i++) {
-    const fen = fens[i];
-    const bestmove = bestMoves[i];
-
-    if (!fen || !bestmove) {
-      bestfens.push(null);
-      continue;
-    }
-
-    const chess = new Chess();
-    chess.load(fen);
-
-
-    const moveResult = chess.move(bestmove);
-
-    if (moveResult) {
-      bestfens.push(chess.fen());
-    } else {
-      console.warn(`Invalid best move '${bestmove}' for FEN:`, fen);
-      bestfens.push(null);
-    }
-  }
-
-    res.json({ bestfens });
-  } catch (err) {
-    console.error("Error in /analyzebestmoveswithstockfish:", err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
-app.post("/wasmbestresults",async (req,res) =>
-{
- console.log("wasmbestresults hit");
-    bestanalysis =req.body.results;
- console.log("storedanalysis updated:", bestanalysis);
- res.json({status : "ok"});
-});
-
-
-
-
-app.get("/getbestAnalysis", async (req, res) => {
-  try {
-    const bestresults = await waitForResults(); 
-    res.json({ bestresults });
-  } catch (err) {
-    console.error("Error in /getAnalysis:", err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-*/
-
-
-
-
-
-
-
-
-
 
 
 
 app.get("/pgnd", async (req, res) => {
+      const uname = req.query.username;
+  const sessionUser = getUserSession(uname);
     if (!npg || !npg.pgn) {
         return res.status(400).json({ error: "No PGN data available yet." });
     }
 
     try {
         res.status(200).json({
-        cachedPGNData
+        cachedPGNData: sessionUser.cachedPGNData
         });
     } catch (err) {
         console.error("Error recomputing stats:", err);
@@ -340,49 +303,23 @@ app.get("/pgnd", async (req, res) => {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.post("/pgnfromuser" ,async (req ,res) =>
 {
-    const pgnfromuser = req.body.pgnfromuser;
+    
+     const { username, pgnfromuser } = req.body;
+  const sessionUser = getUserSession(username);
+  sessionUser.png = { pgnfromuser };
     console.log("Received PGN from frontend:", pgnfromuser);
     if(typeof pgnfromuser !== "string" || !pgnfromuser.trim()) {
     return res.status(403).send("Missing or invalid PGN");
     }
-    png = {pgnfromuser}
     pgnfromarraymoves();
-    console.log(pgnfromuserArray);
+    console.log(sessionUser.pgnfromuserArray);
     try{
-        const bestmovedfromuser = await handlemovelist(pgnfromuserArray);
+        const bestmovedfromuser = await handlemovelist(sessionUser.pgnfromuserArray);
         res.status(200).json({
-            moves: pgnfromuserArray,
-            pgn :pgnfromuser,
+            moves: sessionUser.pgnfromuserArray,
+            pgn :sessionUser.pgnfromuser,
             bestmoves : bestmovedfromuser.bestMoves,
             whiteacpl: bestmovedfromuser.whiteACPL,
             blackacpl: bestmovedfromuser.blackACPL,
@@ -410,7 +347,9 @@ app.post("/pgnfromuser" ,async (req ,res) =>
 
 
 
-app.get("/grades" , async (req,res) =>
+
+
+/*app.get("/grades" , async (req,res) =>
 
 {
 
@@ -434,7 +373,7 @@ app.get("/grades" , async (req,res) =>
         console.log("981y");
         res.status(500).json({error:"no dataa"});
     }
-});
+}); */
 
 
 
@@ -445,10 +384,11 @@ app.get("/grades" , async (req,res) =>
 
 
 
-function movesarray()
+function movesarray(username)
 {
     
-    const fixedPgn = npg.pgn;
+        const sessionUser = getUserSession(username);
+       const fixedPgn = sessionUser.npg.pgn; 
     //console.log(fixedPgn);
 
     const chess = new Chess();
@@ -457,9 +397,9 @@ function movesarray()
     try{
         const ok = chess.loadPgn(fixedPgn);
         console.log("parsed",ok);
-         mArray = chess.history().map(m => m.replace(/[+#?!]+/g, ''));
+         sessionUser.mArray= chess.history().map(m => m.replace(/[+#?!]+/g, ''));
 
-        console.log(mArray)
+        console.log(sessionUser.mArray)
     }
     catch(err)
     {
@@ -468,9 +408,10 @@ function movesarray()
     
 
 }
-function pgnfromarraymoves()
+function pgnfromarraymoves(username)
 {
-    const fixedPgn = png.pgnfromuser;
+        const sessionUser = getUserSession(username);
+        const fixedPgn = sessionUser.png.pgnfromuser;
     //console.log(fixedPgn);
 
     const chess = new Chess();
@@ -479,7 +420,7 @@ function pgnfromarraymoves()
     try{
         const ok = chess.loadPgn(fixedPgn);
         console.log("parsed",ok);
-         pgnfromuserArray = chess.history().map(m => m.replace(/[+#?!]+/g, ''));
+         sessionUser.pgnfromuserArray = chess.history().map(m => m.replace(/[+#?!]+/g, ''));
 
         //console.log(pgnfromuserArray)
     }
@@ -492,17 +433,19 @@ function pgnfromarraymoves()
 
 
 app.get("/refresh", async (req, res) => {
-    if (!name) return res.status(400).send("No username stored yet");
+    if (!sessionUser.name) return res.status(400).send("No username stored yet");
 
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
     const filePath = path.join(__dirname, 'users-data', `${name}.txt`);
+      const uname = req.query.username;
+      const sessionUser = getUserSession(uname);
 
     try {
         const rep = await axios.get(`https://api.chess.com/pub/player/${name}/games/${currentYear}/${currentMonth.toString().padStart(2, '0')}`);
         fs.writeFileSync(filePath, JSON.stringify(rep.data, null, 2), 'utf8');
-        res.send(`${name} data refreshed successfully`);
+        res.send(`${sessionUser.name} data refreshed successfully`);
     } catch (error) {
         console.error("Error fetching data:", error.message);
         res.status(500).send("Failed to refresh data");

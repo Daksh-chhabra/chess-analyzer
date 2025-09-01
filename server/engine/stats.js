@@ -6,7 +6,11 @@ let pollingInterval;
 const stats = async() =>
 {
     try{
-        const reply = await axios.get("http://localhost:5000/pgnd")
+        const userResponse = await fetch('http://localhost:5000/statsuser');
+        const user = await userResponse.json();
+        const username = user.usedname;
+
+        const reply = await axios.get(`http://localhost:5000/pgnd?username=${encodeURIComponent(username)}`)
         statsweget =  reply.data;
 
             if (statsweget && statsweget.cachedPGNData ) {

@@ -5,13 +5,14 @@ import { API_URL } from "./pathconfig.js";
 console.log("Imported createStockfishService =", UciEngine);
 
 async function analyte() {
+    const username = localStorage.getItem("currentUser");
     let stockfishService;
     try {
         //console.log("Calling /analyzewithstockfish...");
         const response = await fetch(`${API_URL}/analyzewithstockfish`, {
             method: "POST",
             headers: { 'Content-Type': "application/json" },
-            body: JSON.stringify({})
+            body: JSON.stringify({username})
         });
 
         if (!response.ok) throw new Error(`HTTP error ${response.status}`);
@@ -71,7 +72,8 @@ for (let i = 0; i < results.length; i++) {
                 fens, 
                 results, 
                 bestfens, 
-                bestresults 
+                bestresults ,
+                username
             }),
         });
         console.log("All WASM results sent to backend");

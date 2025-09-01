@@ -74,10 +74,13 @@ export class UciEngine {
     let evalCp = null;
 
     for (const line of results) {
-      if (line.includes("score mate")) {
-        const match = line.match(/score mate (-?\d+)/);
-        if (match) evalCp = match[1].startsWith("-") ? null: null;
-      } else if (line.includes("score cp")) {
+  if (line.includes("score mate")) {
+    const match = line.match(/score mate (-?\d+)/);
+    if (match) {
+      const mateValue = parseInt(match[1], 10);
+      evalCp = `mate in ${mateValue}`.toLowerCase();
+    }
+  } else if (line.includes("score cp")) {
         const match = line.match(/score cp (-?\d+)/);
         if (match) evalCp = parseInt(match[1], 10);
       }

@@ -33,7 +33,7 @@ export async function handlemovelist(mdata ,username) {
       fens.push(null);
     }
   }
-
+sessionUser.chess = chess;
 
   const res = await fetch(`http://localhost:5000/getAnalysis?username=${encodeURIComponent(username)}`, {
     method: "GET",

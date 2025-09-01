@@ -24,12 +24,12 @@ export async function handlemovelist(mdata ,username ,sessionUser) {
   const fens = [];
 
   for (const move of mdata) {
-    const fixedMove = addDefaultPromotion(move, chess);
+    //const fixedMove = addDefaultPromotion(move, chess);
     try {
-      chess.move(fixedMove);
+      chess.move(move);
       fens.push(chess.fen());
     } catch (err) {
-      console.warn("Invalid move:", fixedMove, err.message);
+      console.warn("Invalid move:", move, err.message);
       fens.push(null);
     }
   }

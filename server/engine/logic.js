@@ -16,7 +16,7 @@ function addDefaultPromotion(move, chess) {
   return move;
 }
 
-export async function handlemovelist(mdata ,username) {
+export async function handlemovelist(mdata ,username ,sessionUser) {
   console.log("got data from index.js", mdata);
   console.log("username from handlemovelist",username);
 

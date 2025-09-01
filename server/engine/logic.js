@@ -23,16 +23,29 @@ export async function handlemovelist(mdata ,username ,sessionUser) {
   const chess = new Chess();
   const fens = [];
 
-  for (const move of mdata) {
-    //const fixedMove = addDefaultPromotion(move, chess);
+  let lastMove = Promise.resolve();
+function queueMove(move) {
+  lastMove = lastMove.then(() => {
     try {
-      chess.move(move);
-      fens.push(chess.fen());
+      return chess.move(move);
     } catch (err) {
       console.warn("Invalid move:", move, err.message);
-      fens.push(null);
+      return null;
     }
+  });
+  return lastMove;
+}
+
+for (const move of mdata) {
+  try {
+    const appliedMove = await queueMove(move); 
+    if (appliedMove) fens.push(chess.fen());
+    else fens.push(null);
+  } catch (err) {
+    console.warn("Invalid move:", move, err.message);
+    fens.push(null);
   }
+}
 sessionUser.chess = chess;
 
   const res = await fetch(`http://localhost:5000/getAnalysis?username=${encodeURIComponent(username)}`, {

@@ -40,6 +40,7 @@ app.use(express.json());
 });*/
 
 const sessions = {};
+const userFiles = {};
 
 function getUserSession(username) {
   if (!sessions[username]) {
@@ -79,7 +80,7 @@ if (new Date().getDate() === 1) {
     
     try {
        const rep = await axios.get(`https://api.chess.com/pub/player/${uname}/games/${fetchYear}/${fetchMonth.toString().padStart(2,'0')}`);
-        fs.writeFileSync(filePath,JSON.stringify(rep.data,null,2),'utf8');
+        userFiles[uname] = rep.data;
         console.log("file created succesfully");
         res.send(`${uname}received succesfully`);
         return ;
@@ -114,7 +115,7 @@ app.post("/statsuser", (req, res) => {
 app.get("/statsuser", (req, res) => {
       const uname = req.query.username;
   const sessionUser = getUserSession(uname);
-    if (!statsUser) return res.status(404).json({ error: "No stats user set" });
+    if (!sessionUser.statsUser) return res.status(404).json({ error: "No stats user set" });
     res.json({  usedname: sessionUser.statsUser });
 })
 
@@ -141,15 +142,11 @@ app.get("/userdata/:username" , (req,res) =>
 {
     const { username } = req.params;
     const filePath = path.join(__dirname,'users-data',`${username}.txt`);
-    fs.readFile(filePath,"utf-8",(err,data) =>
-    {
-        if(err)
-        {
-            console.log("error reading Data",err);
-            return res.status(500).send("error Reading User Data");
-        }
-        res.json(JSON.parse(data));
-    });
+const data = userFiles[username];
+if (!data) {
+    return res.status(404).send("No user data found");
+}
+res.json(data);
 });
 app.post("/pgn",async (req,res) =>
 {
@@ -288,9 +285,9 @@ app.get("/getAnalysis", async (req, res) => {
 app.get("/pgnd", async (req, res) => {
       const uname = req.query.username;
   const sessionUser = getUserSession(uname);
-    if (!npg || !npg.pgn) {
-        return res.status(400).json({ error: "No PGN data available yet." });
-    }
+if (!sessionUser.npg || !sessionUser.npg.pgn) {
+    return res.status(400).json({ error: "No PGN data available yet." });
+}
 
     try {
         res.status(200).json({
@@ -433,24 +430,25 @@ function pgnfromarraymoves(username)
 
 
 app.get("/refresh", async (req, res) => {
-    if (!sessionUser.name) return res.status(400).send("No username stored yet");
+    const uname = req.query.username;
+    if (!uname) return res.status(400).send("Missing username");
+
+    const sessionUser = getUserSession(uname);
 
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
-    const filePath = path.join(__dirname, 'users-data', `${name}.txt`);
-      const uname = req.query.username;
-      const sessionUser = getUserSession(uname);
 
     try {
-        const rep = await axios.get(`https://api.chess.com/pub/player/${name}/games/${currentYear}/${currentMonth.toString().padStart(2, '0')}`);
-        fs.writeFileSync(filePath, JSON.stringify(rep.data, null, 2), 'utf8');
-        res.send(`${sessionUser.name} data refreshed successfully`);
+        const rep = await axios.get(`https://api.chess.com/pub/player/${uname}/games/${currentYear}/${currentMonth.toString().padStart(2, '0')}`);
+        userFiles[uname] = rep.data; // ✅ replace fs
+        res.send(`${uname} data refreshed successfully`);
     } catch (error) {
         console.error("Error fetching data:", error.message);
         res.status(500).send("Failed to refresh data");
     }
 });
+
 
 app.use(express.static(path.join(__dirname, '../build')));
 

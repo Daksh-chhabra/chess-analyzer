@@ -1,9 +1,9 @@
 import { UciEngine } from "./logic.js";
-import { isMultiThreadSupported, isWasmSupported } from "./checker.js"; 
+import { isMultiThreadSupported, isWasmSupported, isMobileDevice } from "./checker.js"; 
 
 export class Stockfish17 {
 
-  static async create(lite = false, workersNb = 1) {
+  static async create(lite = true, workersNb = 1) {
     if (!Stockfish17.isSupported()) {
       throw new Error("Stockfish 17 is not supported in this environment");
     }
@@ -11,18 +11,19 @@ export class Stockfish17 {
     const multiThread = isMultiThreadSupported();
     if (!multiThread) console.log("Single thread mode");
 
-        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    if (isMobile) lite = true;
+    // Determine if user has a strong machine
+    const hardwareThreads = navigator.hardwareConcurrency || 2;
+    const deviceMemory = navigator.deviceMemory || 2; // in GB
+    const isStrongMachine = hardwareThreads >= 4 && deviceMemory >= 4 && !isMobileDevice();
 
-    const enginePath =  `stockfish-17${lite ? "-lite" : ""}${multiThread ? "" : "-single"}.js`;
+    // Use full engine if the machine is strong
+    lite = !isStrongMachine;
 
-
+    const enginePath = `stockfish-17${lite ? "-lite" : ""}${multiThread ? "" : "-single"}.js`;
     const engineName = lite ? "Stockfish17Lite" : "Stockfish17";
 
-  
     return UciEngine.create(enginePath, workersNb, engineName);
   }
-
 
   static isSupported() {
     return isWasmSupported();

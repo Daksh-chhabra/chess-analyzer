@@ -52,6 +52,7 @@ function getUserSession(username) {
       statsUser: "",
       cachedPGNData: null,
       storedanalysis: [],
+     chess: new Chess(),
       bestanalysis: []
     };
   }
@@ -174,7 +175,7 @@ app.post("/pgn",async (req,res) =>
     movesarray(username);
     try{
       //console.log('sessionuser.marray',sessionUser.mArray);
-        const bestmoved = await handlemovelist(sessionUser.mArray,username);
+        const bestmoved = await handlemovelist(sessionUser.mArray,username ,sessionUser);
         sessionUser.cachedPGNData = { pgn : sessionUser.npg,
             moves: sessionUser.mArray,
             bestmoves :bestmoved.bestMoves,

@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import Sidebars from './components/sidebar';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import Homepage from './pages/home';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Matchpage from './pages/matches';
@@ -11,8 +11,14 @@ import Opening from './pages/opening';
 import Gamestage from './pages/gamestage';
 import Gamestyle from './pages/gamestyle';
 import Piece from './pages/pieceanalysis';
+import { prewarmStockfish } from './wasmanalysis';
 
 function App() {
+
+  useEffect(() => {
+    prewarmStockfish(); 
+  }, []);
+  
   return (
     <Router>
     <div className="App">

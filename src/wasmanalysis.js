@@ -44,7 +44,7 @@ async function analyte() {
         stockfishService = await prewarmStockfish();
         const { fens } = data;
 
-        const results = await runInBatches(fens, 8, async (fen) => {
+        const results = await runInBatches(fens, getRecommendedWorkersNb(), async (fen) => {
             if (!fen) return { fen: null, analysis: null };
             const analysis = await stockfishService.analyzeFen(fen, { depth: 15 });
             return { fen, analysis };
@@ -74,7 +74,7 @@ async function analyte() {
             }
         }
 
-        const bestresults = await runInBatches(bestfens, 8, async (bestfen) => {
+        const bestresults = await runInBatches(bestfens, getRecommendedWorkersNb(), async (bestfen) => {
             if (!bestfen) return null;
             const bestanalysis = await stockfishService.analyzeFen(bestfen, { depth: 15 });
             return { fen: bestfen, analysis: bestanalysis };

@@ -90,7 +90,8 @@ export async function handlemovelist(mdata ,username) {
   let pvfen = [];
   for (let i = 0; i < pvhistory.length; i++) {
     const pvchess = new Chess(fens[i]);
-    const pvline = pvhistory[i];
+     const pvline = Array.isArray(pvhistory[i]) ? pvhistory[i] : [];
+    //const pvline = pvhistory[i];
     const thisLineFens = [pvchess.fen()];
     for (const move of pvline) {
       pvchess.move(move);
@@ -232,8 +233,8 @@ if(bestMoves[i] === mdata[i+1])
   let whiteCP = 0, blackCP = 0, whitemoves = 1, blackmoves = 0;
 
   function ratings(diff) {
-    for (let i = 0; i < diff.length - 1; i++) {
-      const iswhite = (i % 2 === 0);
+    for (let i = 1; i < diff.length - 1; i++) {
+      const iswhite = (i % 2 === 1);
       if (!iswhite) {
         blackCP += diff[i];
         blackmoves++;

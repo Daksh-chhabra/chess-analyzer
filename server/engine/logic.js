@@ -107,16 +107,20 @@ sessionUser.chess = chess;
     //const pvline = pvhistory[i];
     const thisLineFens = [pvchess.fen()];
 
-  for (const move of pvline) {
-    const applied = pvchess.move(move);
+for (const move of pvline) {
+  try {
+    const applied = pvchess.move(move); 
     if (applied) {
       thisLineFens.push(pvchess.fen());
     } else {
       console.warn(`Skipping invalid PV move: ${move} (game index ${i})`);
-      continue;
     }
+  } catch (err) {
+    console.warn(`Skipping invalid PV move (exception): ${move} (game index ${i})`);
   }
-    pvfen.push(thisLineFens);
+}
+
+pvfen.push(thisLineFens);
   }
 
   function getWinPercentageFromCp(cp) {

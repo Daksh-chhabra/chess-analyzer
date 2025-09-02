@@ -106,10 +106,16 @@ sessionUser.chess = chess;
      const pvline = Array.isArray(pvhistory[i]) ? pvhistory[i] : [];
     //const pvline = pvhistory[i];
     const thisLineFens = [pvchess.fen()];
-    for (const move of pvline) {
-      pvchess.move(move);
+
+  for (const move of pvline) {
+    const applied = pvchess.move(move);
+    if (applied) {
       thisLineFens.push(pvchess.fen());
+    } else {
+      console.warn(`Skipping invalid PV move: ${move} (game index ${i})`);
+      continue;
     }
+  }
     pvfen.push(thisLineFens);
   }
 

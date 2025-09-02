@@ -49,51 +49,65 @@ export class UciEngine {
     this.releaseWorker(worker);
   }
 
-  async analyzeFen(fen, { movetime = 2000, depth = null } = {}) {
-    const worker = this.acquireWorker();
+  async analyzeFen(fen, { movetime = 2000, depth = null, retries = 3 } = {}) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      const worker = this.acquireWorker();
 
-    let commands;
-    if (depth) {
-      commands = [`position fen ${fen}`, `go depth ${depth}`];
-    } else {
-      commands = [`position fen ${fen}`, `go movetime ${movetime}`];
-    }
-
-    const finalMessage = "bestmove";
-
-    if (!worker) {
-      return new Promise((resolve) => {
-        this.workerQueue.push({ commands, finalMessage, resolve });
-      });
-    }
-
-    const results = await sendCommandsToWorker(worker, commands, finalMessage);
-
-    let bestmove = null;
-    let pvhistory = [];
-    let evalCp = null;
-
-    for (const line of results) {
-  if (line.includes("score mate")) {
-    const match = line.match(/score mate (-?\d+)/);
-    if (match) {
-      const mateValue = parseInt(match[1], 10);
-      evalCp = `mate in ${mateValue}`.toLowerCase();
-    }
-  } else if (line.includes("score cp")) {
-        const match = line.match(/score cp (-?\d+)/);
-        if (match) evalCp = parseInt(match[1], 10);
+      let commands;
+      if (depth) {
+        commands = [`position fen ${fen}`, `go depth ${depth}`];
+      } else {
+        commands = [`position fen ${fen}`, `go movetime ${movetime}`];
       }
-      if (line.includes(" pv ")) {
-        pvhistory = line.split(" pv ")[1].trim().split(" ");
+
+      const finalMessage = "bestmove";
+
+      if (!worker) {
+        // Queue the job if no worker is ready
+        return new Promise((resolve) => {
+          this.workerQueue.push({ commands, finalMessage, resolve });
+        });
       }
-      if (line.startsWith("bestmove")) {
-        bestmove = line.split(" ")[1];
+
+      let results;
+      try {
+        results = await sendCommandsToWorker(worker, commands, finalMessage);
+      } catch (err) {
+        console.warn(`Stockfish crashed (attempt ${attempt}) for FEN: ${fen}`, err);
+        this.releaseWorker(worker);
+        if (attempt === retries) return null;
+        continue; // retry the same FEN
+      }
+
+      let bestmove = null;
+      let pvhistory = [];
+      let evalCp = null;
+
+      for (const line of results) {
+        if (line.includes("score mate")) {
+          const match = line.match(/score mate (-?\d+)/);
+          if (match) evalCp = `mate in ${parseInt(match[1], 10)}`;
+        } else if (line.includes("score cp")) {
+          const match = line.match(/score cp (-?\d+)/);
+          if (match) evalCp = parseInt(match[1], 10);
+        }
+        if (line.includes(" pv ")) {
+          pvhistory = line.split(" pv ")[1].trim().split(" ");
+        }
+        if (line.startsWith("bestmove")) {
+          bestmove = line.split(" ")[1];
+        }
+      }
+
+      this.releaseWorker(worker);
+
+      if (bestmove) {
+        return { bestmove, pvhistory, evalCp };
+      } else {
+        console.warn(`No bestmove found (attempt ${attempt}) for FEN: ${fen}`);
+        if (attempt === retries) return null; // push null after max retries
       }
     }
-
-    this.releaseWorker(worker);
-    return { bestmove, pvhistory, evalCp };
   }
 
   terminate() {

@@ -14,8 +14,8 @@ async function runInBatches(items, batchSize, fn) {
     }
     return results;
 }
-let stockfishServicePromise = null;
 
+let stockfishServicePromise = null;
 
 export const prewarmStockfish = () => {
   if (!stockfishServicePromise) {
@@ -44,7 +44,14 @@ async function analyte() {
         stockfishService = await prewarmStockfish();
         const { fens } = data;
 
-        const results = await runInBatches(fens, getRecommendedWorkersNb(), async (fen) => {
+        // Adjust workers if fens are very long
+        let recommendedWorkers = getRecommendedWorkersNb();
+        if (fens.length > 100) {
+            recommendedWorkers = Math.max(1, recommendedWorkers - 2); // never less than 1
+            console.log(`⚡ Reduced workers to ${recommendedWorkers} due to long game (${fens.length} moves)`);
+        }
+
+        const results = await runInBatches(fens, recommendedWorkers, async (fen) => {
             if (!fen) return { fen: null, analysis: null };
             const analysis = await stockfishService.analyzeFen(fen, { depth: 15 });
             return { fen, analysis };
@@ -74,7 +81,7 @@ async function analyte() {
             }
         }
 
-        const bestresults = await runInBatches(bestfens, getRecommendedWorkersNb(), async (bestfen) => {
+        const bestresults = await runInBatches(bestfens, recommendedWorkers, async (bestfen) => {
             if (!bestfen) return null;
             const bestanalysis = await stockfishService.analyzeFen(bestfen, { depth: 15 });
             return { fen: bestfen, analysis: bestanalysis };

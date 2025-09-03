@@ -42,7 +42,7 @@ export async function deleteDB() {
     req.onerror = (err) => reject(err);
   });
 }
-
+console.log('');
 export async function readFile(filename) {
   const db = await openFileDB();
   return new Promise((resolve, reject) => {

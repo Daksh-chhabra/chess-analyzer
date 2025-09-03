@@ -57,9 +57,9 @@ const API_URL = process.env.REACT_APP_API_UR;
 
   const bestMoves = bestMovesobj.map(r => r?.analysis?.bestmove || null);
   const pvhistory = bestMovesobj.map(r => r?.analysis?.pvhistory || null);
-  const evalcp = bestMovesobj.map(r => r?.analysis?.evalCp || null);
+  const evalcp = bestMovesobj.map(r => r?.analysis?.evalCp ?? null);
   let userevals = [...evalcp];
-  const bestEvalcp = bestresults.map(r => r?.analysis?.evalCp || null);
+  const bestEvalcp = bestresults.map(r => r?.analysis?.evalCp ?? null);
   let bestevalcp = [...bestEvalcp];
 
   function sanToUciMoves(movesSan) {

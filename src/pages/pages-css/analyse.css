@@ -1,0 +1,6 @@
+.evalbar {
+    position: relative;
+    left: 5.4%;
+    margin-top: 3.4%;
+    transition: height 1.4s ease;
+}

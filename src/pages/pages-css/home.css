@@ -1,0 +1,20 @@
+
+.home{
+    display: flex;
+}
+.card{
+
+
+
+    text-align: center;
+    margin-left: 5%;
+}
+.card-container{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    position: absolute;
+    left: 30%;
+    top: 25%;
+    gap: 45%;
+}

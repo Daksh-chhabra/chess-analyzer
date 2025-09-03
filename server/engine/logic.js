@@ -1,6 +1,6 @@
 import { Chess } from "chess.js";
 import { openings } from "./openings.js";
-import { API_URL } from "../pathconfig";
+import { API_URL } from "../../pathconfig";
 
 function addDefaultPromotion(move, chess) {
   if (typeof move !== "string" || move.includes("=")) return move;

@@ -37,7 +37,7 @@ function CreateCards(props) {
                         return;
                     }
                     const userData = await res.json();
-                    await deleteDB(); 
+                    //await deleteDB(); 
                     await saveFile(`${username}.json`, userData);
 
 

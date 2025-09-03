@@ -1,5 +1,6 @@
 import { Chess } from "chess.js";
 import { openings } from "./openings.js";
+import { API_URL } from "../pathconfig";
 
 function addDefaultPromotion(move, chess) {
   if (typeof move !== "string" || move.includes("=")) return move;
@@ -48,7 +49,7 @@ for (const move of mdata) {
 }
 sessionUser.chess = chess;
 
-  const res = await fetch(`http://localhost:5000/getAnalysis?username=${encodeURIComponent(username)}`, {
+  const res = await fetch(`${API_URL}/getAnalysis?username=${encodeURIComponent(username)}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" }
   });

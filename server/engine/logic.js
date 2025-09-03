@@ -47,7 +47,7 @@ for (const move of mdata) {
   }
 }
 sessionUser.chess = chess;
-const API_URL = process.env.API_URL;
+const API_URL = process.env.REACT_APP_API_UR;
   const res = await fetch(`${API_URL}/getAnalysis?username=${encodeURIComponent(username)}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" }

@@ -88,7 +88,7 @@ function getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay) {
 
       if (fullMove.captured) {
         capturedPieces[fullMove.color].push(fullMove.captured);
-        nonCapturingMovesTemp = 1;
+        nonCapturingMovesTemp = 0;
       } else {
         nonCapturingMovesTemp--;
         if (nonCapturingMovesTemp < 0) break;

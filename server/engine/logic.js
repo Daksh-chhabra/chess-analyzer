@@ -72,7 +72,7 @@ function getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay) {
   if (moves.length % 2 === 1) moves = moves.slice(0, -1);
 
   const captured = { w: [], b: [] };
-  let nonCapturingMovesTemp = 0;
+  let nonCapturingMovesTemp = 1;
 
   for (const move of moves) {
     try {
@@ -86,7 +86,8 @@ function getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay) {
 
       if (fullMove.captured) {
         captured[fullMove.color].push(fullMove.captured);
-        nonCapturingMovesTemp = 0;
+        nonCapturingMovesTemp = 1;
+        
       } else {
         nonCapturingMovesTemp--;
         if (nonCapturingMovesTemp < 0) break; 

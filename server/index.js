@@ -170,7 +170,9 @@ app.post("/pgn",async (req,res) =>
     if(pgn)
     {
         //res.status(200).send("PGN received succesfully");
-        sessionUser.cachedPGNData = null;
+                  sessionUser.cachedPGNData = null;
+  sessionUser.mArray = [];
+  sessionUser.storedanalysis = [];
         //console.log(sessionUser.npg)
         if (!sessionUser.npg /*|| !sessionUser.npg.pgn*/) {
         return res.status(400).json({ error: "No PGN data provided yet." });
@@ -224,7 +226,7 @@ app.post("/analyzewithstockfish",async (req,res) =>
 {
      const { username } = req.body;
      const sessionUser = getUserSession(username);
-sessionUser.storedanalysis = [];
+ sessionUser.storedanalysis = [];
  console.log("POST /analyzewithstockfish hit");
  const chess = new Chess();
  const fens = [];

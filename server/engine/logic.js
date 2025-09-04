@@ -152,12 +152,12 @@ export async function handlemovelist(mdata, username, sessionUser ,options = { u
     }
   }
   sessionUser.chess = chess;
-
+  const API_URL = process.env.REACT_APP_API_URL;
 
   const endpoint = options.userPGN ? "/getuserAnalysis" : "/getAnalysis";
-  console.log("Endpoint called:", `http://localhost:5000${endpoint}?username=${encodeURIComponent(username)}`);
+  console.log("Endpoint called:", `${API_URL}${endpoint}?username=${encodeURIComponent(username)}`);
 
-  const res = await fetch(`http://localhost:5000${endpoint}?username=${encodeURIComponent(username)}`, {
+  const res = await fetch(`${API_URL}${endpoint}?username=${encodeURIComponent(username)}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" }
   });

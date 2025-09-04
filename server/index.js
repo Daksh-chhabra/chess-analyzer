@@ -48,12 +48,15 @@ function getUserSession(username) {
       npg: null,
       mArray: [],
       png: null,
+      pnguser :null,
       pgnfromuserArray: [],
       statsUser: "",
       cachedPGNData: null,
       storedanalysis: [],
      chess: new Chess(),
-      bestanalysis: []
+      bestanalysis: [],
+      storedanalysisUser :[],
+      cachedPGNDatauser: null
     };
   }
   return sessions[username];
@@ -306,18 +309,18 @@ app.post("/pgnfromuser" ,async (req ,res) =>
     
      const { username, pgnfromuser } = req.body;
   const sessionUser = getUserSession(username);
-  sessionUser.png = { pgnfromuser };
+  sessionUser.pnguser = { pgnfromuser };
     console.log("Received PGN from frontend:", pgnfromuser);
     if(typeof pgnfromuser !== "string" || !pgnfromuser.trim()) {
     return res.status(403).send("Missing or invalid PGN");
     }
-    pgnfromarraymoves();
+    pgnfromarraymoves(username);
     console.log(sessionUser.pgnfromuserArray);
     try{
-        const bestmovedfromuser = await handlemovelist(sessionUser.pgnfromuserArray);
+        const bestmovedfromuser = await handlemovelist(sessionUser.pgnfromuserArray,username,sessionUser,{userPGN :true});
         res.status(200).json({
             moves: sessionUser.pgnfromuserArray,
-            pgn :sessionUser.pgnfromuser,
+            pgn :sessionUser.pnguser,
             bestmoves : bestmovedfromuser.bestMoves,
             whiteacpl: bestmovedfromuser.whiteACPL,
             blackacpl: bestmovedfromuser.blackACPL,
@@ -341,6 +344,79 @@ app.post("/pgnfromuser" ,async (req ,res) =>
 
 
 })
+
+function waitForPGNParsing(sessionUser, intervalMs = 100) {
+    return new Promise(resolve => {
+        const check = () => {
+            if (sessionUser.pgnfromuserArray.length > 0) return resolve();
+            setTimeout(check, intervalMs);
+        };
+        check();
+    });
+}
+
+
+
+
+app.post("/analyzewithstockfishuser", async (req, res) => {
+    const { username } = req.body;
+    const sessionUser = getUserSession(username);
+    sessionUser.storedanalysisUser = [];
+    console.log("POST /analyzewithstockfish/user hit");
+    await waitForPGNParsing(sessionUser);
+
+    const chess = new Chess();
+    const fens = [];
+    console.log("moves ke array bc",sessionUser.pgnfromuserArray)
+
+    for (const move of sessionUser.pgnfromuserArray) {
+        try {
+            chess.move(move);
+            fens.push(chess.fen());
+        } catch (err) {
+            console.warn("Invalid move:", move, err.message);
+            fens.push(null);
+        }
+    }
+
+    res.json({ fens });
+});
+
+app.post("/wasmresultsuser", async (req, res) => {
+    const { username } = req.body;
+    const sessionUser = getUserSession(username);
+    sessionUser.storedanalysisUser = req.body;
+    console.log("POST /wasmresults/user hit", username);
+    res.json({ status: "ok" });
+});
+
+
+function waitForUserResults(sessionUser, intervalMs = 500) {
+    return new Promise((resolve) => {
+        const check = () => {
+            if (sessionUser.storedanalysisUser?.results?.length > 0) {
+                return resolve(sessionUser.storedanalysisUser);
+            }
+            setTimeout(check, intervalMs);
+        };
+        check();
+    });
+}
+
+
+app.get("/getUserAnalysis", async (req, res) => {
+    try {  
+        const uname = req.query.username;
+        const sessionUser = getUserSession(uname);
+        const analysis = await waitForUserResults(sessionUser); 
+        res.json(analysis);
+        //console.log("res.json",res.json(analysis));
+    } catch (err) {
+        console.error("Error in /getUserAnalysis:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 
 
 
@@ -409,7 +485,7 @@ function movesarray(username)
 function pgnfromarraymoves(username)
 {
         const sessionUser = getUserSession(username);
-        const fixedPgn = sessionUser.png.pgnfromuser;
+        const fixedPgn = sessionUser.pnguser.pgnfromuser;
     //console.log(fixedPgn);
 
     const chess = new Chess();

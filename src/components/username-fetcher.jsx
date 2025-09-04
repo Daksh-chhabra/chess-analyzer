@@ -5,6 +5,7 @@ import Matchpage from "../pages/matches";
 import { Chess } from "chess.js";
 import { API_URL } from "../pathconfig";
 import { saveFile, readFile, deleteFile,deleteDB } from '../utils/fileStorage';
+import analyteUser from "../wasmanalysisfromuser";
 
 
 
@@ -37,8 +38,20 @@ function CreateCards(props) {
                         return;
                     }
                     const userData = await res.json();
-                    await deleteDB(); 
+                    //await deleteDB(); 
                     await saveFile(`${username}.json`, userData);
+
+                                if ("storage" in navigator && "estimate" in navigator.storage) {
+                const estimate = await navigator.storage.estimate();
+                console.log(`Usage: ${estimate.usage} bytes`);
+                console.log(`Quota: ${estimate.quota} bytes`);
+                if (estimate.usage && estimate.quota) {
+                    const percentUsed = ((estimate.usage / estimate.quota) * 100).toFixed(2);
+                    console.log(`Used: ${percentUsed}% of quota`);
+                }
+            } else {
+                console.log("Storage estimation not supported in this browser");
+            }
 
 
 
@@ -72,10 +85,14 @@ function CreateCards(props) {
         else if (props.action === "analyze") {
             const chess = new Chess();
             setLoading(true);
+                               console.log("Before calling analyteUser"); // <- log
+                 analyteUser();
+                    console.log("After calling analyteUser"); 
 
             if (typeof pgnfromuser === "string" ) {
                 try {
                     const currentUser = localStorage.getItem("currentUser");
+                    
                     const dep = await fetch(`${API_URL}/pgnfromuser`, {
                         method: "POST",
                         headers: {
@@ -83,6 +100,8 @@ function CreateCards(props) {
                         },
                         body: JSON.stringify({ pgnfromuser : pgnfromuser,username : currentUser })
                     });
+                        //const text = await dep.text(); 
+                    //console.log("Response text:", text);
 
                     if(!dep.ok)
                     {
@@ -91,17 +110,35 @@ function CreateCards(props) {
                         return ;
                     }
                     const result = await dep.json();
+                    console.log("result",result);
+
+                   //console.log("Before calling analyteUser"); 
+                await analyteUser();
+                    //console.log("After calling analyteUser"); 
                     
                     
                     //console.log("pgn",result.pgn);
-                    const whiteName = result.pgn.match(/\[White\s+"([^"]+)"\]/)[1];
-                   const blackName = result.pgn.match(/\[Black\s+"([^"]+)"\]/)[1];
-                     const isWhite = whiteName.toLowerCase() === currentUser.toLowerCase();
-                     
-                        const userevalrating =  isWhite ? result.whiterating : result.blackrating
-                        const oppevalrating = isWhite ? result.blackrating  :result.whiterating
-                        const userrated = isWhite ?  result.pgn.match(/\[WhiteElo\s+"(\d+)"\]/)[1] :  result.pgn.match(/\[BlackElo\s+"(\d+)"\]/)[1]
-                        const opprated = isWhite ? result.pgn.match(/\[BlackElo\s+"(\d+)"\]/)[1] : result.pgn.match(/\[WhiteElo\s+"(\d+)"\]/)[1]
+
+                    const pgnString = result.pgn?.pgnfromuser;
+if (!pgnString || typeof pgnString !== "string") {
+    console.error("PGN string is missing or invalid", result.pgn);
+    return;
+}
+const whiteName = pgnString.match(/\[White\s+"([^"]+)"\]/)[1];
+const blackName = pgnString.match(/\[Black\s+"([^"]+)"\]/)[1];
+
+const isWhite = whiteName.toLowerCase() === currentUser.toLowerCase();
+
+const userevalrating = isWhite ? result.whiterating : result.blackrating;
+const oppevalrating = isWhite ? result.blackrating : result.whiterating;
+
+const userrated = isWhite
+    ? pgnString.match(/\[WhiteElo\s+"(\d+)"\]/)[1]
+    : pgnString.match(/\[BlackElo\s+"(\d+)"\]/)[1];
+
+const opprated = isWhite
+    ? pgnString.match(/\[BlackElo\s+"(\d+)"\]/)[1]
+    : pgnString.match(/\[WhiteElo\s+"(\d+)"\]/)[1];
                         console.log("userrated",userrated);
                         console.log("opprated",opprated);
                     Navigate("/analysis" ,{state : {pgn :pgnfromuser , bestmoves : result.bestmoves, moves :result.moves ,whiteacpl : result.whiteacpl ,blackacpl : result.blackacpl ,grading : result.grades , evalbar : result. cpforevalbar ,cpbar :result.cpbar ,userwinpercents : result.userwinpercents , userevalrating :userevalrating ,oppevalrating:oppevalrating ,pvfen : result.pvfen,booknames: result.booknames ,grademovenumber : result.grademovenumber ,blackgradeno :result.blackgradeno ,userevalrating : userevalrating ,oppevalrating :oppevalrating, userusername : whiteName ,oppusername :blackName ,userrating :userrated ,opprating :opprated } });

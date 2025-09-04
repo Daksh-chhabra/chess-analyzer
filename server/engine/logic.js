@@ -128,7 +128,7 @@ function trimFen(fen) {
   return fen.split(' ')[0];
 }
 
-export async function handlemovelist(mdata, username, sessionUser) {
+export async function handlemovelist(mdata, username, sessionUser ,options = { userPGN: false }) {
   const chess = new Chess();
   const fens = [];
   let lastMove = Promise.resolve();
@@ -153,10 +153,16 @@ export async function handlemovelist(mdata, username, sessionUser) {
   }
   sessionUser.chess = chess;
 
-  const res = await fetch(`http://localhost:5000/getAnalysis?username=${encodeURIComponent(username)}`, {
+
+  const endpoint = options.userPGN ? "/getuserAnalysis" : "/getAnalysis";
+  console.log("Endpoint called:", `http://localhost:5000${endpoint}?username=${encodeURIComponent(username)}`);
+
+  const res = await fetch(`http://localhost:5000${endpoint}?username=${encodeURIComponent(username)}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" }
   });
+  //console.log("Response status:", res.status);
+  //console.log("Response text:", await res.text());
   const { results, bestresults } = await res.json();
   const bestMovesobj = results;
 
@@ -288,7 +294,7 @@ const isWhiteMove = i % 2 === 0;
       lastWin,
       currentWin,
       isWhiteMove
-    });*/
+    }); */
 
     if (isSacrifice && winDropOk) {
       //console.log(`✅ Brilliant triggered at move ${i}`);
@@ -463,7 +469,7 @@ const isWhiteMove = i % 2 === 0;
 
   const blackgradeno = [blackbest, blackmistake, blackblunder, blackokay, blackgood, blackgreat, blackInaccuracy,blackbrilliant];
 
-  console.log("userwin percetn ", userwinpercents);
+/*  console.log("userwin percetn ", userwinpercents);
   console.log("cploss", diff);
   console.log("user move evals", userevals);
   console.log("best eval cp ", bestevalcp);
@@ -472,7 +478,7 @@ const isWhiteMove = i % 2 === 0;
   console.log("black ACPL", blackACPL);
   console.log("white ACPL", whiteACPL);
   console.log("white rating ", acplToRating(whiteACPL));
-  console.log("black rating ", acplToRating(blackACPL));
+  console.log("black rating ", acplToRating(blackACPL));*/
 
   return { bestMoves: bestUciMoves, actualgrading, blackACPL, whiteACPL, blackrating, whiterating, userevals, diffed, grademovenumbers, userwinpercents, blackgradeno, pvfen, booknames };
 }

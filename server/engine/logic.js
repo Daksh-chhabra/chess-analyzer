@@ -74,7 +74,7 @@ function getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay) {
   }
 
   const capturedPieces = { w: [], b: [] };
-  let nonCapturingMovesTemp = 1;
+  let nonCapturingMovesTemp = 0;
 
   for (const move of moves) {
     try {

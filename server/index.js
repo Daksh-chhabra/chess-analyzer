@@ -309,7 +309,10 @@ app.post("/pgnfromuser" ,async (req ,res) =>
     
      const { username, pgnfromuser } = req.body;
   const sessionUser = getUserSession(username);
+  sessionUser.pgnfromuserArray = [];
   sessionUser.pnguser = { pgnfromuser };
+      sessionUser.cachedPGNDatauser = null; 
+    sessionUser.storedanalysisUser = [];
     console.log("Received PGN from frontend:", pgnfromuser);
     if(typeof pgnfromuser !== "string" || !pgnfromuser.trim()) {
     return res.status(403).send("Missing or invalid PGN");

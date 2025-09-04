@@ -114,6 +114,13 @@ return () => clearInterval(interval);
             }if (typeof g === "string" && g === "Brilliant") {
                 const IconComponent = iconMap[g];
                 anotate.push(< IconComponent className="icon-svg" />);
+            }if (typeof g === "string" && g === "Miss") {
+                const IconComponent = iconMap[g];
+                anotate.push(< IconComponent className="icon-svg" />);
+            }
+            if (typeof g === "string" && g === "Mate") {
+                const IconComponent = iconMap[g];
+                anotate.push(< IconComponent className="icon-svg" />);
             }
             
         }
@@ -454,9 +461,9 @@ console.log("pvfen",pvfen[pvindex]);
 
 
 
-            <GameSummaryBox white={{ name: `${userusername}`, accuracy: `${whiteaccuracy}`, elo: `${isWhite ? userrealrating : opprealrating}`, good: { Best: grademovenumber[0], Great: grademovenumber[5], Okay: grademovenumber[3], Good: grademovenumber[4],Brilliant : grademovenumber[7] }, bad: { Mistake: grademovenumber[1], Inaccuracy: grademovenumber[6], Blunder: grademovenumber[2] } }}
+            <GameSummaryBox white={{ name: `${userusername}`, accuracy: `${whiteaccuracy}`, elo: `${isWhite ? userrealrating : opprealrating}`, good: { Best: grademovenumber[0], Great: grademovenumber[5], Okay: grademovenumber[3], Good: grademovenumber[4],Brilliant : grademovenumber[7] }, bad: { Mistake: grademovenumber[1], Inaccuracy: grademovenumber[6], Blunder: grademovenumber[2],Miss:grademovenumber[8] ,Mate :grademovenumber[9] } }}
 
-                black={{ name: `${oppusername}`, accuracy: `${blackaccuracy}`, elo: `${isWhite ? opprealrating : userrealrating}`, good: { Best: blackgradeno[0], Great: blackgradeno[5], Okay: blackgradeno[3], Good: blackgradeno[4] ,Brilliant : blackgradeno[7] }, bad: { Mistake: blackgradeno[1], Inaccuracy: blackgradeno[6], Blunder: blackgradeno[2] } }}
+                black={{ name: `${oppusername}`, accuracy: `${blackaccuracy}`, elo: `${isWhite ? opprealrating : userrealrating}`, good: { Best: blackgradeno[0], Great: blackgradeno[5], Okay: blackgradeno[3], Good: blackgradeno[4] ,Brilliant : blackgradeno[7] }, bad: { Mistake: blackgradeno[1], Inaccuracy: blackgradeno[6], Blunder: blackgradeno[2],Miss:blackgradeno[8],Mate:blackgradeno[9] } }}
 
                 onreview={onstartreview}
 

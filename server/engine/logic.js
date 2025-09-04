@@ -66,13 +66,15 @@ function getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay) {
 
   const game = new Chess(fen);
   const whiteToPlay = game.turn() === "w";
-  const startDiff = getMaterialDifference(fen);
+  const startingMaterialDifference = getMaterialDifference(fen);
 
   let moves = [playedMove, ...bestLinePvToPlay];
-  if (moves.length % 2 === 1) moves = moves.slice(0, -1);
+  if (moves.length % 2 === 1) {
+    moves = moves.slice(0, -1);
+  }
 
-  const captured = { w: [], b: [] };
-  let nonCapturingMovesTemp = 0;
+  const capturedPieces = { w: [], b: [] };
+  let nonCapturingMovesTemp = 1;
 
   for (const move of moves) {
     try {
@@ -85,40 +87,40 @@ function getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay) {
       if (!fullMove) return false;
 
       if (fullMove.captured) {
-        captured[fullMove.color].push(fullMove.captured);
-        nonCapturingMovesTemp = 0;
+        capturedPieces[fullMove.color].push(fullMove.captured);
+        nonCapturingMovesTemp = 1;
       } else {
         nonCapturingMovesTemp--;
-        if (nonCapturingMovesTemp < 0) break; 
+        if (nonCapturingMovesTemp < 0) break;
       }
     } catch {
       return false;
     }
   }
 
-  for (const p of captured.w.slice(0)) {
-    if (captured.b.includes(p)) {
-      captured.b.splice(captured.b.indexOf(p), 1);
-      captured.w.splice(captured.w.indexOf(p), 1);
+  for (const p of capturedPieces.w.slice(0)) {
+    if (capturedPieces.b.includes(p)) {
+      capturedPieces.b.splice(capturedPieces.b.indexOf(p), 1);
+      capturedPieces.w.splice(capturedPieces.w.indexOf(p), 1);
     }
   }
 
   if (
-    Math.abs(captured.w.length - captured.b.length) <= 1 &&
-    captured.w.concat(captured.b).every(p => p === "p")
+    Math.abs(capturedPieces.w.length - capturedPieces.b.length) <= 1 &&
+    capturedPieces.w.concat(capturedPieces.b).every(p => p === "p")
   ) {
     return false;
   }
 
-  const endDiff = getMaterialDifference(game.fen());
-  const relativeDiff = whiteToPlay ? endDiff - startDiff : startDiff - endDiff;
+  const endingMaterialDifference = getMaterialDifference(game.fen());
+  const materialDiff = endingMaterialDifference - startingMaterialDifference;
+  const materialDiffPlayerRelative = whiteToPlay ? materialDiff : -materialDiff;
 
-  return relativeDiff < 0;
+  return materialDiffPlayerRelative < 0;
 }
 
-
 function isLosingOrAlternateCompletelyWinning(posWin, altWin, isWhiteMove) {
-  const isLosing = isWhiteMove ? posWin < 30 : posWin > 70;
+  const isLosing = isWhiteMove ? posWin < 50 : posWin > 50;
   const altWinDom = isWhiteMove ? altWin > 97 : altWin < 3;
   return isLosing || altWinDom;
 }
@@ -155,7 +157,7 @@ export async function handlemovelist(mdata, username, sessionUser ,options = { u
   const API_URL = process.env.REACT_APP_API_URL;
 
   const endpoint = options.userPGN ? "/getuserAnalysis" : "/getAnalysis";
-  console.log("Endpoint called:", `${API_URL}${endpoint}?username=${encodeURIComponent(username)}`);
+  //console.log("Endpoint called:", `http:/localhost:5000${endpoint}?username=${encodeURIComponent(username)}`);
 
   const res = await fetch(`${API_URL}${endpoint}?username=${encodeURIComponent(username)}`, {
     method: "GET",
@@ -276,7 +278,7 @@ export async function handlemovelist(mdata, username, sessionUser ,options = { u
   const actualgrading = [];
   let mateThreatActive = false;
 
-  for (let i = 1; i < userevals.length - 1; i++) {
+for (let i = 1; i < userevals.length - 1; i++) {
     try {
       const fenBefore = fens[i -1];
       const playedMove = mdata[i];
@@ -286,7 +288,7 @@ const currentWin = toWhiteWinPercent(bestevalcp[i], i % 2 === 0);
 const isWhiteMove = i % 2 === 0;
 
           const isSacrifice = getIsPieceSacrifice(fenBefore, playedMove, bestLine);
-    const winDropOk = isWhiteMove ? currentWin - lastWin >= -2 : lastWin - currentWin >=2;
+    const winDropOk = isWhiteMove ? currentWin - lastWin >= -0.2 : lastWin - currentWin >=0.2;
     /*console.log(`Move ${i}:`, {
       playedMove,
       isSacrifice,
@@ -295,8 +297,13 @@ const isWhiteMove = i % 2 === 0;
       currentWin,
       isWhiteMove
     }); */
-
-    if (isSacrifice && winDropOk) {
+function skipBrilliant(winPercentBefore, winPercentAfter) {
+  if (winPercentBefore <= 5 || winPercentBefore >= 95) return true;
+  if (winPercentAfter <= 5 || winPercentAfter >= 95) return true;
+  return false;
+}
+    const skipbrilliant =skipBrilliant(lastWin ,currentWin);
+    if (isSacrifice && winDropOk && !skipbrilliant) {
       //console.log(`✅ Brilliant triggered at move ${i}`);
       actualgrading[i -1] = "Brilliant";
       continue;
@@ -312,7 +319,7 @@ const isWhiteMove = i % 2 === 0;
 
       if (typeof bestevalcp[i] === "string" && bestevalcp[i].startsWith("mate in")) {
         if (!mateThreatActive && i - 1 >= 0) {
-          actualgrading[i - 1] = "Blunder";
+          actualgrading[i - 1] = "Mate";
         }
         mateThreatActive = true;
       }
@@ -361,13 +368,20 @@ const isWhiteMove = i % 2 === 0;
       actualgrading[i] = "Great";
     }
   }
+ for (let i = 0; i < actualgrading.length - 1; i++){
+if ((actualgrading[i] === 'Blunder' || actualgrading[i] === "Mate" || actualgrading[i] === " Mistake") &&
+    (actualgrading[i+1] === "Blunder" || actualgrading[i+1] === "Mistake" || actualgrading[i+1] === "Inaccuracy")) {
+  actualgrading[i+1] = "Miss";
+}
+ }
 
-  function convertLostMateToBlunder(gradingArray) {
+
+  /*function convertLostMateToBlunder(gradingArray) {
     for (let i = 0; i < gradingArray.length; i++) {
       if (gradingArray[i] === "Mate") gradingArray[i] = "Blunder";
     }
   }
-  convertLostMateToBlunder(actualgrading);
+  convertLostMateToBlunder(actualgrading);*/
 
   for (let i = 0; i < mdata.length; i++) {
     const nextMove = mdata[i + 1];
@@ -431,7 +445,7 @@ const isWhiteMove = i % 2 === 0;
   const whiterating = acplToRating(whiteACPL);
   const blackrating = acplToRating(blackACPL);
 
-  let whitebest = 0, whitegood = 0, whiteblunder = 0, whitemistake = 0, whiteokay = 0, whiteInaccuracy = 0, whitegreat = 0,whitebrilliant =0;
+  let whitebest = 0, whitegood = 0, whiteblunder = 0, whitemistake = 0, whiteokay = 0, whiteInaccuracy = 0, whitegreat = 0,whitebrilliant =0,whitemiss =0,whitemate=0;
   for (let i = 0; i < actualgrading.length - 1; i++) {
     if (i % 2 === 1) {
       const grade = actualgrading[i];
@@ -444,13 +458,15 @@ const isWhiteMove = i % 2 === 0;
         if (grade.includes("Great")) whitegreat++;
         if (grade.includes("Good")) whitegood++;
         if (grade.includes("Brilliant")) whitebrilliant++;
+        if (grade.includes("Miss")) whitemiss++;
+        if (grade.includes("Mate")) whitemate++;
       }
     }
   }
 
-  const grademovenumbers = [whitebest, whitemistake, whiteblunder, whiteokay, whitegood, whitegreat, whiteInaccuracy ,whitebrilliant];
+  const grademovenumbers = [whitebest, whitemistake, whiteblunder, whiteokay, whitegood, whitegreat, whiteInaccuracy ,whitebrilliant,whitemiss,whitemate];
 
-  let blackbest = 0, blackgood = 0, blackblunder = 0, blackmistake = 0, blackokay = 0, blackInaccuracy = 0, blackgreat = 0 ,blackbrilliant =0;
+  let blackbest = 0, blackgood = 0, blackblunder = 0, blackmistake = 0, blackokay = 0, blackInaccuracy = 0, blackgreat = 0 ,blackbrilliant =0,blackmiss =0,blackmate =0;
   for (let i = 0; i < actualgrading.length - 1; i++) {
     if (i % 2 === 0) {
       const grade = actualgrading[i];
@@ -463,22 +479,25 @@ const isWhiteMove = i % 2 === 0;
         if (grade.includes("Great")) blackgreat++;
         if (grade.includes("Good")) blackgood++;
         if (grade.includes("Brilliant")) blackbrilliant++;
+        if (grade.includes("Miss")) blackmiss++;
+        if (grade === "Mate") blackmate++;
       }
     }
   }
 
-  const blackgradeno = [blackbest, blackmistake, blackblunder, blackokay, blackgood, blackgreat, blackInaccuracy,blackbrilliant];
+  const blackgradeno = [blackbest, blackmistake, blackblunder, blackokay, blackgood, blackgreat, blackInaccuracy,blackbrilliant,blackmiss,blackmate];
 
 /*  console.log("userwin percetn ", userwinpercents);
   console.log("cploss", diff);
   console.log("user move evals", userevals);
   console.log("best eval cp ", bestevalcp);
   console.log("Best moves:", bestUciMoves);
-  console.log("actual Grades ", actualgrading);
+  
   console.log("black ACPL", blackACPL);
   console.log("white ACPL", whiteACPL);
   console.log("white rating ", acplToRating(whiteACPL));
   console.log("black rating ", acplToRating(blackACPL));*/
+  //console.log("actual Grades ", actualgrading);
 
   return { bestMoves: bestUciMoves, actualgrading, blackACPL, whiteACPL, blackrating, whiterating, userevals, diffed, grademovenumbers, userwinpercents, blackgradeno, pvfen, booknames };
 }

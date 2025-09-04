@@ -52,7 +52,7 @@ const GameSummaryBox = ({ white, black ,onreview }) => {
       {/* Bad Moves Section */}
       <div style={styles.moveSectionRed}>
         <div style={styles.sectionHeaderRed}>Bad</div>
-        {["Inaccuracy", "Mistake", "Blunder"].map((type) => (
+        {["Inaccuracy", "Mistake", "Blunder","Miss","Mate"].map((type) => (
           <div style={styles.row} key={type}>
             <div style={styles.labelMove}>{type}</div>
             <div style={styles.count}>{white.bad[type] || 0}</div>

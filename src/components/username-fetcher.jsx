@@ -113,7 +113,7 @@ function CreateCards(props) {
                     console.log("result",result);
 
                    //console.log("Before calling analyteUser"); 
-                await analyteUser();
+                //await analyteUser();
                     //console.log("After calling analyteUser"); 
                     
                     

@@ -9,6 +9,8 @@ import { ReactComponent as GreatFind } from './abc_ones/great_find.svg';
 import { ReactComponent as Inaccuracy } from './abc_ones/inaccuracy.svg';
 import { ReactComponent as Incorrect } from './abc_ones/incorrect.svg';
 import { ReactComponent as Mistake } from './abc_ones/mistake.svg';
+import { ReactComponent as Miss } from './abc_ones/miss.svg';
+import { ReactComponent as Mate } from './abc_ones/mate.svg.svg';
 
 const iconMap = {
   Blunder: Blunder,
@@ -20,6 +22,8 @@ const iconMap = {
   Best: Best,
   Book :Book,
   Brilliant :Brilliant,
+  Miss : Miss,
+  Mate:Mate,
 };
 
 export default iconMap;

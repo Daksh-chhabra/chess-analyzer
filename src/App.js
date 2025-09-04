@@ -12,11 +12,13 @@ import Gamestage from './pages/gamestage';
 import Gamestyle from './pages/gamestyle';
 import Piece from './pages/pieceanalysis';
 import { prewarmStockfish } from './wasmanalysis';
+import { prewarmStockfishuser } from './wasmanalysisfromuser';
 
 function App() {
 
   useEffect(() => {
     prewarmStockfish(); 
+    prewarmStockfishuser();
   }, []);
   
   return (

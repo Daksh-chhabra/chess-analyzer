@@ -226,7 +226,7 @@ app.post("/analyzewithstockfish",async (req,res) =>
 {
      const { username } = req.body;
      const sessionUser = getUserSession(username);
-sessionUser.storedanalysis = [];
+ sessionUser.storedanalysis = [];
  console.log("POST /analyzewithstockfish hit");
  const chess = new Chess();
  const fens = [];

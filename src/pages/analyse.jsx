@@ -11,7 +11,7 @@ import GameSummaryBox from "../components/startingevals.jsx";
 
 const Analytics = () => {
     const location = useLocation();
-    const { pgn = "", moves = [], bestmoves = [], grading = [], evalbar = [], cpbar = [], userevalrating = "", oppevalrating = "", userrating = "", opprating = "", userusername = "", oppusername = "", whiteacpl = "", blackacpl = "", grademovenumber = [], userwinpercents = [], blackgradeno = [],pvfen =[] ,booknames = [],isWhite =""} = location.state || {};
+    const {key , pgn = "", moves = [], bestmoves = [], grading = [], evalbar = [], cpbar = [], userevalrating = "", oppevalrating = "", userrating = "", opprating = "", userusername = "", oppusername = "", whiteacpl = "", blackacpl = "", grademovenumber = [], userwinpercents = [], blackgradeno = [],pvfen =[] ,booknames = [],isWhite =""} = location.state || {};
     const [whiteuname, setwhiteuname] = useState("White Player");
     const [blackuname, setblackuname] = useState("Black Player");
     const [Count, setCount] = useState(0);
@@ -34,6 +34,21 @@ const Analytics = () => {
         const timer = setTimeout(() => setShowIcon(true), 3000);
         return () => clearTimeout(timer);
     }, []);
+
+
+
+
+
+useEffect(() => {
+  setCount(0);
+  setarrows([]);
+  setpvframe(0);
+  setpvtrying(false);
+}, [key]);
+
+
+
+
 
 
  useEffect( () =>
@@ -409,7 +424,7 @@ console.log("pvfen",pvfen[pvindex]);
 
     
     return (
-        <div style={{ display: "flex", justifyContent: "space-between", position: "absolute", width: "100%" }}>
+        <div key={key} style={{ display: "flex", justifyContent: "space-between", position: "absolute", width: "100%" }}>
             <Sidebars />
             <div className="evalbar">
                 <Evalbar cp={userwinpercents[evaled] ?? 53} />

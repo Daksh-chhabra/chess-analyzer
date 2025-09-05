@@ -49,8 +49,8 @@ try {
 
     await saveFile(`${username}.json`, { ...newData, refreshCount });
 
-    setrefreshcount(c => c + 1); // update state for table refresh
-    console.log(`Data refreshed. Refresh count: ${refreshCount}`);
+    setrefreshcount(c => c + 1); 
+    //console.log(`Data refreshed. Refresh count: ${refreshCount}`);
 } catch (err) {
     console.error(err);
     alert("Failed to refresh data");

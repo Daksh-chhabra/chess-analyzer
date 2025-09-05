@@ -122,7 +122,7 @@ function Matchtable(rf) {
   pvfen,
   isWhite
 }); 
-      (navigate('/analysis', { state: { pgn: pgn, moves: Movesweget, bestmoves: bestmoves, userrating: userrated, grading: grading, opprating: opprated, evalbar: cpforevalbar ,cpbar : cpbar ,userevalrating : userevalrating , oppevalrating :oppevalrating ,userusername :userusername ,oppusername :oppusername,whiteacpl :whiteacpl,blackacpl:blackacpl ,grademovenumber : grademovenumber,userwinpercents :userwinpercents,blackgradeno :blackgradeno ,pvfen:pvfen,isWhite : isWhite } }));
+      (navigate('/analysis', { state: { key: Date.now(), pgn: pgn, moves: Movesweget, bestmoves: bestmoves, userrating: userrated, grading: grading, opprating: opprated, evalbar: cpforevalbar ,cpbar : cpbar ,userevalrating : userevalrating , oppevalrating :oppevalrating ,userusername :userusername ,oppusername :oppusername,whiteacpl :whiteacpl,blackacpl:blackacpl ,grademovenumber : grademovenumber,userwinpercents :userwinpercents,blackgradeno :blackgradeno ,pvfen:pvfen,isWhite : isWhite } }));
     }
     catch (error) {
       console.error("couldnt SAVE PGN", error);

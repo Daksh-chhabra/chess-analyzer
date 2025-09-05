@@ -352,10 +352,10 @@ function skipBrilliant(winPercentBefore, winPercentAfter) {
         else actualgrading[i] = "Best";
       } else {
         if (gradingValue >= 300) actualgrading[i] = "Blunder";
-        else if (gradingValue >= 200) actualgrading[i] = "Mistake";
-        else if (gradingValue >= 100) actualgrading[i] = "Inaccuracy";
-        else if (gradingValue >= 35) actualgrading[i] = "Okay";
-        else if (gradingValue >= 5) actualgrading[i] = "Good";
+        else if (gradingValue >= 150) actualgrading[i] = "Mistake";
+        else if (gradingValue >= 70) actualgrading[i] = "Inaccuracy";
+        else if (gradingValue >= 25) actualgrading[i] = "Okay";
+        else if (gradingValue >= 2) actualgrading[i] = "Good";
         else actualgrading[i] = "Best";
       }
     } catch (error) {
@@ -425,10 +425,10 @@ if ((actualgrading[i] === 'Blunder' || actualgrading[i] === "Mate" || actualgrad
 
   function acplToRating(acpl) {
     if (acpl === null) return "N/A";
-    if (acpl < 15) return 2700;
-    if (acpl < 25) return 2500;
-    if (acpl < 35) return 2200;
-    if (acpl < 45) return 2000;
+    if (acpl < 15) return 2900;
+    if (acpl < 25) return 2700;
+    if (acpl < 35) return 2400;
+    if (acpl < 45) return 2200;
     if (acpl < 60) return 1800;
     if (acpl < 80) return 1600;
     if (acpl < 70) return 1500;

@@ -89,6 +89,16 @@ return () => clearInterval(interval);
 
 
 
+   const handlecount = (value) =>
+   {
+    setCount(value);
+        setTimeout(() => {
+        setCount((prev) => prev + 1);
+    }, 10);
+   }
+
+
+
 
 
 
@@ -524,6 +534,7 @@ console.log("pvfen",pvfen[pvindex]);
                 showtactic ={showtactic}
                 pvtrying ={pvtrying}
                 booknames = {booknames}
+                handlecount ={handlecount}
             />
         </div>
     );

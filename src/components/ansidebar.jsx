@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const Ansidebar = ({ onIncrease, onDecrease, onReset, movelist, pgn,counting,display ,onflip ,showtactic ,pvtrying ,booknames}) => {
+const Ansidebar = ({ handlecount,onIncrease, onDecrease, onReset, movelist, pgn,counting,display ,onflip ,showtactic ,pvtrying ,booknames}) => {
  const myarray = movelist.slice(0, counting);
  const [opening,setopening] = useState("");
 
@@ -20,6 +20,8 @@ if (match && match[1]) {
  }
  getopening();
 },[pgn ,counting ,booknames] );
+
+
 
 console.log("counting",counting );
 console.log("booknames",booknames);
@@ -57,9 +59,24 @@ console.log("booknames",booknames);
       
         <h3 style={styles.moveTitle}>Move Log </h3>
         <h4>{opening}</h4>
-        <div style={{display:"flex", gap :"10px",flexWrap :"wrap"}}>
-        {myarray.map((m ,index) =><button key = {index}style={styles.btn}>{m}</button>)}
-        </div>
+       <div style={{display:"flex", gap :"10px", flexWrap:"wrap"}}>
+  {movelist.map((m, index) => (
+    <button
+      key={index}
+      style={{
+        ...styles.btn,
+        backgroundColor: index === counting- 1? "#ffe5d9" : "transparent", 
+        fontWeight: index === counting -1 ? "bold" : "normal",
+      }}
+      onClick={() => {
+        if (typeof handlecount === "function") handlecount(index);
+        else console.error("handlecount is not a function", handlecount);
+      }}
+    >
+      {m}
+    </button>
+  ))}
+</div>
         <div style={styles.moveContent}>
           
         </div>

@@ -133,12 +133,12 @@ const userevalrating = isWhite ? result.whiterating : result.blackrating;
 const oppevalrating = isWhite ? result.blackrating : result.whiterating;
 
 const userrated = isWhite
-    ? pgnString.match(/\[WhiteElo\s+"(\d+)"\]/)[1]
-    : pgnString.match(/\[BlackElo\s+"(\d+)"\]/)[1];
+    ? (pgnString.match(/\[WhiteElo\s+"(\d+)"\]/)?.[1] || 0)
+    : (pgnString.match(/\[BlackElo\s+"(\d+)"\]/)?.[1] || 0);
 
 const opprated = isWhite
-    ? pgnString.match(/\[BlackElo\s+"(\d+)"\]/)[1]
-    : pgnString.match(/\[WhiteElo\s+"(\d+)"\]/)[1];
+    ? (pgnString.match(/\[BlackElo\s+"(\d+)"\]/)?.[1] || 0)
+    : (pgnString.match(/\[WhiteElo\s+"(\d+)"\]/)?.[1] || 0);
                         console.log("userrated",userrated);
                         console.log("opprated",opprated);
                     Navigate("/analysis" ,{state : {pgn :pgnfromuser , bestmoves : result.bestmoves, moves :result.moves ,whiteacpl : result.whiteacpl ,blackacpl : result.blackacpl ,grading : result.grades , evalbar : result. cpforevalbar ,cpbar :result.cpbar ,userwinpercents : result.userwinpercents , userevalrating :userevalrating ,oppevalrating:oppevalrating ,pvfen : result.pvfen,booknames: result.booknames ,grademovenumber : result.grademovenumber ,blackgradeno :result.blackgradeno ,userevalrating : userevalrating ,oppevalrating :oppevalrating, userusername : whiteName ,oppusername :blackName ,userrating :userrated ,opprating :opprated } });

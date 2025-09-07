@@ -1,17 +1,20 @@
+/* === Main Table Container === */
 .table {
     flex: 1;
     height: 100vh;
-    background-color: #121212;
-    color: #e0e0e0;
+    background-color: #1C1F24; 
+    color: #E0E0E0;
     font-family: 'Inter', sans-serif;
     overflow-x: auto;
 }
 
+/* === Table === */
 .table table {
     width: 100%;
     height: 100%;
     border-collapse: collapse;
     table-layout: fixed; 
+    min-width: 600px; /* ensures horizontal scroll on small screens */
 }
 
 .table th,
@@ -27,21 +30,154 @@
 }
 
 .table th {
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: rgba(255, 255, 255, 0.06); 
     font-weight: 600;
-    color: #bdbdbd;
+    color: #BDBDBD;
 }
 
 .table tr:hover td {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.08); 
     transition: background-color 0.2s ease-in-out;
 }
 
 .table a {
-    color: #4da3ff;
+    color: #5AB1FF; 
     text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 .table a:hover {
     text-decoration: underline;
+    color: #3390FF;
+}
+
+/* === Dropdowns & Filters === */
+.filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; 
+    gap: 8px;
+}
+
+.filter-button {
+    cursor: pointer;
+    margin-left: 6px;
+    transition: transform 0.2s ease;
+}
+.filter-button:hover {
+    transform: scale(1.2);
+}
+
+.dropdown select,
+.dropdown input,
+.dropdown button {
+    background-color: #262B33;
+    color: #E0E0E0;
+    border: 1px solid #3A3F47;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.dropdown select:focus,
+.dropdown input:focus {
+    border-color: #5AB1FF;
+    box-shadow: 0 0 6px rgba(90, 177, 255, 0.5);
+}
+
+.dropdown button {
+    margin-left: 6px;
+    background-color: #2A2E36; 
+    color: #E0E0E0;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.dropdown button:hover {
+    background-color: #3B414B;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+.dropdown button:active {
+    background-color: #262A33;
+    transform: scale(0.95);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* === Analyse Button === */
+.analyse-button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2A2E36; 
+    color: #E0E0E0;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.analyse-button:hover {
+    background-color: #3B414B; 
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+.analyse-button:active {
+    background-color: #262A33; 
+    transform: scale(0.95);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* === Responsive Table Improvements === */
+@media (max-width: 1024px) {
+    .table th,
+    .table td {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dropdown select,
+    .dropdown input,
+    .dropdown button {
+        width: 100%;
+        margin: 4px 0;
+    }
+
+    .table table {
+        min-width: 100%; 
+    }
+
+    .table th,
+    .table td {
+        font-size: 0.85rem;
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .table th,
+    .table td {
+        font-size: 0.8rem;
+        padding: 6px 8px;
+    }
+
+    .filter-button {
+        margin-left: 0;
+    }
+
+    .analyse-button {
+        width: 100%;
+        text-align: center;
+    }
 }

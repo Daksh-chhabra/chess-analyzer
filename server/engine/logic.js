@@ -159,7 +159,7 @@ export async function handlemovelist(mdata, username, sessionUser ,options = { u
   const endpoint = options.userPGN ? "/getuserAnalysis" : "/getAnalysis";
   //console.log("Endpoint called:", `http:/localhost:5000${endpoint}?username=${encodeURIComponent(username)}`);
 
-  const res = await fetch(`${API_URL}${endpoint}?username=${encodeURIComponent(username)}`, {
+  const res = await fetch(`http:/localhost:5000${endpoint}?username=${encodeURIComponent(username)}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" }
   });
@@ -199,6 +199,7 @@ export async function handlemovelist(mdata, username, sessionUser ,options = { u
     if (typeof userevals[i + 1] === "number" && typeof bestevalcp[i] === "number") {
       const differ = Math.abs(bestevalcp[i] - userevals[i + 1]);
       diff.push(differ);
+      diffed.push(differ);
     } else if (typeof userevals[i + 1] === "string" && typeof bestevalcp[i] === "number") {
       diff.push(bestevalcp[i]);
     } else {
@@ -369,11 +370,14 @@ function skipBrilliant(winPercentBefore, winPercentAfter) {
     }
   }
  for (let i = 0; i < actualgrading.length - 1; i++){
-if ((actualgrading[i] === 'Blunder' || actualgrading[i] === "Mate" || actualgrading[i] === " Mistake") &&
+if ((actualgrading[i] === 'Blunder' || actualgrading[i] === "Mate" || actualgrading[i] === "Mistake") &&
     (actualgrading[i+1] === "Blunder" || actualgrading[i+1] === "Mistake" || actualgrading[i+1] === "Inaccuracy")) {
   actualgrading[i+1] = "Miss";
 }
  }
+
+
+
 
 
   /*function convertLostMateToBlunder(gradingArray) {
@@ -402,6 +406,14 @@ if ((actualgrading[i] === 'Blunder' || actualgrading[i] === "Mate" || actualgrad
       booknames.push(openingname[bookIndex]);
     }
   }
+
+
+     for (let i = 0; i < actualgrading.length - 1; i++) {
+    if (actualgrading[i+1] === "Book") {
+      actualgrading[i] = "Book";
+    }
+  }
+
 
   let whiteCP = 0, blackCP = 0, whitemoves = 1, blackmoves = 0;
 
@@ -459,7 +471,7 @@ if ((actualgrading[i] === 'Blunder' || actualgrading[i] === "Mate" || actualgrad
         if (grade.includes("Good")) whitegood++;
         if (grade.includes("Brilliant")) whitebrilliant++;
         if (grade.includes("Miss")) whitemiss++;
-        if (grade.includes("Mate")) whitemate++;
+        if (grade === "Mate") whitemate++;
       }
     }
   }

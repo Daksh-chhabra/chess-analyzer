@@ -57,7 +57,7 @@ function CreateCards(props) {
 
 
 
-
+                    localStorage.setItem("currentUser", username);
 
                     const replied = await fetch (`${API_URL}/statsuser`,{
                         method : "POST",
@@ -66,7 +66,7 @@ function CreateCards(props) {
                     });
 
 
-                    localStorage.setItem("currentUser", username);
+                    
                     
                     Navigate("/matches");
                 }

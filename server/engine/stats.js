@@ -1,22 +1,27 @@
 import axios from "axios"
 import { Chess } from "chess.js";
+import { Ecoopenings } from "./ecocompletebaseOpenings.js";
+import { wikiopening } from "./cleanWikipediaOpenings.js";
+import { cleanopenings } from "./ecoOpenings.js";
 
 let statsweget;
-let pollingInterval;
-const stats = async() =>
+//let pollingInterval;
+const stats = async(username ,Sessionuser) =>
 {
     try{
-        const userResponse = await fetch('http://localhost:5000/statsuser');
-        const user = await userResponse.json();
-        const username = user.usedname;
+        //const userResponse = await fetch(`http://localhost:5000/statsuser?username=${encodeURIComponent(usedname)}`);
+        //const user = await userResponse.json();
+        //const username = user.usedname;
+        //console.log("usedname",username);
 
         const reply = await axios.get(`http://localhost:5000/pgnd?username=${encodeURIComponent(username)}`)
         statsweget =  reply.data;
+        //console.log("stats we get",statsweget);
 
             if (statsweget && statsweget.cachedPGNData ) {
-            console.log("Data received successfully. Stopping poll.");
-            clearInterval(pollingInterval); 
-            dataextraction(); 
+            //console.log("Data received successfully. Stopping poll.");
+            //clearInterval(pollingInterval); 
+            dataextraction(username,Sessionuser); 
         } else {
            
             console.log("Data not yet available. Retrying...");
@@ -29,19 +34,19 @@ const stats = async() =>
 }
 
 
-const dataextraction = async() =>
+const dataextraction = async(username,sessionUser) =>
 {
     //await stats();
-    const response = await fetch('http://localhost:5000/statsuser');
-    const user = await response.json();
-    const uname = user.usedname ;
-    const pgn = statsweget.cachedPGNData.pgn.pgn
-    console.log("pgn",pgn );
-    console.log("username",uname);
+    //const response = await fetch('http://localhost:5000/statsuser');
+    //const user = await response.json();
+    const uname = username ;
+    const pgn = statsweget.cachedPGNData.pgn.pgn;
+    //console.log("pgn",pgn );
+    //console.log("username",uname);
     const whiteMatch = pgn.match(/\[White\s+"([^"]+)"\]/);
     const white = whiteMatch[1];
     const isWhite = white.toLowerCase() === uname.toLowerCase()
-    console.log("ishwhite ",isWhite);
+    //console.log("ishwhite ",isWhite);
     const moves = statsweget.cachedPGNData.moves;
     const grades = statsweget.cachedPGNData.grades;
     const cploss = statsweget.cachedPGNData.cpbar;
@@ -243,35 +248,40 @@ const piecemovenumber = () =>
 
 
 let openingcpsum =0;
+let openingcount = 0;
 for(let i = isWhite ? 1 : 0 ; i<opening.length; i+=2)
 {
-    if(!isNaN(cploss[i])){
+    if(cploss[i] !== null && cploss[i] !== undefined && !isNaN(cploss[i])){
      openingcpsum += Math.abs(cploss[i]);
+     openingcount++;
      
     }
 }
-let avgopeningcp = opening.length > 0 ? 2* openingcpsum/opening.length : 0;
+let avgopeningcp = opening.length > 0 ?  openingcpsum/openingcount: 0;
 
 let midgamecpsum =0;
 let middlegamecount = 0;
 for(let i = isWhite && opening.length % 2 === 0 ?  opening.length +1 : opening.length + 2; i<opening.length + middlegame.length; i+=2)
 {
-    if(!isNaN(cploss[i])){
+    if(cploss[i] !== null && cploss[i] !== undefined && !isNaN(cploss[i])){
      midgamecpsum += Math.abs(cploss[i]);
+     middlegamecount++;
      
     }
 }
-let avgmidgamecp = middlegame.length > 0 ? 2*midgamecpsum/middlegame.length : 0;
+let avgmidgamecp = middlegame.length > 0 ? midgamecpsum/middlegamecount: 0;
 
 let endgamecpsum =0;
+let endgamecount =0;
 for(let i =isWhite && (opening.length + middlegame.length) % 2 === 0?  opening.length +middlegame.length +1 : opening.length +middlegame.length + 2; i<opening.length + middlegame.length + endgame.length; i+=2)
 {
-    if(!isNaN(cploss[i])) {
+    if(cploss[i] !== null && cploss[i] !== undefined && !isNaN(cploss[i])) {
      endgamecpsum += Math.abs(cploss[i]);
+     endgamecount++
      console.log("endgamecp`${i}`",cploss[i]);
     }
 }
-let avgendgamecp = endgame.length > 0 ? 2*endgamecpsum/endgame.length : 0;
+let avgendgamecp = endgame.length > 0 ? endgamecpsum/endgamecount : 0;
 
 console.log('cpbar',cploss);
 console.log("\n");
@@ -291,43 +301,53 @@ piecemovenumber();
 
 
 
-function parseheader(pgntext)
-{
-    const headers ={};
-    const regex = /\[(\w+)\s+"([^"]+)"\]/g;
-      let match;
-  while ((match = regex.exec(pgntext)) !== null) {
-    headers[match[1]] = match[2];
+    function parseheader(pgntext)
+    {
+        const headers ={};
+        const regex = /\[(\w+)\s+"([^"]+)"\]/g;
+        let match;
+    while ((match = regex.exec(pgntext)) !== null) {
+        headers[match[1]] = match[2];
+    }
+    return headers;
+    }
+
+    function getBaseOpening(headers) {
+    if (!headers.ECO) return null;
+    console.log("eco code z",headers.ECO);
+    return headers.ECO;
+    }
+
+    function getWinner(headers) {
+    const result = headers.Result;
+    if (result === "1-0") return headers.White;
+    if (result === "0-1") return headers.Black;
+    if (result === "1/2-1/2") return "Draw";
+    return "Unknown";
+    }
+
+
+
+
+    function openingstats(){
+    const headers = parseheader(pgn);
+    const ECOcodepgn = getBaseOpening(headers);
+    const opening = cleanopenings.filter(o => o.eco === ECOcodepgn);
+
+      if (opening.length > 0) {
+    console.log("opening(s) played:", opening.map(o => o.name));
+  } else {
+    console.log("unknown opening (eco:", ecoCode, ")");
   }
-  return headers;
-}
 
-function getBaseOpening(headers) {
-  if (!headers.Opening) return null;
-  return headers.Opening.split(":")[0].trim();
-}
-
-function getWinner(headers) {
-  const result = headers.Result;
-  if (result === "1-0") return headers.White;
-  if (result === "0-1") return headers.Black;
-  if (result === "1/2-1/2") return "Draw";
-  return "Unknown";
-}
-
-
-
-
-function openingstats(){
-const headers = parseheader(pgn);
-const openingplayed = getBaseOpening(headers);
-const resultofgame = getWinner(headers);
- if(resultofgame.toLowerCase() === uname.toLowerCase())
- {
-    console.log("user won");
-    
- }
-}
+    //console.log("opening played",openingplayed);
+    const resultofgame = getWinner(headers);
+    if(resultofgame.toLowerCase() === uname.toLowerCase())
+    {
+        console.log("user won",);
+        
+    }
+    }
 
 
 openingstats();
@@ -341,7 +361,7 @@ openingstats();
 
 
 
-console.log("\n \n");
+/* console.log("\n \n");
 console.log("badKnight_x_Queen:", badKnight_x_Queen);
 console.log("goodKnight_x_Queen:", goodKnight_x_Queen);
 console.log("badKnight_x_Rook:", badKnight_x_Rook);
@@ -404,11 +424,11 @@ console.log("badPawn_x_Knight:", badPawn_x_Knight);
 console.log("goodPawn_x_Knight:", goodPawn_x_Knight);
 console.log("badPawn_x_Pawn:", badPawn_x_Pawn);
 console.log("goodPawn_x_Pawn:", goodPawn_x_Pawn);
-
+*/
 
 
 }
-pollingInterval = setInterval(stats, 5000); 
+//pollingInterval = setInterval(stats, 5000); 
 //dataextraction();
 
 

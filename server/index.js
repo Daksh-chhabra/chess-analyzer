@@ -473,7 +473,14 @@
     {
         
             const sessionUser = getUserSession(username);
-        const fixedPgn = sessionUser.npg.pgn; 
+        let fixedPgn = sessionUser.npg.pgn
+          .replace(/\{[^}]*\}/g, "")        // remove { ... }
+            .replace(/\[%[^\]]*\]/g, "")      // remove [%eval ...] / [%clk ...]
+            .replace(/\b(White|Black) (wins|resigns|abandons|checkmated|timeout|draws).*$/gmi, "")
+            .replace(/\r?\n/g, "\n")
+            .replace(/"$/, "") 
+            .trim();
+        //fixedPgn = fixedPgn.replace(/\{[^}]*\}/g, "");
         //console.log(fixedPgn);
 
         const chess = new Chess();
@@ -496,8 +503,15 @@
     function pgnfromarraymoves(username)
     {
             const sessionUser = getUserSession(username);
-            const fixedPgn = sessionUser.pnguser.pgnfromuser;
-        //console.log(fixedPgn);
+            let fixedPgn = sessionUser.pnguser.pgnfromuser
+                     .replace(/\{[^}]*\}/g, "")      
+            .replace(/\[%[^\]]*\]/g, "")     
+  .         replace(/\b(White|Black) (wins|resigns|abandons|checkmated|timeout|draws).*$/gmi, "")
+            .replace(/\r?\n/g, "\n")
+            .replace(/"$/, "") 
+        .trim();
+            //fixedPgn = fixedPgn.replace(/\{[^}]*\}/g, "");
+        console.log("fixedpgn",fixedPgn);
 
         const chess = new Chess();
         //console.log('PGN being loaded:', JSON.stringify(npg));

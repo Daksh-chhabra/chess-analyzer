@@ -365,10 +365,18 @@ function skipBrilliant(winPercentBefore, winPercentAfter) {
   }
 
   for (let i = 0; i < actualgrading.length - 1; i++) {
-    if (diff[i] === 0 && Math.abs((userwinpercents[i] || 0) - (userwinpercents[i + 1] || 0)) > 3 && actualgrading[i] === "Best") {
-      actualgrading[i] = "Great";
-    }
+const isWhiteMove = i % 2 === 0;
+const delta = (userwinpercents[i + 1] || 0) - (userwinpercents[i] || 0);
+if (
+  diff[i] === 0 &&
+  ((isWhiteMove && delta > 0) || (!isWhiteMove && delta < 0)) &&
+  actualgrading[i] === "Best"
+) {
+  actualgrading[i] = "Great";
+}
   }
+
+  
  for (let i = 0; i < actualgrading.length - 1; i++){
 if ((actualgrading[i] === 'Blunder' || actualgrading[i] === "Mate" || actualgrading[i] === "Mistake") &&
     (actualgrading[i+1] === "Blunder" || actualgrading[i+1] === "Mistake" || actualgrading[i+1] === "Inaccuracy")) {

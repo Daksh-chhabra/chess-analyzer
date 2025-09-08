@@ -159,7 +159,7 @@ export async function handlemovelist(mdata, username, sessionUser ,options = { u
   const endpoint = options.userPGN ? "/getuserAnalysis" : "/getAnalysis";
   //console.log("Endpoint called:", `http:/localhost:5000${endpoint}?username=${encodeURIComponent(username)}`);
 
-  const res = await fetch(`http:/localhost:5000${endpoint}?username=${encodeURIComponent(username)}`, {
+  const res = await fetch(`${API_URL}${endpoint}?username=${encodeURIComponent(username)}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" }
   });

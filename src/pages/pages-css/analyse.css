@@ -1,6 +1,61 @@
-.evalbar {
-    position: relative;
+.analytics-root {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    width: 100%;
+}
+
+.analytics-evalbar {
+        position: relative;
     left: 5.4%;
     margin-top: 3.4%;
     transition: height 1.4s ease;
 }
+
+.analytics-board-container {
+    height: 640px;
+    width: 640px;
+    margin-top: 1.5%;
+    flex-shrink: 0;
+    position: relative;
+    background: transparent;
+}
+
+.analytics-board-hidden {
+    display: none;
+}
+
+.analytics-board-header,
+.analytics-board-footer {
+    color: WHITE;
+    font-size: 1.5rem;
+    display: flex;
+}
+
+.analytics-loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.analytics-loading-text {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.analytics-icon-container {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+    pointer-events: none;
+    box-shadow: 0 0 2px rgba(0,0,0,0.3);
+}
+
+.analytics-move-icon-svg {
+    fill: #fff;
+}
+

@@ -1,0 +1,23 @@
+.evalbar-outer {
+  width: 32px;
+  height: 100%;
+  background: #000;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Ensures flush alignment with board container */
+  align-self: stretch;
+}
+
+.evalbar-white {
+  background: #fff;
+  width: 100%;
+  transition: height 0.34s cubic-bezier(0.4,0,0.2,1);
+}
+.evalbar-black {
+  background: #000;
+  width: 100%;
+  transition: height 0.34s cubic-bezier(0.4,0,0.2,1);
+}

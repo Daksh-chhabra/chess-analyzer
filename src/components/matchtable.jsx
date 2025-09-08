@@ -91,6 +91,7 @@ function Matchtable(rf) {
     if (!currentUser) return;
 
     const isWhite = game.white.username.toLowerCase() === currentUser.toLowerCase();
+    console.log("iswhite matchtable",isWhite)
     const userrated = isWhite ? game.white.rating : game.black.rating;
     const opprated = isWhite ? game.black.rating : game.white.rating;
     const userusername = isWhite ? game.white.username : game.black.username;

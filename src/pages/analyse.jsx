@@ -6,8 +6,8 @@ import { Form, useLocation } from "react-router-dom";
 import Ansidebar from "../components/ansidebar";
 import iconMap from "../components/icons";
 import Evalbar from "../components/evalbar";
-import analyse from "./pages-css/analyse.css";
 import GameSummaryBox from "../components/startingevals.jsx";
+import "./pages-css/analyse.css"; 
 
 const Analytics = () => {
     const location = useLocation();
@@ -26,175 +26,86 @@ const Analytics = () => {
     const [pvframe, setpvframe] = useState(0);
     let currentpv = [];
     const [dchess,setdchess] = useState();
-    
-    //console.log("blackgrades ", blackgradeno);
-    //console.log("pvfens",pvfen);
 
     useEffect(() => {
         const timer = setTimeout(() => setShowIcon(true), 3000);
         return () => clearTimeout(timer);
     }, []);
 
+    useEffect(() => {
+        setCount(0);
+        setarrows([]);
+        setpvframe(0);
+        setpvtrying(false);
+    }, [key]);
 
+    useEffect(() =>
+    {
+        if(!pvtrying) return ;
+        if(pvfen.length === 0 || !pvfen) return ;
 
-
-
-useEffect(() => {
-  setCount(0);
-  setarrows([]);
-  setpvframe(0);
-  setpvtrying(false);
-}, [key]);
-
-
-
-
-
-
- useEffect( () =>
-{
-    if(!pvtrying) return ;
-    if(pvfen.length === 0 || !pvfen) return ;
- 
-
-    const interval =setInterval(() => {
-        setpvframe((prev) =>
-        {
-            if(prev < Math.min(13, currentpv.length) ) return prev +1;
-            clearInterval(interval);
-            return prev;
-        });
-    }, 800);
-return () => clearInterval(interval);
-},[currentpv ,pvtrying]); 
-
-
-
-
+        const interval =setInterval(() => {
+            setpvframe((prev) =>
+            {
+                if(prev < Math.min(13, currentpv.length) ) return prev +1;
+                clearInterval(interval);
+                return prev;
+            });
+        }, 800);
+        return () => clearInterval(interval);
+    },[currentpv ,pvtrying]);
 
     function acplToAccuracy(acpl) {
-        const k = 0.004; 
+        const k = 0.004;
         let acc = 100 * Math.exp(-k * acpl);
         return parseFloat(acc.toFixed(2));
     }
 
-    console.log("whiteacpl", whiteacpl);
-    console.log("blackacpl", blackacpl);
-
-
     const whiteaccuracy = acplToAccuracy(whiteacpl);
     const blackaccuracy = acplToAccuracy(blackacpl);
 
-
-
-
-
-   const handlecount = (value) =>
-   {
-    setCount(value);
+    const handlecount = (value) => {
+        setCount(value);
         setTimeout(() => {
-        setCount((prev) => prev + 1);
-    }, 10);
-   }
-
-
-
-
-
+            setCount((prev) => prev + 1);
+        }, 10);
+    };
 
     let anotate = [];
     function gradestoanotations(array) {
         for (const g of array) {
-            if (typeof g === "string" && g === "Best") {
+            if (typeof g === "string" && iconMap[g]) {
                 const IconComponent = iconMap[g];
                 anotate.push(< IconComponent className="icon-svg" />);
             }
-            if (typeof g === "string" && g === "Great") {
-                const IconComponent = iconMap[g];
-                anotate.push(< IconComponent className="icon-svg" />);
-            }
-            if (typeof g === "string" && g === "Good") {
-                const IconComponent = iconMap[g];
-                anotate.push(< IconComponent className="icon-svg" />);
-            }
-            if (typeof g === "string" && g === "Okay") {
-                const IconComponent = iconMap[g];
-                anotate.push(< IconComponent className="icon-svg" />);
-            }
-            if (typeof g === "string" && g === "Inaccuracy") {
-                const IconComponent = iconMap[g];
-                anotate.push(< IconComponent className="icon-svg" />);
-            }
-            if (typeof g === "string" && g === "Mistake") {
-                const IconComponent = iconMap[g];
-                anotate.push(< IconComponent className="icon-svg" />);
-            }
-            if (typeof g === "string" && g === "Blunder") {
-                const IconComponent = iconMap[g];
-                anotate.push(< IconComponent className="icon-svg" />);
-            }
-            if (typeof g === "string" && g === "Book") {
-                const IconComponent = iconMap[g];
-                anotate.push(< IconComponent className="icon-svg" />);
-            }if (typeof g === "string" && g === "Brilliant") {
-                const IconComponent = iconMap[g];
-                anotate.push(< IconComponent className="icon-svg" />);
-            }if (typeof g === "string" && g === "Miss") {
-                const IconComponent = iconMap[g];
-                anotate.push(< IconComponent className="icon-svg" />);
-            }
-            if (typeof g === "string" && g === "Mate") {
-                const IconComponent = iconMap[g];
-                anotate.push(< IconComponent className="icon-svg" />);
-            }
-            
         }
     }
 
+    const userrealrating = Math.round(((0.5 * userrating) + (0.5 * userevalrating)) / 50) * 50;
+    const opprealrating = Math.round(((0.5 * opprating) + (0.5 * oppevalrating)) / 50) * 50;
 
-
-
-    const userrealrating = Math.round(((0.4 * userrating) + (0.6 * userevalrating)) / 50) * 50;
-    const opprealrating = Math.round(((0.4 * opprating) + (0.6 * oppevalrating)) / 50) * 50;
-    console.log("iswhite",isWhite);
-    console.log("userrealrating",userrealrating);
-    console.log("opprealrating",opprealrating);
-    
-
-
-
-    const flipboard =() =>
-    {
-        if(boardOrientation === "white")
-        {
-        setboardOrientation("black");
-        const temp =whiteuname;
-        setwhiteuname(blackuname);
-        setblackuname(temp );
+    const flipboard =() => {
+        if(boardOrientation === "white") {
+            setboardOrientation("black");
+            const temp =whiteuname;
+            setwhiteuname(blackuname);
+            setblackuname(temp );
         }
         else{
             setboardOrientation("white");
-                const temp = whiteuname;
-                setwhiteuname(blackuname);
-                setblackuname(temp);
+            const temp = whiteuname;
+            setwhiteuname(blackuname);
+            setblackuname(temp);
         }
-    }
+    };
 
-
-
-
-    const showtactic = () =>
-    { 
+    const showtactic = () => { 
         setpvtrying(prev => !prev);
         setpvindex(Count +1);
-            setmainboard(pvtrying ? "" : "none");
-            settryboard(pvtrying ? "none" : "");
-            setpvframe(0);
-    }
-
-
-
-
+        setmainboard(pvtrying ? "" : "none");
+        settryboard(pvtrying ? "none" : "");
+        setpvframe(0);
+    };
 
     gradestoanotations(grading);
     useEffect(() => {
@@ -202,24 +113,12 @@ return () => clearInterval(interval);
         try {
             const ma = pgn.match(/\[White\s+"(.+?)"\]/);
             const da = pgn.match(/\[Black\s+"(.+?)"\]/);
-            if (ma && ma[1]) {
-                const uname = ma[1];
-                setwhiteuname(uname);
-            }
-            if (da && da[1]) {
-                const daname = da[1];
-                setblackuname(daname);
-            }
+            if (ma && ma[1]) setwhiteuname(ma[1]);
+            if (da && da[1]) setblackuname(da[1]);
         } catch (error) {
             console.error("Error parsing PGN:", error);
         }
     }, [pgn]);
-
-
-
-
-
-
 
     const fens = useMemo(() => {
         if (!moves || moves.length === 0) return [new Chess().fen()];
@@ -236,14 +135,6 @@ return () => clearInterval(interval);
         return arr;
     }, [moves]);
 
-
-
-
-
-
-
-
-
     const { fromSquares, toSquares } = useMemo(() => {
         const fromSquares = [];
         const toSquares = [];
@@ -259,29 +150,14 @@ return () => clearInterval(interval);
         return { fromSquares, toSquares };
     }, [bestmoves]);
 
-
-
-
-
-
     const increase = () => {
-        if (Count < fens.length - 1) {
-            setCount(Count + 1);
-        }
+        if (Count < fens.length - 1) setCount(Count + 1);
     };
     const decrease = () => {
-        if (Count > 0) {
-            setCount(Count - 1);
-        }
+        if (Count > 0) setCount(Count - 1);
     };
     const reset = () => setCount(0);
 
-
-
-
-
-
-    
     useEffect(() => {
         const arrowcount = Count - 1;
         if (arrowcount >= 5 &&
@@ -300,50 +176,27 @@ return () => clearInterval(interval);
 
     if (!fens || fens.length === 0) {
         return (
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-                <div style={{ color: "white", fontSize: "1.5rem" }}>Loading...</div>
+            <div className="analytics-loading-container">
+                <div className="analytics-loading-text">Loading...</div>
             </div>
         );
     }
 
- 
- currentpv = pvfen[pvindex -1];
-const currentfens =  fens ;
-
-
+    currentpv = pvfen[pvindex -1];
+    const currentfens =  fens ;
     const safeCount = Math.min(Math.max(Count, 0), fens.length - 1);
+
     const options = {
         position: currentfens[safeCount],
         id: "board",
-        arrows,boardOrientation :boardOrientation
+        arrows,
+        boardOrientation :boardOrientation
     };
 
-    
-
-
-
-
-
-
-
-
-
-
-    
-     const pvoptions = {
+    const pvoptions = {
         position :pvtrying && currentpv ? currentpv[pvframe] || new Chess().fen() : new Chess().fen(),
         boardOrientation :boardOrientation
-    }
-
-
-
-
-
-
-
-
-
-
+    };
 
     function squareCornerPosition(square, boardSize = 640, iconSize = 36, corner = "top-left") {
         const file = square.charCodeAt(0) - 'a'.charCodeAt(0);
@@ -353,11 +206,10 @@ const currentfens =  fens ;
         let left = file*squareSize;
         let top = (7-rank )*squareSize
 
-          if (boardOrientation === "black") {
+        if (boardOrientation === "black") {
             left = (7 - file) * squareSize;
             top = rank * squareSize;
         }
-
 
         let offsetX = 52, offsetY = 25;
         if (corner === "top-left") {
@@ -388,63 +240,25 @@ const currentfens =  fens ;
             }
         }
     }
-    console.log(toSquare);
 
-
-
-
-
-
-    
-
-    console.log("count", Count);
     const evaled = Count > 1 ? Math.floor((Count - 1)) : -1;
-    console.log("cp bar of cpbar ", cpbar);
-
-
-
-
-
 
     const onstartreview = () => {
         setdisplayansidebar("");
     }
 
-console.log("pvindex",pvindex);
-console.log("pvfen",pvfen[pvindex]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     return (
-        <div key={key} style={{ display: "flex", justifyContent: "space-between", position: "absolute", width: "100%" }}>
+        <div key={key} className="analytics-root">
             <Sidebars />
-            <div className="evalbar">
+            <div className="analytics-evalbar">
                 <Evalbar cp={userwinpercents[evaled] ?? 53} />
             </div>
-            <div style={{ height: "640px", width: "640px", marginTop: "1.5%", flexShrink: "0", position: "relative" ,display :`${mainboard}` }}>
-                <div style={{ color: "WHITE", fontSize: "1.5rem", display: "flex" }}>
+            <div className={`analytics-board-container${mainboard === "none" ? " analytics-board-hidden" : ""}`}>
+                <div className="analytics-board-header">
                     <header>{blackuname}</header>
                 </div>
                 <Chessboard options={options} />
-                <div style={{ color: "WHITE", fontSize: "1.5rem", display: "flex" }}>
+                <div className="analytics-board-footer">
                     <footer>{whiteuname}</footer>
                 </div>
                 {Count > 1 && (() => {
@@ -459,68 +273,37 @@ console.log("pvfen",pvfen[pvindex]);
                     const { left, top } = squareCornerPosition(square, 640, iconSize, "top-left");
                     return (
                         <div
+                            className="analytics-icon-container"
                             style={{
-                                position: "absolute",
                                 left: left,
                                 top: top,
                                 width: iconSize,
-                                height: iconSize,
-                                borderRadius: "50%",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                zIndex: 100000,
-                                pointerEvents: "none",
-                                boxShadow: "0 0 2px rgba(0,0,0,0.3)"
+                                height: iconSize
                             }}
                         >
                             {showIcon && (
-                                <Icon style={{ width: iconSize, height: iconSize, fill: "#fff" }} />)}
+                                <Icon className="analytics-move-icon-svg" style={{ width: iconSize, height: iconSize }} />)}
                         </div>
                     );
                 })()}
             </div>
 
-
-
-
-
-
-            <GameSummaryBox white={{ name: `${userusername}`, accuracy: `${whiteaccuracy}`, elo: `${isWhite ? userrealrating : opprealrating}`, good: { Best: grademovenumber[0], Great: grademovenumber[5], Okay: grademovenumber[3], Good: grademovenumber[4],Brilliant : grademovenumber[7] }, bad: { Mistake: grademovenumber[1], Inaccuracy: grademovenumber[6], Blunder: grademovenumber[2],Miss:grademovenumber[8] ,Mate :grademovenumber[9] } }}
-
-                black={{ name: `${oppusername}`, accuracy: `${blackaccuracy}`, elo: `${isWhite ? opprealrating : userrealrating}`, good: { Best: blackgradeno[0], Great: blackgradeno[5], Okay: blackgradeno[3], Good: blackgradeno[4] ,Brilliant : blackgradeno[7] }, bad: { Mistake: blackgradeno[1], Inaccuracy: blackgradeno[6], Blunder: blackgradeno[2],Miss:blackgradeno[8],Mate:blackgradeno[9] } }}
-
+            <GameSummaryBox white={{ name: `${isWhite ? userusername : oppusername}`, accuracy: `${whiteaccuracy}`, elo: `${isWhite ? userrealrating : opprealrating}`, good: { Best: grademovenumber[0], Great: grademovenumber[5], Okay: grademovenumber[3], Good: grademovenumber[4],Brilliant : grademovenumber[7] }, bad: { Mistake: grademovenumber[1], Inaccuracy: grademovenumber[6], Blunder: grademovenumber[2],Miss:grademovenumber[8] ,Mate :grademovenumber[9] } }}
+                black={{ name: `${isWhite ? oppusername : userusername}`, accuracy: `${blackaccuracy}`, elo: `${isWhite ? opprealrating : userrealrating}`, good: { Best: blackgradeno[0], Great: blackgradeno[5], Okay: blackgradeno[3], Good: blackgradeno[4] ,Brilliant : blackgradeno[7] }, bad: { Mistake: blackgradeno[1], Inaccuracy: blackgradeno[6], Blunder: blackgradeno[2],Miss:blackgradeno[8],Mate:blackgradeno[9] } }}
                 onreview={onstartreview}
-
             />
 
-
-
-
-
-
-                
-                {pvtrying && (
-
-            <div style={{ height: "640px", width: "640px", marginTop: "1.5%", flexShrink: "0", position: "relative" ,/*display :`${tryboard}`*/ }}>
-
-                <div style={{ color: "WHITE", fontSize: "1.5rem", display: "flex" }}>
-                    <header>{blackuname}</header>
+            {pvtrying && (
+                <div className="analytics-board-container">
+                    <div className="analytics-board-header">
+                        <header>{blackuname}</header>
+                    </div>
+                    <Chessboard options ={pvoptions}/>
+                    <div className="analytics-board-footer">
+                        <footer>{whiteuname}</footer>
+                    </div>
                 </div>
-                <Chessboard options ={pvoptions}/>
-                <div style={{ color: "WHITE", fontSize: "1.5rem", display: "flex" }}>
-                <footer>{whiteuname}</footer>
-                </div>
-                
-
-            </div>
             )}
-
-
-
-
-
-
 
             <Ansidebar
                 onIncrease={increase}

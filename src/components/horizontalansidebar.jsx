@@ -96,7 +96,7 @@ const AnsidebarHorizontal = ({
         <div className="ah-controls-row">
           <button
             className="ah-navBtn"
-            onClick={() => handlecount(0)}
+            onPointerDown={() => handlecount(0)}
             disabled={pvtrying || counting === 0}
             aria-label="To first move"
           >
@@ -104,7 +104,7 @@ const AnsidebarHorizontal = ({
           </button>
           <button
             className="ah-navBtn"
-            onClick={onDecrease}
+            onPointerDown={onDecrease}
             disabled={pvtrying}
             aria-label="Back"
           >
@@ -112,7 +112,7 @@ const AnsidebarHorizontal = ({
           </button>
           <button
             className="ah-navBtn"
-            onClick={onIncrease}
+            onPointerDown={onIncrease}
             disabled={pvtrying}
             aria-label="Forward"
           >
@@ -120,7 +120,7 @@ const AnsidebarHorizontal = ({
           </button>
           <button
             className="ah-navBtn"
-            onClick={() => handlecount(movelist.length)}
+            onPointerDown={() => handlecount(movelist.length)}
             disabled={pvtrying}
             aria-label="To last move"
           >
@@ -128,7 +128,7 @@ const AnsidebarHorizontal = ({
           </button>
           <button
             className="ah-flipBtn"
-            onClick={onflip}
+            onPointerDown={onflip}
             disabled={pvtrying}
             aria-label="Flip board"
             tabIndex={0}

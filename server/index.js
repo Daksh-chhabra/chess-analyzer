@@ -8,6 +8,7 @@
     import { Chess } from 'chess.js';
     import { handlemovelist } from './engine/logic.js';
     import stats from './engine/stats.js';
+    import { createProxyMiddleware } from 'http-proxy-middleware';
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
@@ -552,11 +553,23 @@
     }); */
 
 
+    if (process.env.NODE_ENV !== 'production') {
+  app.use(
+    '/',
+    createProxyMiddleware({
+      target: 'http://localhost:3000',
+      changeOrigin: true,
+      ws: true,
+    })
+  );
+}
+else{
     app.use(express.static(path.join(__dirname, '../build')));
 
     app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
     });
+}
 
     app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);

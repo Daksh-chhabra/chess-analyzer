@@ -152,7 +152,7 @@
 
 @media (max-width: 768px){
     .container {
-    width: 100svw;
+    width: 100vw;
     height: 100vh;
     background-color: #0e0e0e;
     color: white;

@@ -13,7 +13,8 @@ A fast and intuitive web app to analyze chess games using **Stockfish**, with de
 - 🔁 Flip board orientation and player names  
 - 🧮 Summary box showing player ratings, ACPL, accuracy, and move quality counts  
 - ⬅️➡️ Navigate through move list with evaluation bar and arrow guidance  
-- 🛠️ Fully frontend-backend integrated with Stockfish running on the server  
+- 🛠️ Fully frontend-backend integrated with Stockfish running on the user Browser
+- Using Web Assembly computation completely Client side 
 
 ---
 
@@ -29,7 +30,6 @@ A fast and intuitive web app to analyze chess games using **Stockfish**, with de
 ## ⚠️ Notes
 
 - ❌ Not responsive yet – best viewed on desktop  
-- ❌ Not using WebAssembly – analysis is done server-side  
 
 ---
 

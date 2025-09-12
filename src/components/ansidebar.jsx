@@ -23,8 +23,8 @@ if (match && match[1]) {
 
 
 
-console.log("counting",counting );
-console.log("booknames",booknames);
+//console.log("counting",counting );
+//console.log("booknames",booknames);
 
     useEffect(() => {
         const handleKeyDown = (e) => {

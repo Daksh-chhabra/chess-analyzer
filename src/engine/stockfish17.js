@@ -20,6 +20,7 @@ export class Stockfish17 {
     lite = !isStrongMachine;
 
     const enginePath = `stockfish-17${lite ? "-lite" : ""}${multiThread ? "" : "-single"}.js`;
+    console.log("Using engine:", enginePath);
     const engineName = lite ? "Stockfish17Lite" : "Stockfish17";
 
     return UciEngine.create(enginePath, workersNb, engineName);

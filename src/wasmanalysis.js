@@ -2,6 +2,7 @@ import { UciEngine } from "./engine/logic.js";
 import { Chess } from "chess.js";
 import { API_URL } from "./pathconfig.js";
 import { getRecommendedWorkersNb } from "./engine/worker/worker.js";
+import { Stockfish17 } from "./engine/stockfish17.js";
 //console.log("Imported createStockfishService =", UciEngine);
 
 async function runInBatches(items, batchSize, fn) {
@@ -19,7 +20,7 @@ let stockfishServicePromise = null;
 export const prewarmStockfish = () => {
   if (!stockfishServicePromise) {
     stockfishServicePromise = (async () => {
-      const service = await UciEngine.create("stockfish-17.js", getRecommendedWorkersNb());
+      const service = await Stockfish17.create(undefined, getRecommendedWorkersNb());
       //console.log("🔥 Stockfish workers prewarmed");
       return service;
     })();

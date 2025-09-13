@@ -9,6 +9,7 @@
     import GameSummaryBox from "../components/startingevals.jsx";
     import "./pages-css/analyse.css"; 
 import AnsidebarHorizontal from "../components/horizontalansidebar.jsx";
+import UniqueSidebars from "../components/verticalsidebar.jsx";
 
     const Analytics = () => {
         const location = useLocation();
@@ -293,7 +294,7 @@ import AnsidebarHorizontal from "../components/horizontalansidebar.jsx";
 
         return (
             <div key={key} className="analytics-root">
-                <Sidebars />
+                  {windowWidth > 768 ? (<Sidebars />) : (<UniqueSidebars />)}
 
                 <div className="boardplusside">
                 <div className="boardpluseval">
@@ -347,6 +348,7 @@ import AnsidebarHorizontal from "../components/horizontalansidebar.jsx";
                     </div>
                 )}
                 </div>
+                <div className="anbar">
 
                     {windowWidth > 768 ? (<Ansidebar
                     onIncrease={increase}
@@ -374,7 +376,7 @@ import AnsidebarHorizontal from "../components/horizontalansidebar.jsx";
                     pvtrying ={pvtrying}
                     booknames = {booknames}
                     handlecount ={handlecount}/>}
-
+                </div>
                 </div>
                 {!reviewStarted && (
                 <div className="gamebox">      

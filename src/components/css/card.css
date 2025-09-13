@@ -1,5 +1,48 @@
-.card{
+.card {
+    width: 200px;
+    height: 350px;
+    text-align: center;
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.card-image {
+    width: 200px;
+    height: 200px;
+}
+
+.card-title {
+    color: white;
+    justify-content: center;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+@media (max-width: 768px){
+    .card-image {
+    width: 150px;
+    height: 150px;
+}
+.card {
+    width: 150px;
+    height: 300px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 }

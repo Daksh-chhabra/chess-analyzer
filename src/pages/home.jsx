@@ -7,9 +7,11 @@ import PGN from './images/pgn-file.png';
 
 const Homepage = () =>{
     return (
-        <div className="home">
+        <div className="homepage">
+        <div className="sidebar-div">
         
         <Sidebars />
+        </div>
 
 
         <div className="card-container">

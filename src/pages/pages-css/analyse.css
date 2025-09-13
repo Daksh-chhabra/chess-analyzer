@@ -128,7 +128,8 @@
 .boardpluseval{
     display: flex;
     gap: 6.1%;
-    margin-left: -5%;
+    margin-left: -3%;
+    margin-top: 5%;
 }
 .analytics-evalbar {
     position: relative;
@@ -142,7 +143,7 @@
     display: flex;
     flex-direction: column;
     gap: 5%;
-    margin-right: 20%;
+    margin-left: 2.5%;
 }
 .gamebox{
     position: fixed;

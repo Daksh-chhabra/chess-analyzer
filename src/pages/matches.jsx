@@ -10,10 +10,12 @@ const Matchpage =()=>{
     return (
         <div className="match">
         <Sidebars />
+        <div className="main-content">
         <Matchtable  rf = {refreshcount}/>
 
 
-        <button onClick={async () => {
+
+                <button onClick={async () => {
             setrefreshcount( c=> c+1);
             console.log("rfc",refreshcount);
 try {
@@ -56,25 +58,18 @@ try {
     alert("Failed to refresh data");
 }
 }}
-
-  style={{
-    position: 'absolute',   
-    top: '10px',
-    left: '1450px',
-    padding: '5px 10px',
-    fontSize: '12px',
-    backgroundColor: 'transparent',
-    color: 'white',
-    border: 'none',
-    borderRadius: '50%',
-    cursor: 'pointer',
-    zIndex: 1000
-  }}
-
-
+    className="refresh-button"
 >
     ↻
 </button>
+
+
+
+
+        </div>
+
+
+
         </div>
 
     )

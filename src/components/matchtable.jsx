@@ -150,6 +150,9 @@ function Matchtable(rf) {
         accessorKey: "end_time",
         header: "Date",
         cell: (info) => new Date(info.getValue() * 1000).toLocaleDateString(),
+        meta: {
+            className: "table-date-column",
+          },
       },
       {
         accessorFn: (row) => {
@@ -193,6 +196,9 @@ function Matchtable(rf) {
         id: "rating",
         header: "Rating",
         cell: (info) => info.getValue(),
+        meta: {
+            className: "table-rating-column",
+          },
       },
       {
         accessorKey: "url",
@@ -202,6 +208,9 @@ function Matchtable(rf) {
             View Game
           </a>
         ),
+        meta: {
+            className: "table-game-link-column",
+          },
       },
       {
         accessorFn: (row) => {
@@ -291,20 +300,7 @@ function Matchtable(rf) {
     <>
       {loading && (
         <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
-            color: "white",
-            fontSize: "1.5rem",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9999,
-          }}
+        className="loading-overlay"
         >
           Analyzing with Stockfish... Please wait.
         </div>
@@ -315,7 +311,7 @@ function Matchtable(rf) {
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id}>
+                <th key={header.id} className={header.column.columnDef.meta?.className}>
                   {header.id === "players" && playerFilterActive ? (
                     <div className="player-filter-container dropdown">
                       <input
@@ -374,7 +370,9 @@ function Matchtable(rf) {
           {filteredRows.map((row, index) => (
             <tr key={index}>
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                <td key={cell.id} className={cell.column.columnDef.meta?.className}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </td>
               ))}
             </tr>
           ))}

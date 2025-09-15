@@ -90,9 +90,11 @@ const getUserMovesInPhases = (moves, grades, cploss, captures, isWhite) => {
         else if (i <= boundaries.middlegameEnd) phases.middlegame.push(moveData);
         else phases.endgame.push(moveData);
     }
-    
+        console.log("User Phases:", phases);
+    console.log("Opening moves:", phases.opening.length);
+    console.log("Middlegame moves:", phases.middlegame.length); 
+    console.log("Endgame moves:", phases.endgame.length);
     return phases;
-    copnsole.log("phases",phases);
 };
 
 const calculatePiecePhaseEfficiency = (targetPiece, userMovesInPhase) => {

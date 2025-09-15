@@ -27,6 +27,7 @@ body {
     border: none;
     color: #e2e8f0;
     font-size: 0.5rem;
+    width: 40px;
     padding: 0;
     cursor: pointer;
 }

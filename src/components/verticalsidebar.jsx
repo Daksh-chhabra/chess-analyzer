@@ -38,7 +38,7 @@ const UniqueSidebars = () => {
     return (
         <div className="vertical-menu-container">
             <div className="menu-toggle-btn">
-                <button onClick={toggleMenu}><h1>☰</h1></button>
+                <button onPointerDown={toggleMenu}><h1>☰</h1></button>
             </div>
             <div className={`app-sidebar ${isMenuOpen ? "" : "closed"}`}>
                 <div className="app-logo"><h1> Chess Mate</h1></div>

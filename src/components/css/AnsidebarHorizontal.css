@@ -166,3 +166,11 @@
   background: #333;
   border-radius: 6px;
 }
+.ah-navBtn,
+.ah-moveBtn,
+.ah-flipBtn,
+.ah-tacticBtn {
+  touch-action: manipulation;  
+  -webkit-user-select: none;
+  user-select: none;
+}

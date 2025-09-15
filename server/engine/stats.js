@@ -57,11 +57,11 @@ const getGamePhaseBoundaries = (moves) => {
     moves.forEach((move, idx) => {
         if (move.includes("x")) xCount++;
         
-        if ((idx >= 13 || xCount >= 6) && boundaries.openingEnd === -1) {
+        if ((idx >= 15 || xCount >= 6) && boundaries.openingEnd === -1) {
             boundaries.openingEnd = idx;
         }
 
-        if ((idx >= 49 || xCount >= 14) && boundaries.middlegameEnd === -1) {
+        if ((idx >= 59 || xCount >= 16) && boundaries.middlegameEnd === -1) {
             boundaries.middlegameEnd = idx;
         }
     });
@@ -92,6 +92,7 @@ const getUserMovesInPhases = (moves, grades, cploss, captures, isWhite) => {
     }
     
     return phases;
+    copnsole.log("phases",phases);
 };
 
 const calculatePiecePhaseEfficiency = (targetPiece, userMovesInPhase) => {

@@ -5,6 +5,7 @@ import "./pages-css/dashboard.css"
 import Opening from "./opening";
 const Dashboard = ({name}) =>
 {
+    const username = localStorage.getItem("currentUser");
     return (
         <div style={{ background: "#1C1F24",height : "100vh" ,width:"100vw"}}>
         <div className="rish">
@@ -16,7 +17,7 @@ const Dashboard = ({name}) =>
         
 
         <div className="welcome">
-         <header><h1>Welcome Back {name}</h1></header>
+         <header><h1>Welcome Back {username}</h1></header>
          <div className="details"></div>
             
             <div className="griddiv">

@@ -121,7 +121,7 @@ import UniqueSidebars from "../components/verticalsidebar.jsx";
 
         const showtactic = () => { 
             setpvtrying(prev => !prev);
-            setpvindex(Count +1);
+            setpvindex(Count);
             setmainboard(pvtrying ? "" : "none");
             settryboard(pvtrying ? "none" : "");
             setpvframe(0);

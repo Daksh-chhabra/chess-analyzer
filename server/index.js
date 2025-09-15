@@ -9,6 +9,8 @@
     import { handlemovelist } from './engine/logic.js';
     import stats from './engine/stats.js';
     import { createProxyMiddleware } from 'http-proxy-middleware';
+    //import dotenv from 'dotenv'
+   // dotenv.config({ path: './backend.env' })
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);

@@ -1,5 +1,7 @@
 import { Chess } from "chess.js";
 import { openings } from "./openings.js";
+import dotenv from 'dotenv'
+dotenv.config({ path: '../server/backend.env'});
 
 function addDefaultPromotion(move, chess) {
   if (typeof move !== "string" || move.includes("=")) return move;
@@ -154,12 +156,12 @@ export async function handlemovelist(mdata, username, sessionUser ,options = { u
     }
   }
   sessionUser.chess = chess;
-  const API_URL = process.env.REACT_APP_API_URL;
+  const API_URL = process.env.APP_API_URL;
 
   const endpoint = options.userPGN ? "/getuserAnalysis" : "/getAnalysis";
   //console.log("Endpoint called:", `http:/localhost:5000${endpoint}?username=${encodeURIComponent(username)}`);
 
-  const res = await fetch(`http:/localhost:5000${endpoint}?username=${encodeURIComponent(username)}`, {
+  const res = await fetch(`${API_URL}${endpoint}?username=${encodeURIComponent(username)}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" }
   });

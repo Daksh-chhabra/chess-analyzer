@@ -57,11 +57,11 @@ const getGamePhaseBoundaries = (moves) => {
     moves.forEach((move, idx) => {
         if (move.includes("x")) xCount++;
         
-        if ((idx >= 13 || xCount >= 6) && boundaries.openingEnd === -1) {
+        if ((idx >= 15 || xCount >= 6) && boundaries.openingEnd === -1) {
             boundaries.openingEnd = idx;
         }
 
-        if ((idx >= 49 || xCount >= 14) && boundaries.middlegameEnd === -1) {
+        if ((idx >= 59 || xCount >= 16) && boundaries.middlegameEnd === -1) {
             boundaries.middlegameEnd = idx;
         }
     });
@@ -90,7 +90,7 @@ const getUserMovesInPhases = (moves, grades, cploss, captures, isWhite) => {
         else if (i <= boundaries.middlegameEnd) phases.middlegame.push(moveData);
         else phases.endgame.push(moveData);
     }
-    
+
     return phases;
 };
 
@@ -104,11 +104,15 @@ const calculatePiecePhaseEfficiency = (targetPiece, userMovesInPhase) => {
     if (pieceMoves.length === 0) return 0;
     
     const goodMoves = pieceMoves.filter(m => 
-        ['Brilliant', 'Great', 'Best', 'Good','Book'].includes(m.grade)
+        ['Brilliant', 'Great', 'Best', 'Good','Book','Okay'].includes(m.grade)
     ).length;
     
     return (goodMoves / pieceMoves.length) * 100;
 };
+
+
+
+
 
 const extractAdvancedMetrics = (moves, grades, cploss, captures, isWhite, captureMetrics) => {
     const getGamePhases = () => {
@@ -344,7 +348,7 @@ const extractAdvancedMetrics = (moves, grades, cploss, captures, isWhite, captur
         const activityBonus = activityMultiplier * 5;
 
         const goodMoveRatio = pieceMoves.filter(m => 
-            ['Brilliant', 'Great', 'Best', 'Good'].includes(m.grade)
+            ['Brilliant', 'Great', 'Best', 'Good','Okay'].includes(m.grade)
         ).length / pieceMoves.length;
         const qualityBonus = goodMoveRatio * 10;
 
@@ -774,7 +778,10 @@ const updateAggregatedStats = async (username) => {
       pawn_total_decisive_moves: allAnalytics.reduce((sum, a) => sum + (a.pawn_decisive_moves || 0), 0),
       pawn_avg_moves_per_game: allAnalytics.reduce((sum, a) => sum + (a.pawn_total_moves || 0), 0) / gameCount,
       pawn_avg_early_game_activity: allAnalytics.reduce((sum, a) => sum + (a.pawn_early_game_activity || 0), 0) / gameCount,
-      pawn_avg_endgame_efficiency: allAnalytics.reduce((sum, a) => sum + (a.pawn_endgame_efficiency || 0), 0) / gameCount,
+     pawn_avg_endgame_efficiency: (() => {
+  const validValues = allAnalytics.filter(a => (a.pawn_endgame_efficiency || 0) > 0);
+  return validValues.length > 0 ? validValues.reduce((sum, a) => sum + a.pawn_endgame_efficiency, 0) / validValues.length : 0;
+})(),
       pawn_avg_center_control: allAnalytics.reduce((sum, a) => sum + (a.pawn_center_control || 0), 0) / gameCount,
       
       knight_total_initiated_captures_good: allAnalytics.reduce((sum, a) => sum + (a.knight_initiated_captures_good || 0), 0),
@@ -788,7 +795,10 @@ const updateAggregatedStats = async (username) => {
       knight_total_decisive_moves: allAnalytics.reduce((sum, a) => sum + (a.knight_decisive_moves || 0), 0),
       knight_avg_moves_per_game: allAnalytics.reduce((sum, a) => sum + (a.knight_total_moves || 0), 0) / gameCount,
       knight_avg_early_game_activity: allAnalytics.reduce((sum, a) => sum + (a.knight_early_game_activity || 0), 0) / gameCount,
-      knight_avg_endgame_efficiency: allAnalytics.reduce((sum, a) => sum + (a.knight_endgame_efficiency || 0), 0) / gameCount,
+      knight_avg_endgame_efficiency: (() => {
+  const validValues = allAnalytics.filter(a => (a.knight_endgame_efficiency || 0) > 0);
+  return validValues.length > 0 ? validValues.reduce((sum, a) => sum + a.knight_endgame_efficiency, 0) / validValues.length : 0;
+})(),
       knight_avg_center_control: allAnalytics.reduce((sum, a) => sum + (a.knight_center_control || 0), 0) / gameCount,
       
       bishop_total_initiated_captures_good: allAnalytics.reduce((sum, a) => sum + (a.bishop_initiated_captures_good || 0), 0),
@@ -802,7 +812,10 @@ const updateAggregatedStats = async (username) => {
       bishop_total_decisive_moves: allAnalytics.reduce((sum, a) => sum + (a.bishop_decisive_moves || 0), 0),
       bishop_avg_moves_per_game: allAnalytics.reduce((sum, a) => sum + (a.bishop_total_moves || 0), 0) / gameCount,
       bishop_avg_early_game_activity: allAnalytics.reduce((sum, a) => sum + (a.bishop_early_game_activity || 0), 0) / gameCount,
-      bishop_avg_endgame_efficiency: allAnalytics.reduce((sum, a) => sum + (a.bishop_endgame_efficiency || 0), 0) / gameCount,
+     bishop_avg_endgame_efficiency: (() => {
+  const validValues = allAnalytics.filter(a => (a.bishop_endgame_efficiency || 0) > 0);
+  return validValues.length > 0 ? validValues.reduce((sum, a) => sum + a.bishop_endgame_efficiency, 0) / validValues.length : 0;
+})(),
       bishop_avg_center_control: allAnalytics.reduce((sum, a) => sum + (a.bishop_center_control || 0), 0) / gameCount,
       
       rook_total_initiated_captures_good: allAnalytics.reduce((sum, a) => sum + (a.rook_initiated_captures_good || 0), 0),
@@ -816,7 +829,10 @@ const updateAggregatedStats = async (username) => {
       rook_total_decisive_moves: allAnalytics.reduce((sum, a) => sum + (a.rook_decisive_moves || 0), 0),
       rook_avg_moves_per_game: allAnalytics.reduce((sum, a) => sum + (a.rook_total_moves || 0), 0) / gameCount,
       rook_avg_early_game_activity: allAnalytics.reduce((sum, a) => sum + (a.rook_early_game_activity || 0), 0) / gameCount,
-      rook_avg_endgame_efficiency: allAnalytics.reduce((sum, a) => sum + (a.rook_endgame_efficiency || 0), 0) / gameCount,
+      rook_avg_endgame_efficiency: (() => {
+  const validValues = allAnalytics.filter(a => (a.rook_endgame_efficiency || 0) > 0);
+  return validValues.length > 0 ? validValues.reduce((sum, a) => sum + a.rook_endgame_efficiency, 0) / validValues.length : 0;
+})(),
       rook_avg_center_control: allAnalytics.reduce((sum, a) => sum + (a.rook_center_control || 0), 0) / gameCount,
       
       queen_total_initiated_captures_good: allAnalytics.reduce((sum, a) => sum + (a.queen_initiated_captures_good || 0), 0),
@@ -830,7 +846,10 @@ const updateAggregatedStats = async (username) => {
       queen_total_decisive_moves: allAnalytics.reduce((sum, a) => sum + (a.queen_decisive_moves || 0), 0),
       queen_avg_moves_per_game: allAnalytics.reduce((sum, a) => sum + (a.queen_total_moves || 0), 0) / gameCount,
       queen_avg_early_game_activity: allAnalytics.reduce((sum, a) => sum + (a.queen_early_game_activity || 0), 0) / gameCount,
-      queen_avg_endgame_efficiency: allAnalytics.reduce((sum, a) => sum + (a.queen_endgame_efficiency || 0), 0) / gameCount,
+      queen_avg_endgame_efficiency: (() => {
+  const validValues = allAnalytics.filter(a => (a.queen_endgame_efficiency || 0) > 0);
+  return validValues.length > 0 ? validValues.reduce((sum, a) => sum + a.queen_endgame_efficiency, 0) / validValues.length : 0;
+})(),
       queen_avg_center_control: allAnalytics.reduce((sum, a) => sum + (a.queen_center_control || 0), 0) / gameCount
     }
 
@@ -1026,7 +1045,7 @@ const dataextraction = async(username, sessionUser) => {
                 xCount++;
             }
 
-            if (xCount <= 6) {
+            if (xCount <= 6 && idx <= 18) {
                 opening.push(move);
                 openinggrades.push(grades[idx]);
             } else if (xCount <= 12) {
@@ -1036,6 +1055,8 @@ const dataextraction = async(username, sessionUser) => {
                 endgame.push(move);
                 endgamegrades.push(grades[idx]);
             }
+
+
         });
 
         let openingcpsum = 0;
@@ -1067,11 +1088,44 @@ const dataextraction = async(username, sessionUser) => {
             }
         }
         let avgendgamecp = endgame.length > 0 ? endgamecpsum / endgamecount : 0;
+
+        let openingBlunders =0;
+        for(let i = isWhite ? 1 : 0; i < openinggrades.length; i += 2)
+        {
+        const grade = openinggrades[i] || 'Good';
+        if (grade === 'Blunder') {
+            openingBlunders++;
+        }
+        }
+
+
+        function acplToAccuracy(acpl) {
+        const k = 0.004;
+        let acc = 100 * Math.exp(-k * acpl);
+        return parseFloat(acc.toFixed(2));
+    }
+
+    const openingAccuracy = acplToAccuracy(avgopeningcp);
+
+
+
+
         console.log("openingcp",avgopeningcp);
         console.log("midgame",avgmidgamecp);
         console.log("endgame",avgendgamecp);
         console.log("opening grades",openinggrades);
         console.log("endgame",endgame);
+        console.log("avgopening blunders ",openingBlunders);
+        console.log("opening accuracy",openingAccuracy);
+
+        return {
+        avgOpeningCP: avgopeningcp,
+        openingAccuracy: openingAccuracy,
+        openingBlunders: openingBlunders
+    };
+
+
+        
     }
 
     piecemovenumber();
@@ -1118,7 +1172,51 @@ const dataextraction = async(username, sessionUser) => {
 
     openingstats();
 
+
+
+
+const extractOpeningName = (pgn) => {
+    const ecoUrlMatch = pgn.match(/\[ECOUrl\s+"([^"]+)"\]/);
+    if (ecoUrlMatch) {
+        const url = ecoUrlMatch[1];
+        const openingPart = url.split('/openings/')[1];
+        if (openingPart) {
+            let name = openingPart
+                .split('-')
+                .slice(0, 3) 
+                .join(' ')
+                .replace(/\d+.*$/, '') 
+                .replace(/\.\.\.$/, '') 
+                .trim();
+            
+            if (name && name.length > 3) {
+                
+                return name;
+            }
+        }
+    }
+    
+    const ecoMatch = pgn.match(/\[ECO\s+"([^"]+)"\]/);
+    if (ecoMatch) {
+        const ecoCode = ecoMatch[1];
+        const opening = cleanopenings.find(o => o.eco === ecoCode);
+        if (opening) {
+            return opening.name;
+        }
+    }
+    
+    
+    return 'Unknown Opening';
+    
+};
+
+
+
+
+
+
     const headers = parseheader(pgn);
+    
     const resultMatch = pgn.match(/\[Result\s+"([^"]+)"\]/);
     const gameResult = resultMatch ? resultMatch[1] : "Unknown";
     let result;
@@ -1141,9 +1239,132 @@ const dataextraction = async(username, sessionUser) => {
         result: result,
         color: isWhite ? "white" : "black",
         eco: ECOcodepgn,
-        opening_name: opening.length > 0 ? opening.name : "Unknown",
+        opening_name: extractOpeningName(pgn),
         total_moves: moves.length
     };
+    console.log("gameinfo",gameInfo);
+
+
+
+
+const saveOpeningMetrics = async (username, openingName, openingData, gameInfo, gameId) => {
+    try {
+        await setUserContext(username);
+        
+        if (!openingData || typeof openingData.avgOpeningCP === 'undefined') {
+            console.error("Invalid opening data:", openingData);
+            return { success: false, error: "Invalid opening data" };
+        }
+
+        // Check if this specific game was already processed
+        const { data: existingGameOpening, error: checkError } = await supabase
+            .from('opening_stats')
+            .select('*')  // Get all fields
+            .eq('username', username)
+            .eq('opening_name', openingName)
+            .single();
+
+        if (checkError && checkError.code !== 'PGRST116') {
+            throw checkError;
+        }
+
+        if (existingGameOpening) {
+            const processedGames = existingGameOpening.processed_games || [];
+            if (processedGames.includes(String(gameId))) {
+                return { success: true, message: 'Game already processed for this opening' };
+            }
+        }
+
+        const existingStats = existingGameOpening || {
+            total_games: 0,
+            total_wins: 0,
+            total_white_wins: 0,
+            total_black_wins: 0,
+            total_draws: 0,
+            total_losses: 0,
+            total_opening_acpl: 0,
+            total_opening_blunders: 0,
+            opening_accuracy: 0,
+            processed_games: []
+        };
+
+        // Calculate new aggregated stats
+        const newTotalGames = existingStats.total_games + 1;
+        const newTotalWins = existingStats.total_wins + (gameInfo.result === 'win' ? 1 : 0);
+        const newTotalWhiteWins = existingStats.total_white_wins + 
+            ((gameInfo.color === 'white' && gameInfo.result === 'win') ? 1 : 0);
+        const newTotalBlackWins = existingStats.total_black_wins + 
+            ((gameInfo.color === 'black' && gameInfo.result === 'win') ? 1 : 0);
+        const newTotalDraws = existingStats.total_draws + (gameInfo.result === 'draw' ? 1 : 0);
+        const newTotalLosses = existingStats.total_losses + (gameInfo.result === 'loss' ? 1 : 0);
+        const newTotalACPL = existingStats.total_opening_acpl + openingData.avgOpeningCP;
+        const newTotalBlunders = existingStats.total_opening_blunders + openingData.openingBlunders;
+        
+        // Convert gameId to string and add to processed games
+        const newProcessedGames = [...existingStats.processed_games, String(gameId)];
+
+        const upsertData = {
+            username: username,
+            opening_name: openingName,
+            total_games: newTotalGames,
+            total_wins: newTotalWins,
+            total_white_wins: newTotalWhiteWins,
+            total_black_wins: newTotalBlackWins,
+            total_draws: newTotalDraws,
+            total_losses: newTotalLosses,
+            total_opening_acpl: newTotalACPL,
+            avg_opening_acpl: newTotalACPL / newTotalGames,
+            opening_accuracy: (existingStats.opening_accuracy * existingStats.total_games + openingData.openingAccuracy) / newTotalGames,
+            total_opening_blunders: newTotalBlunders,
+            avg_opening_blunders: newTotalBlunders / newTotalGames,
+            win_rate: (newTotalWins / newTotalGames) * 100,
+            white_win_rate: newTotalWhiteWins > 0 ? (newTotalWhiteWins / Math.max(1, newTotalGames)) * 100 : 0,
+            black_win_rate: newTotalBlackWins > 0 ? (newTotalBlackWins / Math.max(1, newTotalGames)) * 100 : 0,
+            // Remove processed_games temporarily to avoid the error
+            // processed_games: newProcessedGames,
+            last_updated: new Date().toISOString()
+        };
+
+        const { error: upsertError } = await supabase
+            .from('opening_stats')
+            .upsert(upsertData, { 
+                onConflict: 'username,opening_name',
+                ignoreDuplicates: false 
+            });
+
+        if (upsertError) {
+            console.error("Upsert error:", upsertError);
+            throw upsertError;
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error(`Error saving opening metrics for ${username}:`, error);
+        return { success: false, error: error.message };
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
     const saveResult = await saveAnalyticsToSupabase(username, analyticsData, gameInfo, moves);
 
@@ -1158,6 +1379,32 @@ const dataextraction = async(username, sessionUser) => {
     if (saveResult.success) {
         console.log(`New game added to ${username}'s stats!`);
     }
+
+
+
+
+
+    
+try {
+    const openingName = extractOpeningName(pgn);
+    const openingData = piecemovenumber();
+
+    //console.log("Opening data being saved:", openingData);
+    
+    if (saveResult.success && saveResult.gameId) {
+        const openingMetricsResult = await saveOpeningMetrics(username, openingName, openingData, gameInfo, saveResult.gameId);
+        
+        if (openingMetricsResult.success) {
+            console.log(`Successfully saved opening metrics for ${username} - Opening: ${openingName}`);
+        } else {
+            console.error(`Failed to save opening metrics: ${openingMetricsResult.error}`);
+        }
+    }
+} catch (error) {
+    console.error('Error processing opening metrics:', error);
+}
+
+
 
     return analyticsData;
 }

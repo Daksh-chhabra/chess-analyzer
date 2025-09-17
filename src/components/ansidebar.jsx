@@ -11,10 +11,25 @@ const Ansidebar = ({ handlecount,onIncrease, onDecrease, onReset, movelist, pgn,
   
  const getopening = () =>
  {
-const match = pgn.match(/\[ECOUrl\s*"\s*https:\/\/www\.chess\.com\/openings\/(.+?)"\s*\]/i);
-if (match && match[1]) {
-  setopening(match[1]);
-} else {
+    const ecoUrlMatch = pgn.match(/\[ECOUrl\s+"([^"]+)"\]/);
+    if (ecoUrlMatch) {
+        const url = ecoUrlMatch[1];
+        const openingPart = url.split('/openings/')[1];
+        if (openingPart) {
+            let name = openingPart
+                .split('-')
+                .slice(0, 6) 
+                .join(' ')
+                .replace(/\d+.*$/, '') 
+                .replace(/\.\.\.$/, '') 
+                .trim();
+            
+            if (name && name.length > 3) {
+                
+                setopening(name);
+            }
+        }
+    } else {
   setopening(booknames[booknames.length-1]);
 }
  }

@@ -101,7 +101,7 @@
 }
 
 .ah-navBtn {
-  font-size: 1.00rem;
+  font-size: 1.60rem;
   padding: 4px 7px;
   border-radius: 6px;
   border: none;
@@ -111,7 +111,7 @@
   transition: all 0.15s;
   outline: none;
   font-weight: 700;
-  min-width: 25px;
+  min-width: 49px;
   min-height: 25px;
   box-shadow: 0 1px 2px #0002;
   display: flex;
@@ -130,8 +130,8 @@
   background: #223522;
   color: #fff;
   cursor: pointer;
-  min-width: 22px;
-  min-height: 25px;
+  min-width: 30px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -165,4 +165,12 @@
 .ah-moveLogLine::-webkit-scrollbar-thumb {
   background: #333;
   border-radius: 6px;
+}
+.ah-navBtn,
+.ah-moveBtn,
+.ah-flipBtn,
+.ah-tacticBtn {
+  touch-action: manipulation;  
+  -webkit-user-select: none;
+  user-select: none;
 }

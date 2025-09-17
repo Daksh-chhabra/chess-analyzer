@@ -1,33 +1,32 @@
 import React, { useState } from "react";
-import './css/card.css';
+import { createPortal } from "react-dom";
+import "./css/card.css";
 import { useNavigate } from "react-router-dom";
 import { Chess } from "chess.js";
 import { API_URL } from "../pathconfig";
-import { saveFile, readFile, deleteFile, deleteDB } from '../utils/fileStorage';
+import { saveFile, deleteFile } from "../utils/fileStorage";
 import analyteUser from "../wasmanalysisfromuser";
 
 function CreateCards(props) {
     const [loading, setLoading] = useState(false);
-    const Navigate = useNavigate();
     const [username, setusername] = useState("");
     const [pgnfromuser, setpgnfromuser] = useState("");
+    const Navigate = useNavigate();
 
     const handleclick = async () => {
-        // ... (your existing handleclick logic remains unchanged)
+        if (loading) return;
         if (props.action === "fetch") {
             setLoading(true);
-            if (typeof username === "string") {
+            if (typeof username === "string" && username.trim() !== "") {
                 try {
                     const oldUsername = localStorage.getItem("currentUser");
                     if (oldUsername && oldUsername !== username) {
                         await deleteFile(`${oldUsername}.json`);
-                        console.log(`Deleted old file for ${oldUsername}`);
                     }
                     const res = await fetch(`${API_URL}/username`, {
-                        method: "POST", headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ username }),
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username })
                     });
                     if (!res.ok) {
                         const msg = await res.text();
@@ -37,64 +36,48 @@ function CreateCards(props) {
                     }
                     const userData = await res.json();
                     await saveFile(`${username}.json`, userData);
-                    if ("storage" in navigator && "estimate" in navigator.storage) {
-                        const estimate = await navigator.storage.estimate();
-                        console.log(`Usage: ${estimate.usage} bytes`);
-                        console.log(`Quota: ${estimate.quota} bytes`);
-                        if (estimate.usage && estimate.quota) {
-                            const percentUsed = ((estimate.usage / estimate.quota) * 100).toFixed(2);
-                            console.log(`Used: ${percentUsed}% of quota`);
-                        }
-                    } else {
-                        console.log("Storage estimation not supported in this browser");
-                    }
                     localStorage.setItem("currentUser", username);
-                    const replied = await fetch(`${API_URL}/statsuser`, {
+                    await fetch(`${API_URL}/statsuser`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ username }),
+                        body: JSON.stringify({ username })
                     });
                     Navigate("/matches");
-                }
-                catch (error) {
-                    console.log("errorws", error);
+                } catch (e) {
+                    console.log(e);
+                    setLoading(false);
                 }
             } else {
                 alert("username need to be non empty text");
                 setLoading(false);
             }
-        }
-        else if (props.action === "analyze") {
-            const chess = new Chess();
+        } else if (props.action === "analyze") {
             setLoading(true);
-            console.log("Before calling analyteUser");
             analyteUser();
-            console.log("After calling analyteUser");
-            if (typeof pgnfromuser === "string") {
+            if (typeof pgnfromuser === "string" && pgnfromuser.trim() !== "") {
                 try {
                     const currentUser = localStorage.getItem("currentUser");
                     const dep = await fetch(`${API_URL}/pgnfromuser`, {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ pgnfromuser: pgnfromuser, username: currentUser })
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ pgnfromuser, username: currentUser })
                     });
                     if (!dep.ok) {
-                        const msg = await dep.text();
+                        await dep.text();
                         alert("invalid PGN");
+                        setLoading(false);
                         return;
                     }
                     const result = await dep.json();
-                    console.log("result", result);
                     const pgnString = result.pgn?.pgnfromuser;
                     if (!pgnString || typeof pgnString !== "string") {
-                        console.error("PGN string is missing or invalid", result.pgn);
+                        console.error("PGN string missing");
+                        setLoading(false);
                         return;
                     }
-                    const whiteName = pgnString.match(/\[White\s+"([^"]+)"\]/)[1];
-                    const blackName = pgnString.match(/\[Black\s+"([^"]+)"\]/)[1];
-                    const isWhite = whiteName.toLowerCase() === currentUser.toLowerCase();
+                    const whiteName = pgnString.match(/\[White\s+"([^"]+)"\]/)?.[1] || "White";
+                    const blackName = pgnString.match(/\[Black\s+"([^"]+)"\]/)?.[1] || "Black";
+                    const isWhite = currentUser && whiteName.toLowerCase() === currentUser.toLowerCase();
                     const userevalrating = isWhite ? result.whiterating : result.blackrating;
                     const oppevalrating = isWhite ? result.blackrating : result.whiterating;
                     const userrated = isWhite
@@ -104,52 +87,100 @@ function CreateCards(props) {
                         ? (pgnString.match(/\[BlackElo\s+"(\d+)"\]/)?.[1] || 0)
                         : (pgnString.match(/\[WhiteElo\s+"(\d+)"\]/)?.[1] || 0);
                     const key = Date.now();
-                    console.log("userrated", userrated);
-                    console.log("opprated", opprated);
-                    Navigate("/analysis", { state: { key, pgn: pgnfromuser, bestmoves: result.bestmoves, moves: result.moves, whiteacpl: result.whiteacpl, blackacpl: result.blackacpl, grading: result.grades, evalbar: result.cpforevalbar, cpbar: result.cpbar, userwinpercents: result.userwinpercents, userevalrating: userevalrating, oppevalrating: oppevalrating, pvfen: result.pvfen, booknames: result.booknames, grademovenumber: result.grademovenumber, blackgradeno: result.blackgradeno, userevalrating: userevalrating, oppevalrating: oppevalrating, userusername: whiteName, oppusername: blackName, userrating: userrated, opprating: opprated } });
+                    Navigate("/analysis", {
+                        state: {
+                            key,
+                            pgn: pgnfromuser,
+                            bestmoves: result.bestmoves,
+                            moves: result.moves,
+                            whiteacpl: result.whiteacpl,
+                            blackacpl: result.blackacpl,
+                            grading: result.grades,
+                            evalbar: result.cpforevalbar,
+                            cpbar: result.cpbar,
+                            userwinpercents: result.userwinpercents,
+                            userevalrating,
+                            oppevalrating,
+                            pvfen: result.pvfen,
+                            booknames: result.booknames,
+                            grademovenumber: result.grademovenumber,
+                            blackgradeno: result.blackgradeno,
+                            userusername: whiteName,
+                            oppusername: blackName,
+                            userrating: userrated,
+                            opprating: opprated
+                        }
+                    });
+                } catch (e) {
+                    console.error(e);
+                    setLoading(false);
                 }
-                catch (Error) {
-                    console.error("Error :", Error);
-                }
+            } else {
+                alert("PGN cannot be empty");
+                setLoading(false);
             }
         }
-    }
+    };
+
+    const enterHandler = (e) => {
+        if (e.key === "Enter") {
+            handleclick();
+        }
+    };
 
     return (
         <>
-            {loading && (
+            {loading && createPortal(
                 <div className="loading-overlay">
-                    {props.action === "fetch"
-                        ? "Fetching Matches... Please wait."
-                        : props.action === "analyze"
-                            ? "Analyzing PGN... Please wait."
-                            : "Loading..."}
-                </div>
+                    <div className="loading-text">
+                        {props.action === "fetch"
+                            ? "Fetching Matches... Please wait."
+                            : props.action === "analyze"
+                                ? "Analyzing PGN... Please wait."
+                                : "Loading..."}
+                    </div>
+                    <div className="spinner"></div>
+                </div>,
+                document.body
             )}
-            <div className="card" style={{backgroundColor : " #290e0eff"}}>
-                <img src={props.image} className="card-image" alt={props.platform}></img>
-                <h2 className="card-title">{props.platform}</h2>
-                {props.action === "fetch" && (
-                    <input
-                        type="text"
-                        placeholder={`${props.platform} username`}
-                        onChange={(e) => setusername(e.target.value)}
-                        value={username}
-                        className="card-input"
-                    />
-                )}
-                {props.action === "analyze" && (
-                    <input
-                        type="text"
-                        placeholder="Paste PGN here"
-                        onChange={(e) => setpgnfromuser(e.target.value)}
-                        value={pgnfromuser}
-                        className="card-input"
-                    />
-                )}
-                <button className="btn" onClick={handleclick}>
-                    {props.action === "fetch" ? "Fetch Matches" : props.action === "analyze" ? "Analyze" : ""}
-                </button>
+            <div className="card-root">
+                <div className="card-glow"></div>
+                <div className="card-sheen"></div>
+                <div className="card">
+                    <div className="card-top">
+                        <div className="card-image-wrap">
+                            <img src={props.image} className="card-image" alt={props.platform} />
+                        </div>
+                        <h2 className="card-title">{props.platform}</h2>
+                    </div>
+                    <div className="card-middle">
+                        {props.action === "fetch" && (
+                            <input
+                                type="text"
+                                placeholder={`${props.platform} username`}
+                                onChange={(e) => setusername(e.target.value)}
+                                value={username}
+                                onKeyDown={enterHandler}
+                                className="card-input"
+                                disabled={loading}
+                            />
+                        )}
+                        {props.action === "analyze" && (
+                            <input
+                                type="text"
+                                placeholder="Paste PGN here"
+                                onChange={(e) => setpgnfromuser(e.target.value)}
+                                value={pgnfromuser}
+                                onKeyDown={enterHandler}
+                                className="card-input"
+                                disabled={loading}
+                            />
+                        )}
+                    </div>
+                    <button className="card-btn" disabled={loading} onClick={handleclick}>
+                        {props.action === "fetch" ? "Fetch Matches" : props.action === "analyze" ? "Analyze" : ""}
+                    </button>
+                </div>
             </div>
         </>
     );

@@ -9,7 +9,7 @@ export const setUserContext = async (username) => {
   if (!username || username.trim() === '') {
     throw new Error('Username is required');
   }
-
+  //console.log('Setting context for username:', username);
   try {
     const { data, error } = await supabase.rpc('set_config', {
       setting_name: 'myapp.username',

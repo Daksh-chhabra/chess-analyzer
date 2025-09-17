@@ -14,7 +14,18 @@ export const getUserChessAnalytics = async (username) => {
       return null;
     }
 
-    const mockData = {
+    const getOpeningMetricName = (piece) => {
+      const names = {
+        'pawn': 'Center Control',
+        'knight': 'Development Speed', 
+        'bishop': 'Diagonal Dominance',
+        'rook': 'Castling Readiness',
+        'queen': 'Queen Safety'
+      };
+      return names[piece] || 'Opening Performance';
+    };
+
+    const realData = {
       pieceAnalytics: {
         pawn: {
           initiatedCaptures: { 
@@ -34,7 +45,8 @@ export const getUserChessAnalytics = async (username) => {
           decisiveMoves: stats.pawn_total_decisive_moves,
           averageMovesPerGame: parseFloat(stats.pawn_avg_moves_per_game?.toFixed(1) || 0),
           earlyGameActivity: parseFloat(stats.pawn_avg_early_game_activity?.toFixed(1) || 0),
-          endgameEfficiency: parseFloat(stats.pawn_avg_endgame_efficiency?.toFixed(1) || 0),
+          endgameEfficiency: stats.pawn_avg_endgame_efficiency > 0 ? 
+            parseFloat(stats.pawn_avg_endgame_efficiency.toFixed(1)) : 0,
           centerControlContribution: parseFloat(stats.pawn_avg_center_control?.toFixed(1) || 0)
         },
         knight: {
@@ -54,8 +66,9 @@ export const getUserChessAnalytics = async (username) => {
           timesCaptured: Math.round(stats.games_analyzed * 0.36),
           decisiveMoves: stats.knight_total_decisive_moves,
           averageMovesPerGame: parseFloat(stats.knight_avg_moves_per_game?.toFixed(1) || 0),
-          earlyGameActivity: parseFloat(stats.knight_avg_early_game_activity?.toFixed(1) || 0),
-          endgameEfficiency: parseFloat(stats.knight_avg_endgame_efficiency?.toFixed(1) || 0),
+          earlyGameActivity: parseFloat(stats.knight_avg_early_game_activity?.toFixed(1) || 0),  
+          endgameEfficiency: stats.knight_avg_endgame_efficiency > 0 ? 
+            parseFloat(stats.knight_avg_endgame_efficiency.toFixed(1)) : 0,
           centerControlContribution: parseFloat(stats.knight_avg_center_control?.toFixed(1) || 0)
         },
         bishop: {
@@ -75,8 +88,9 @@ export const getUserChessAnalytics = async (username) => {
           timesCaptured: Math.round(stats.games_analyzed * 0.36),
           decisiveMoves: stats.bishop_total_decisive_moves,
           averageMovesPerGame: parseFloat(stats.bishop_avg_moves_per_game?.toFixed(1) || 0),
-          earlyGameActivity: parseFloat(stats.bishop_avg_early_game_activity?.toFixed(1) || 0),
-          endgameEfficiency: parseFloat(stats.bishop_avg_endgame_efficiency?.toFixed(1) || 0),
+           earlyGameActivity: parseFloat(stats.bishop_avg_early_game_activity?.toFixed(1) || 0),
+          endgameEfficiency: stats.bishop_avg_endgame_efficiency > 0 ? 
+            parseFloat(stats.bishop_avg_endgame_efficiency.toFixed(1)) : 0,
           centerControlContribution: parseFloat(stats.bishop_avg_center_control?.toFixed(1) || 0)
         },
         rook: {
@@ -96,8 +110,9 @@ export const getUserChessAnalytics = async (username) => {
           timesCaptured: Math.round(stats.games_analyzed * 0.36),
           decisiveMoves: stats.rook_total_decisive_moves,
           averageMovesPerGame: parseFloat(stats.rook_avg_moves_per_game?.toFixed(1) || 0),
-          earlyGameActivity: parseFloat(stats.rook_avg_early_game_activity?.toFixed(1) || 0),
-          endgameEfficiency: parseFloat(stats.rook_avg_endgame_efficiency?.toFixed(1) || 0),
+           earlyGameActivity: parseFloat(stats.rook_avg_early_game_activity?.toFixed(1) || 0),
+          endgameEfficiency: stats.rook_avg_endgame_efficiency > 0 ? 
+            parseFloat(stats.rook_avg_endgame_efficiency.toFixed(1)) : 0,
           centerControlContribution: parseFloat(stats.rook_avg_center_control?.toFixed(1) || 0)
         },
         queen: {
@@ -117,14 +132,15 @@ export const getUserChessAnalytics = async (username) => {
           timesCaptured: Math.round(stats.games_analyzed * 0.18),
           decisiveMoves: stats.queen_total_decisive_moves,
           averageMovesPerGame: parseFloat(stats.queen_avg_moves_per_game?.toFixed(1) || 0),
-          earlyGameActivity: parseFloat(stats.queen_avg_early_game_activity?.toFixed(1) || 0),
-          endgameEfficiency: parseFloat(stats.queen_avg_endgame_efficiency?.toFixed(1) || 0),
+           earlyGameActivity: parseFloat(stats.queen_avg_early_game_activity?.toFixed(1) || 0),
+          endgameEfficiency: stats.queen_avg_endgame_efficiency > 0 ? 
+            parseFloat(stats.queen_avg_endgame_efficiency.toFixed(1)) : 0,
           centerControlContribution: parseFloat(stats.queen_avg_center_control?.toFixed(1) || 0)
         }
       }
     };
 
-    return mockData;
+    return realData;
     
   } catch (error) {
     return null;

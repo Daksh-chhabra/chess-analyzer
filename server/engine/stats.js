@@ -94,20 +94,38 @@ const getUserMovesInPhases = (moves, grades, cploss, captures, isWhite) => {
     return phases;
 };
 
-const calculatePiecePhaseEfficiency = (targetPiece, userMovesInPhase) => {
+const calculatePiecePhaseEfficiency = (targetPiece, userMovesInPhase, phaseName) => {
     const pieceMoves = userMovesInPhase.filter(moveData => {
         let piece = moveData.move[0];
         if (!['N','B','R','Q','K'].includes(piece)) piece = 'P';
         return piece === targetPiece || (targetPiece === 'P' && piece === 'P');
     });
     
-    if (pieceMoves.length === 0) return 0;
+    if (phaseName === 'endgame' && userMovesInPhase.length === 0) {
+        return null;
+    }
+    
+    if (phaseName === 'endgame' && userMovesInPhase.length < 5) {
+        return null;
+    }
+    
+    if (pieceMoves.length === 0) {
+        if (phaseName === 'endgame') return null;
+        return 50;
+    }
     
     const goodMoves = pieceMoves.filter(m => 
         ['Brilliant', 'Great', 'Best', 'Good','Book','Okay'].includes(m.grade)
     ).length;
     
-    return (goodMoves / pieceMoves.length) * 100;
+    const baseEfficiency = (goodMoves / pieceMoves.length) * 100;
+    
+    if (phaseName === 'endgame') {
+        const phaseWeight = Math.min(userMovesInPhase.length / 10, 1.5);
+        return Math.min(baseEfficiency * phaseWeight, 100);
+    }
+    
+    return baseEfficiency;
 };
 
 
@@ -209,9 +227,9 @@ const extractAdvancedMetrics = (moves, grades, cploss, captures, isWhite, captur
         const userPhases = getUserMovesInPhases(moves, grades, cploss, captures, isWhite);
         
         return {
-            earlyGameActivity: calculatePiecePhaseEfficiency(targetPiece, userPhases.opening),
-            middlegameEfficiency: calculatePiecePhaseEfficiency(targetPiece, userPhases.middlegame),
-            endgameEfficiency: calculatePiecePhaseEfficiency(targetPiece, userPhases.endgame)
+            earlyGameActivity: calculatePiecePhaseEfficiency(targetPiece, userPhases.opening, 'opening'),
+            middlegameEfficiency: calculatePiecePhaseEfficiency(targetPiece, userPhases.middlegame, 'middlegame'),
+            endgameEfficiency: calculatePiecePhaseEfficiency(targetPiece, userPhases.endgame, 'endgame')
         };
     };
 
@@ -634,7 +652,7 @@ const saveAnalyticsToSupabase = async (username, analyticsData, gameInfo, moves)
       pawn_decisive_moves: pieceData.pawn.decisiveMoves,
       pawn_tactical_moves: pieceData.pawn.tacticalMoves,
       pawn_early_game_activity: pieceData.pawn.earlyGameActivity,
-      pawn_endgame_efficiency: pieceData.pawn.endgameEfficiency,
+      pawn_endgame_efficiency: pieceData.pawn.endgameEfficiency ?? -1,
       pawn_center_control: pieceData.pawn.centerControlContribution,
       pawn_survival_rate: pieceData.pawn.survivalRate,
       pawn_trade_success_rate: pieceData.pawn.tradeSuccessRate,
@@ -653,7 +671,7 @@ const saveAnalyticsToSupabase = async (username, analyticsData, gameInfo, moves)
       knight_decisive_moves: pieceData.knight.decisiveMoves,
       knight_tactical_moves: pieceData.knight.tacticalMoves,
       knight_early_game_activity: pieceData.knight.earlyGameActivity,
-      knight_endgame_efficiency: pieceData.knight.endgameEfficiency,
+      knight_endgame_efficiency: pieceData.knight.endgameEfficiency ?? -1,
       knight_center_control: pieceData.knight.centerControlContribution,
       knight_survival_rate: pieceData.knight.survivalRate,
       knight_trade_success_rate: pieceData.knight.tradeSuccessRate,
@@ -672,7 +690,7 @@ const saveAnalyticsToSupabase = async (username, analyticsData, gameInfo, moves)
       bishop_decisive_moves: pieceData.bishop.decisiveMoves,
       bishop_tactical_moves: pieceData.bishop.tacticalMoves,
       bishop_early_game_activity: pieceData.bishop.earlyGameActivity,
-      bishop_endgame_efficiency: pieceData.bishop.endgameEfficiency,
+      bishop_endgame_efficiency: pieceData.bishop.endgameEfficiency ?? -1,
       bishop_center_control: pieceData.bishop.centerControlContribution,
       bishop_survival_rate: pieceData.bishop.survivalRate,
       bishop_trade_success_rate: pieceData.bishop.tradeSuccessRate,
@@ -691,7 +709,7 @@ const saveAnalyticsToSupabase = async (username, analyticsData, gameInfo, moves)
       rook_decisive_moves: pieceData.rook.decisiveMoves,
       rook_tactical_moves: pieceData.rook.tacticalMoves,
       rook_early_game_activity: pieceData.rook.earlyGameActivity,
-      rook_endgame_efficiency: pieceData.rook.endgameEfficiency,
+      rook_endgame_efficiency: pieceData.rook.endgameEfficiency ?? -1,
       rook_center_control: pieceData.rook.centerControlContribution,
       rook_survival_rate: pieceData.rook.survivalRate,
       rook_trade_success_rate: pieceData.rook.tradeSuccessRate,
@@ -710,7 +728,7 @@ const saveAnalyticsToSupabase = async (username, analyticsData, gameInfo, moves)
       queen_decisive_moves: pieceData.queen.decisiveMoves,
       queen_tactical_moves: pieceData.queen.tacticalMoves,
       queen_early_game_activity: pieceData.queen.earlyGameActivity,
-      queen_endgame_efficiency: pieceData.queen.endgameEfficiency,
+      queen_endgame_efficiency: pieceData.queen.endgameEfficiency ?? -1,
       queen_center_control: pieceData.queen.centerControlContribution,
       queen_survival_rate: pieceData.queen.survivalRate,
       queen_trade_success_rate: pieceData.queen.tradeSuccessRate,
@@ -760,6 +778,11 @@ const updateAggregatedStats = async (username) => {
       .select('id')
       .eq('username', username)
       .single()
+
+    const validEndgameGames = allAnalytics.filter(a => 
+      (a.pawn_endgame_efficiency || 0) > 0 && a.pawn_endgame_efficiency !== -1
+    );
+    const endgameCount = validEndgameGames.length;
 
     const aggregated = {
       user_id: user.id,
@@ -898,7 +921,8 @@ const getAggregatedData = async (username) => {
           decisiveMoves: stats.pawn_total_decisive_moves,
           averageMovesPerGame: parseFloat(stats.pawn_avg_moves_per_game.toFixed(1)),
           earlyGameActivity: parseFloat(stats.pawn_avg_early_game_activity.toFixed(1)),
-          endgameEfficiency: parseFloat(stats.pawn_avg_endgame_efficiency.toFixed(1)),
+          endgameEfficiency: stats.pawn_avg_endgame_efficiency > 0 ? 
+            parseFloat(stats.pawn_avg_endgame_efficiency.toFixed(1)) : "Insufficient endgame data",
           centerControlContribution: parseFloat(stats.pawn_avg_center_control.toFixed(1))
         },
         knight: {
@@ -919,7 +943,8 @@ const getAggregatedData = async (username) => {
           decisiveMoves: stats.knight_total_decisive_moves,
           averageMovesPerGame: parseFloat(stats.knight_avg_moves_per_game.toFixed(1)),
           earlyGameActivity: parseFloat(stats.knight_avg_early_game_activity.toFixed(1)),
-          endgameEfficiency: parseFloat(stats.knight_avg_endgame_efficiency.toFixed(1)),
+          endgameEfficiency: stats.knight_avg_endgame_efficiency > 0 ? 
+            parseFloat(stats.knight_avg_endgame_efficiency.toFixed(1)) : "Insufficient endgame data",
           centerControlContribution: parseFloat(stats.knight_avg_center_control.toFixed(1))
         },
         bishop: {
@@ -940,7 +965,8 @@ const getAggregatedData = async (username) => {
           decisiveMoves: stats.bishop_total_decisive_moves,
           averageMovesPerGame: parseFloat(stats.bishop_avg_moves_per_game.toFixed(1)),
           earlyGameActivity: parseFloat(stats.bishop_avg_early_game_activity.toFixed(1)),
-          endgameEfficiency: parseFloat(stats.bishop_avg_endgame_efficiency.toFixed(1)),
+          endgameEfficiency: stats.bishop_avg_endgame_efficiency > 0 ? 
+            parseFloat(stats.bishop_avg_endgame_efficiency.toFixed(1)) : "Insufficient endgame data",
           centerControlContribution: parseFloat(stats.bishop_avg_center_control.toFixed(1))
         },
         rook: {
@@ -961,7 +987,8 @@ const getAggregatedData = async (username) => {
           decisiveMoves: stats.rook_total_decisive_moves,
           averageMovesPerGame: parseFloat(stats.rook_avg_moves_per_game.toFixed(1)),
           earlyGameActivity: parseFloat(stats.rook_avg_early_game_activity.toFixed(1)),
-          endgameEfficiency: parseFloat(stats.rook_avg_endgame_efficiency.toFixed(1)),
+          endgameEfficiency: stats.rook_avg_endgame_efficiency > 0 ? 
+            parseFloat(stats.rook_avg_endgame_efficiency.toFixed(1)) : "Insufficient endgame data",
           centerControlContribution: parseFloat(stats.rook_avg_center_control.toFixed(1))
         },
         queen: {
@@ -982,7 +1009,8 @@ const getAggregatedData = async (username) => {
           decisiveMoves: stats.queen_total_decisive_moves,
           averageMovesPerGame: parseFloat(stats.queen_avg_moves_per_game.toFixed(1)),
           earlyGameActivity: parseFloat(stats.queen_avg_early_game_activity.toFixed(1)),
-          endgameEfficiency: parseFloat(stats.queen_avg_endgame_efficiency.toFixed(1)),
+          endgameEfficiency: stats.queen_avg_endgame_efficiency > 0 ? 
+            parseFloat(stats.queen_avg_endgame_efficiency.toFixed(1)) : "Insufficient endgame data",
           centerControlContribution: parseFloat(stats.queen_avg_center_control.toFixed(1))
         }
       }

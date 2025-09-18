@@ -150,6 +150,23 @@ const AnalyticsCore = ({ gameData }) => {
         }
     }, [Count, derivedData.fromSquares, derivedData.toSquares, pvtrying]);
 
+    useEffect(() => {
+        if (!pvtrying || !pvfen.length) return;
+
+        const interval = setInterval(() => {
+            setpvframe(prev => {
+                const currentpv = pvfen[pvindex - 1] || [];
+                const newFrame = prev < Math.min(13, currentpv.length) ? prev + 1 : prev;
+                if (newFrame === prev) {
+                    clearInterval(interval);
+                }
+                return newFrame;
+            });
+        }, 800);
+        
+        return () => clearInterval(interval);
+    }, [pvtrying, pvfen, pvindex]);
+
     function acplToAccuracy(acpl) {
         const k = 0.004;
         let acc = 100 * Math.exp(-k * acpl);

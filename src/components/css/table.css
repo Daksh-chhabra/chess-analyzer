@@ -19,7 +19,6 @@
 
 .header-table {
   flex-shrink: 0;
-  overflow-x: auto;
 }
 
 .body-table {
@@ -367,148 +366,55 @@
   .table {
     overflow-x: auto;
   }
-  
-  .main-table { 
-    min-width: 450px; 
-  }
-  
-  .header-table {
-    overflow-x: auto;
-  }
-  
+
   .table-body-scroll {
+    overflow-x: visible;
     -webkit-overflow-scrolling: touch;
   }
-  
+
+  .main-table { min-width: 100%; }
+
   .table th,
-  .table td { 
-    font-size: 0.8rem; 
-    padding: 12px 8px; 
-  }
-  
+  .table td { font-size: 0.8rem; padding: 12px 10px; }
+
   .table-date-column,
   .table-rating-column,
-  .table-game-link-column { 
-    display: none; 
-  }
-  
+  .table-game-link-column { display: none; }
+
   .w-date { display: none; }
   .w-rating { display: none; }
   .w-link { display: none; }
-  
-  .w-players { width: 50%; }
-  .w-result { width: 18%; }
-  .w-time { width: 16%; }
-  .w-analyse { width: 16%; }
-  
-  .player-filter-input { 
-    width: 120px; 
-    font-size: 0.8rem;
-  }
-  
-  .player-filter-go { 
-    padding: 4px 6px; 
-    font-size: 0.75rem; 
-  }
-  
-  .filter-button {
-    font-size: 0.65rem;
-    padding: 2px 3px;
-  }
-  
-  .analyse-button {
-    font-size: 0.72rem;
-    padding: 6px 8px;
-  }
-  
-  .table-footer { 
-    padding: 12px 12px 16px; 
-  }
-  
-  .footer-left { 
-    gap: 14px; 
-  }
-  
-  .page-size-trigger { 
-    font-size: 0.7rem; 
-    padding: 6px 8px; 
-  }
-  
-  .page-size-item { 
-    font-size: 0.68rem; 
-    padding: 5px 8px; 
-  }
-  
-  .games-count { 
-    font-size: 0.72rem; 
-  }
-  
-  .table-body-scroll::-webkit-scrollbar {
-    height: 8px;
-    width: 8px;
-  }
-  
-  .table-body-scroll::-webkit-scrollbar-thumb {
-    background: #5AB1FF;
-    border-radius: 4px;
-  }
+
+  .w-players { width: 55%; }
+  .w-result { width: 15%; }
+  .w-time { width: 15%; }
+  .w-analyse { width: 15%; }
+
+  .player-filter-input { width: 90px; }
+  .player-filter-go { padding: 4px 6px; font-size: 0.62rem; }
+
+  .table-footer { padding: 12px 12px 18px; }
+  .footer-left { gap: 14px; }
+  .page-size-trigger { font-size: 0.7rem; padding: 6px 8px; }
+  .page-size-item { font-size: 0.68rem; padding: 5px 8px; }
+  .games-count { font-size: 0.72rem; }
+
+  .table-body-scroll::-webkit-scrollbar { height: 8px; }
+  .table-body-scroll::-webkit-scrollbar-thumb { background: #5AB1FF; border-radius: 4px; }
 }
 
 @media (max-width: 480px) {
   .table th,
-  .table td { 
-    font-size: 0.72rem; 
-    padding: 10px 6px; 
-  }
-  
-  .main-table { 
-    min-width: 400px; 
-  }
-  
-  .w-players { width: 52%; }
+  .table td { font-size: 0.72rem; padding: 11px 8px; }
+  .player-filter-input { width: 70px; font-size: 0.62rem; }
+  .player-filter-go { padding: 4px 5px; }
+  .analyse-button { width: 100%; font-size: 0.68rem; padding: 6px 8px; }
+  .w-players { width: 60%; }
   .w-result { width: 16%; }
-  .w-time { width: 16%; }
-  .w-analyse { width: 16%; }
-  
-  .player-filter-input { 
-    width: 100px; 
-    font-size: 0.72rem; 
-  }
-  
-  .player-filter-go { 
-    padding: 4px 5px; 
-    font-size: 0.68rem;
-  }
-  
-  .analyse-button {
-    font-size: 0.65rem;
-    padding: 5px 6px;
-  }
-  
-  .page-size-trigger { 
-    font-size: 0.64rem; 
-    padding: 5px 7px; 
-  }
-  
-  .page-size-item { 
-    font-size: 0.62rem; 
-    padding: 4px 6px;
-  }
-  
-  .pagination-btn { 
-    padding: 6px 8px; 
-    font-size: 11px; 
-  }
-  
-  .games-count { 
-    font-size: 0.65rem; 
-  }
-  
-  .table-footer {
-    padding: 10px 8px 14px;
-  }
-  
-  .footer-left {
-    gap: 10px;
-  }
+  .w-time { width: 12%; }
+  .w-analyse { width: 12%; }
+  .page-size-trigger { font-size: 0.64rem; padding: 5px 7px; }
+  .page-size-item { font-size: 0.62rem; }
+  .pagination-btn { padding: 6px 8px; font-size: 11px; }
+  .games-count { font-size: 0.65rem; }
 }

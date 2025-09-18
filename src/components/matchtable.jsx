@@ -107,6 +107,7 @@ function Matchtable({ rf }) {
       });
       if (!resp.ok) throw new Error();
       const dataweget = await resp.json();
+      localStorage.setItem("analysisKey", dataweget.analysisKey);
       navigate("/analysis", {
         state: {
           key: Date.now(),

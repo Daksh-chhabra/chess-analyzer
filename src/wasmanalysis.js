@@ -30,12 +30,13 @@ export const prewarmStockfish = () => {
 
 async function analyte() {
     const username = localStorage.getItem("currentUser");
+    const analysisKey = localStorage.getItem("analysisKey");
     let stockfishService;
     try {
         const response = await fetch(`${API_URL}/analyzewithstockfish`, {
             method: "POST",
             headers: { 'Content-Type': "application/json" },
-            body: JSON.stringify({ username })
+            body: JSON.stringify({ username, analysisKey })
         });
 
         if (!response.ok) throw new Error(`HTTP error ${response.status}`);

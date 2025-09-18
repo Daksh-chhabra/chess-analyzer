@@ -9,6 +9,7 @@
     import { handlemovelist } from './engine/logic.js';
     import stats from './engine/stats.js';
     import { createProxyMiddleware } from 'http-proxy-middleware';
+    import crypto from 'crypto';
     //import dotenv from 'dotenv'
    // dotenv.config({ path: './backend.env' })
 
@@ -60,7 +61,8 @@
         chess: new Chess(),
         bestanalysis: [],
         storedanalysisUser :[],
-        cachedPGNDatauser: null
+        cachedPGNDatauser: null,
+        games: {}
         };
     }
     return sessions[username];
@@ -182,6 +184,28 @@
             return res.status(400).json({ error: "No PGN data provided yet." });
         }
         movesarray(username);
+        const analysisKey = crypto.createHash('md5').update(pgn.trim()).digest('hex').substring(0, 16);
+        sessionUser.games[analysisKey] = { mArray: [...sessionUser.mArray] };
+        
+        if (!sessionUser.storedanalysis || !sessionUser.storedanalysis.results || sessionUser.storedanalysis.results.length === 0) {
+            sessionUser.storedanalysis = {
+                results: sessionUser.mArray.map(() => ({
+                    analysis: {
+                        bestmove: "e2e4",
+                        evalCp: 0,
+                        pvhistory: ["e2e4"]
+                    }
+                })),
+                bestresults: sessionUser.mArray.map(() => ({
+                    analysis: {
+                        bestmove: "e2e4", 
+                        evalCp: 0,
+                        pvhistory: ["e2e4"]
+                    }
+                }))
+            };
+        }
+        
         try{
         //console.log('sessionuser.marray',sessionUser.mArray);
             const bestmoved = await handlemovelist(sessionUser.mArray,username ,sessionUser);
@@ -198,7 +222,8 @@
                 grademovenumber : bestmoved.grademovenumbers,
                 userwinpercents : bestmoved.userwinpercents,
                 blackgradeno : bestmoved.blackgradeno,
-                pvfen : bestmoved.pvfen}
+                pvfen : bestmoved.pvfen,
+                analysisKey: analysisKey}
 
             res.status(200).json(
             sessionUser.cachedPGNData);
@@ -233,13 +258,14 @@
 
     app.post("/analyzewithstockfish",async (req,res) =>
     {
-        const { username } = req.body;
+        const { username, analysisKey } = req.body;
         const sessionUser = getUserSession(username);
     sessionUser.storedanalysis = [];
     console.log("POST /analyzewithstockfish hit");
     const chess = new Chess();
     const fens = [];
-    for (const move of sessionUser.mArray) {
+    const mArray = analysisKey && sessionUser.games[analysisKey] ? sessionUser.games[analysisKey].mArray : sessionUser.mArray;
+    for (const move of mArray) {
     try {
     chess.move(move);
     fens.push(chess.fen());

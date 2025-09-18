@@ -19,6 +19,7 @@
 
 .header-table {
   flex-shrink: 0;
+  overflow-x: auto;
 }
 
 .body-table {
@@ -363,24 +364,28 @@
 }
 
 @media (max-width: 768px) {
-  /* Enable horizontal scrolling for the entire table */
   .table {
     overflow-x: auto;
   }
   
-  /* Set minimum width for remaining visible columns to ensure proper layout */
   .main-table { 
-    min-width: 450px; /* Adjusted for visible columns only */
+    min-width: 450px; 
   }
   
-  /* Reduce font sizes but maintain readability */
+  .header-table {
+    overflow-x: auto;
+  }
+  
+  .table-body-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+  
   .table th,
   .table td { 
     font-size: 0.8rem; 
     padding: 12px 8px; 
   }
   
-  /* Hide specified columns */
   .table-date-column,
   .table-rating-column,
   .table-game-link-column { 
@@ -391,13 +396,11 @@
   .w-rating { display: none; }
   .w-link { display: none; }
   
-  /* Adjust remaining column widths for better mobile layout */
   .w-players { width: 50%; }
   .w-result { width: 18%; }
   .w-time { width: 16%; }
   .w-analyse { width: 16%; }
   
-  /* Mobile-optimized filter inputs */
   .player-filter-input { 
     width: 120px; 
     font-size: 0.8rem;
@@ -408,20 +411,16 @@
     font-size: 0.75rem; 
   }
   
-  /* Smaller filter buttons */
   .filter-button {
     font-size: 0.65rem;
     padding: 2px 3px;
   }
   
-  /* Optimized analyse button */
   .analyse-button {
     font-size: 0.72rem;
     padding: 6px 8px;
-    min-width: 60px; /* Ensure button doesn't get too small */
   }
   
-  /* Footer adjustments */
   .table-footer { 
     padding: 12px 12px 16px; 
   }
@@ -444,14 +443,9 @@
     font-size: 0.72rem; 
   }
   
-  /* Enhanced horizontal scrolling */
-  .table-body-scroll {
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  /* Better scrollbar visibility on mobile */
   .table-body-scroll::-webkit-scrollbar {
     height: 8px;
+    width: 8px;
   }
   
   .table-body-scroll::-webkit-scrollbar-thumb {
@@ -461,19 +455,16 @@
 }
 
 @media (max-width: 480px) {
-  /* Further size reductions for very small screens */
   .table th,
   .table td { 
     font-size: 0.72rem; 
     padding: 10px 6px; 
   }
   
-  /* Adjust minimum width for smallest screens */
   .main-table { 
     min-width: 400px; 
   }
   
-  /* Further optimize column widths */
   .w-players { width: 52%; }
   .w-result { width: 16%; }
   .w-time { width: 16%; }
@@ -492,7 +483,6 @@
   .analyse-button {
     font-size: 0.65rem;
     padding: 5px 6px;
-    min-width: 55px;
   }
   
   .page-size-trigger { 

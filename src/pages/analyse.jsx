@@ -13,8 +13,10 @@ import UniqueSidebars from "../components/verticalsidebar.jsx";
 
 const Analytics = () => {
     const location = useLocation();
+    const currentKey = useRef(null);
+    
     const {
-        key = `analytics_${Date.now()}_${Math.random()}`, // Provide fallback key
+        key = `analytics_${Date.now()}_${Math.random()}`,
         pgn = "", 
         moves = [], 
         bestmoves = [], 
@@ -37,122 +39,106 @@ const Analytics = () => {
         isWhite = ""
     } = location.state || {};
 
-    // State declarations with initial values
-    const [whiteuname, setwhiteuname] = useState("White Player");
-    const [blackuname, setblackuname] = useState("Black Player");
-    const [Count, setCount] = useState(0);
-    const [arrows, setarrows] = useState([]);
-    const [showIcon, setShowIcon] = useState(false);
-    const [displyansidebar, setdisplayansidebar] = useState("none");
-    const [boardOrientation, setboardOrientation] = useState("white");
-    const [mainboard, setmainboard] = useState("");
-    const [tryboard, settryboard] = useState("none");
-    const [pvtrying, setpvtrying] = useState(false);
-    const [pvindex, setpvindex] = useState(0);
-    const [pvframe, setpvframe] = useState(0);
-    const [dchess, setdchess] = useState();
-    const [boardSize, setBoardSize] = useState(640);
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    const [reviewStarted, setReviewStarted] = useState(false);
-    const [isDataReady, setIsDataReady] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
+    const [sessionKey, setSessionKey] = useState(null);
 
+    const createFreshState = () => ({
+        whiteuname: "White Player",
+        blackuname: "Black Player",
+        Count: 0,
+        arrows: [],
+        showIcon: false,
+        displyansidebar: "none",
+        boardOrientation: "white",
+        mainboard: "",
+        tryboard: "none",
+        pvtrying: false,
+        pvindex: 0,
+        pvframe: 0,
+        dchess: undefined,
+        boardSize: 640,
+        windowWidth: window.innerWidth,
+        reviewStarted: false
+    });
+
+    const [state, setState] = useState(() => createFreshState());
     const boardRef = useRef(null);
     let currentpv = [];
 
-    // CRITICAL: Reset all state when key changes to prevent stale data
     useEffect(() => {
-        // Reset all state to initial values
-        setwhiteuname("White Player");
-        setblackuname("Black Player");
-        setCount(0);
-        setarrows([]);
-        setShowIcon(false);
-        setdisplayansidebar("none");
-        setboardOrientation("white");
-        setmainboard("");
-        settryboard("none");
-        setpvtrying(false);
-        setpvindex(0);
-        setpvframe(0);
-        setReviewStarted(false);
-        setIsDataReady(false);
+        if (currentKey.current !== key) {
+            currentKey.current = key;
+            setSessionKey(key);
+            setState(createFreshState());
+            setIsInitialized(false);
+            
+            setTimeout(() => {
+                setIsInitialized(true);
+            }, 100);
+        }
+    }, [key]);
 
-        // Small delay to ensure state is reset before marking as ready
-        const readyTimeout = setTimeout(() => {
-            setIsDataReady(true);
-        }, 50);
+    const shouldRender = useMemo(() => {
+        const hasValidData = moves && moves.length > 0 && pgn;
+        const isCurrentSession = sessionKey === key;
+        const isReady = isInitialized;
+        
+        return hasValidData && isCurrentSession && isReady;
+    }, [moves, pgn, sessionKey, key, isInitialized]);
 
-        // Set up the icon timer after reset
-        const iconTimer = setTimeout(() => setShowIcon(true), 3000);
+    useEffect(() => {
+        if (!shouldRender) return;
+        
+        const timer = setTimeout(() => {
+            setState(prev => ({ ...prev, showIcon: true }));
+        }, 3000);
+        
+        return () => clearTimeout(timer);
+    }, [shouldRender, sessionKey]);
 
-        return () => {
-            clearTimeout(readyTimeout);
-            clearTimeout(iconTimer);
+    useEffect(() => {
+        if (!shouldRender) return;
+        
+        const handleResize = () => {
+            setState(prev => ({ ...prev, windowWidth: window.innerWidth }));
         };
-    }, [key]); // This runs every time key changes
-
-    // Validate essential data
-    const hasValidData = useMemo(() => {
-        return moves && moves.length > 0 && pgn && isDataReady;
-    }, [moves, pgn, isDataReady]);
-
-    // Window resize handler
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth);
+        
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    }, [shouldRender]);
 
-    // Board size observer
     useEffect(() => {
-        if (!hasValidData) return;
+        if (!shouldRender || !boardRef.current) return;
         
         const observer = new ResizeObserver(entries => {
             for (let entry of entries) {
-                setBoardSize(entry.contentRect.width); 
+                setState(prev => ({ ...prev, boardSize: entry.contentRect.width }));
             }
         });
         
-        if (boardRef.current) observer.observe(boardRef.current);
+        observer.observe(boardRef.current);
         return () => observer.disconnect();
-    }, [hasValidData]);
+    }, [shouldRender]);
 
-    // PV animation effect
     useEffect(() => {
-        if (!pvtrying || !hasValidData) return;
-        if (pvfen.length === 0 || !pvfen) return;
-
-        const interval = setInterval(() => {
-            setpvframe((prev) => {
-                if (prev < Math.min(13, currentpv.length)) return prev + 1;
-                clearInterval(interval);
-                return prev;
-            });
-        }, 800);
-        
-        return () => clearInterval(interval);
-    }, [currentpv, pvtrying, hasValidData]);
-
-    // Parse usernames from PGN
-    useEffect(() => {
-        if (!pgn || !hasValidData) return;
+        if (!shouldRender || !pgn) return;
         
         try {
             const whiteMatch = pgn.match(/\[White\s+"(.+?)"\]/);
             const blackMatch = pgn.match(/\[Black\s+"(.+?)"\]/);
             
-            if (whiteMatch && whiteMatch[1]) setwhiteuname(whiteMatch[1]);
-            if (blackMatch && blackMatch[1]) setblackuname(blackMatch[1]);
+            setState(prev => ({
+                ...prev,
+                whiteuname: whiteMatch?.[1] || "White Player",
+                blackuname: blackMatch?.[1] || "Black Player"
+            }));
         } catch (error) {
             console.error("Error parsing PGN:", error);
         }
-    }, [pgn, hasValidData]);
+    }, [pgn, shouldRender, sessionKey]);
 
-    // Calculate FENs from moves
     const fens = useMemo(() => {
-        if (!hasValidData || !moves || moves.length === 0) {
-            return [new Chess().fen()];
-        }
+        if (!shouldRender) return [new Chess().fen()];
         
         const chess = new Chess();
         const arr = [chess.fen()];
@@ -167,13 +153,10 @@ const Analytics = () => {
         });
         
         return arr;
-    }, [moves, hasValidData]);
+    }, [moves, shouldRender, sessionKey]);
 
-    // Calculate square positions for best moves
     const { fromSquares, toSquares } = useMemo(() => {
-        if (!hasValidData || !bestmoves) {
-            return { fromSquares: [], toSquares: [] };
-        }
+        if (!shouldRender) return { fromSquares: [], toSquares: [] };
         
         const fromSquares = [];
         const toSquares = [];
@@ -189,29 +172,54 @@ const Analytics = () => {
         }
         
         return { fromSquares, toSquares };
-    }, [bestmoves, hasValidData]);
+    }, [bestmoves, shouldRender, sessionKey]);
 
-    // Arrow management
     useEffect(() => {
-        if (!hasValidData) return;
+        if (!shouldRender || !state.pvtrying || !pvfen.length) return;
+
+        const interval = setInterval(() => {
+            setState(prev => {
+                const newFrame = prev.pvframe < Math.min(13, currentpv.length) ? prev.pvframe + 1 : prev.pvframe;
+                if (newFrame === prev.pvframe) {
+                    clearInterval(interval);
+                }
+                return { ...prev, pvframe: newFrame };
+            });
+        }, 800);
         
-        const arrowcount = Count - 1;
+        return () => clearInterval(interval);
+    }, [state.pvtrying, shouldRender, sessionKey]);
+
+    useEffect(() => {
+        if (!shouldRender) return;
+        
+        const arrowcount = state.Count - 1;
         if (arrowcount >= 5 &&
             arrowcount < fromSquares.length &&
             fromSquares[arrowcount] &&
             toSquares[arrowcount] && 
-            !pvtrying) {
-            setarrows([{
-                startSquare: fromSquares[arrowcount],
-                endSquare: toSquares[arrowcount],
-                color: "blue"
-            }]);
+            !state.pvtrying) {
+            setState(prev => ({
+                ...prev,
+                arrows: [{
+                    startSquare: fromSquares[arrowcount],
+                    endSquare: toSquares[arrowcount],
+                    color: "blue"
+                }]
+            }));
         } else {
-            setarrows([]);
+            setState(prev => ({ ...prev, arrows: [] }));
         }
-    }, [Count, fromSquares, toSquares, pvtrying, hasValidData]);
+    }, [state.Count, fromSquares, toSquares, state.pvtrying, shouldRender]);
 
-    // Helper functions
+    if (!shouldRender) {
+        return (
+            <div className="analytics-loading-container">
+                <div className="analytics-loading-text">Loading analysis...</div>
+            </div>
+        );
+    }
+
     function acplToAccuracy(acpl) {
         const k = 0.004;
         let acc = 100 * Math.exp(-k * acpl);
@@ -222,110 +230,57 @@ const Analytics = () => {
     const blackaccuracy = acplToAccuracy(blackacpl);
 
     const handlecount = (value) => {
-        setCount(value);
+        setState(prev => ({ ...prev, Count: value }));
         setTimeout(() => {
-            setCount((prev) => prev + 1);
+            setState(prev => ({ ...prev, Count: prev.Count + 1 }));
         }, 10);
     };
 
-    let anotate = [];
-    function gradestoanotations(array) {
-        for (const g of array) {
-            if (typeof g === "string" && iconMap[g]) {
-                const IconComponent = iconMap[g];
-                anotate.push(<IconComponent className="icon-svg" key={g} />);
-            }
+    const flipboard = () => {
+        setState(prev => ({
+            ...prev,
+            boardOrientation: prev.boardOrientation === "white" ? "black" : "white",
+            whiteuname: prev.blackuname,
+            blackuname: prev.whiteuname
+        }));
+    };
+
+    const showtactic = () => {
+        setState(prev => ({
+            ...prev,
+            pvtrying: !prev.pvtrying,
+            pvindex: prev.Count,
+            mainboard: prev.pvtrying ? "" : "none",
+            tryboard: prev.pvtrying ? "none" : "",
+            pvframe: 0
+        }));
+    };
+
+    const increase = () => {
+        if (state.Count < fens.length - 1) {
+            setState(prev => ({ ...prev, Count: prev.Count + 1 }));
         }
-    }
+    };
+
+    const decrease = () => {
+        if (state.Count > 0) {
+            setState(prev => ({ ...prev, Count: prev.Count - 1 }));
+        }
+    };
+
+    const reset = () => setState(prev => ({ ...prev, Count: 0 }));
+
+    const onstartreview = () => {
+        setState(prev => ({
+            ...prev,
+            reviewStarted: true,
+            displyansidebar: ""
+        }));
+    };
 
     const userrealrating = Math.round(((0.5 * userrating) + (0.5 * userevalrating)) / 50) * 50;
     const opprealrating = Math.round(((0.5 * opprating) + (0.5 * oppevalrating)) / 50) * 50;
 
-    const flipboard = () => {
-        if (boardOrientation === "white") {
-            setboardOrientation("black");
-            const temp = whiteuname;
-            setwhiteuname(blackuname);
-            setblackuname(temp);
-        } else {
-            setboardOrientation("white");
-            const temp = whiteuname;
-            setwhiteuname(blackuname);
-            setblackuname(temp);
-        }
-    };
-
-    const showtactic = () => { 
-        setpvtrying(prev => !prev);
-        setpvindex(Count);
-        setmainboard(pvtrying ? "" : "none");
-        settryboard(pvtrying ? "none" : "");
-        setpvframe(0);
-    };
-
-    const increase = () => {
-        if (Count < fens.length - 1) setCount(Count + 1);
-    };
-
-    const decrease = () => {
-        if (Count > 0) setCount(Count - 1);
-    };
-
-    const reset = () => setCount(0);
-
-    const onstartreview = () => {
-        setReviewStarted(true);
-        setdisplayansidebar("");
-    };
-
-    function squareCornerPosition(square, boardSize, iconSize = 0.05625 * boardSize, corner = "top-left") {
-        const file = square.charCodeAt(0) - 'a'.charCodeAt(0);
-        const rank = parseInt(square[1], 10) - 1;
-        const squareSize = boardSize / 8;
-
-        let left = file * squareSize;
-        let top = (7 - rank) * squareSize;
-
-        if (boardOrientation === "black") {
-            left = (7 - file) * squareSize;
-            top = rank * squareSize;
-        }
-
-        let offsetX = 0.65 * squareSize;
-        let offsetY = 0.3125 * squareSize;
-        
-        if (corner === "top-left") {
-            // Use default offsets
-        } else if (corner === "top-right") {
-            offsetX = squareSize - iconSize - 0.1 * squareSize;
-            offsetY = 0.125 * squareSize;
-        } else if (corner === "bottom-left") {
-            offsetX = 0.15 * squareSize;
-            offsetY = squareSize - iconSize - 0.125 * squareSize;
-        } else if (corner === "bottom-right") {
-            offsetX = squareSize - iconSize - 0.1 * squareSize;
-            offsetY = squareSize - iconSize - 0.125 * squareSize;
-        }
-        
-        return {
-            left: left + offsetX,
-            top: top + offsetY
-        };
-    }
-
-    // Early return for loading state
-    if (!hasValidData) {
-        return (
-            <div className="analytics-loading-container">
-                <div className="analytics-loading-text">Loading analysis...</div>
-            </div>
-        );
-    }
-
-    // Process grade annotations
-    gradestoanotations(grading);
-
-    // Calculate move squares
     const toSquare = [];
     const tochess = new Chess();
     for (const moved of moves) {
@@ -337,53 +292,82 @@ const Analytics = () => {
         }
     }
 
-    // Set up current PV
-    currentpv = pvfen[pvindex - 1] || [];
-    const safeCount = Math.min(Math.max(Count, 0), fens.length - 1);
-    const evaled = Count > 1 ? Math.floor((Count - 1)) : -1;
+    function squareCornerPosition(square, boardSize, iconSize = 0.05625 * boardSize, corner = "top-left") {
+        const file = square.charCodeAt(0) - 'a'.charCodeAt(0);
+        const rank = parseInt(square[1], 10) - 1;
+        const squareSize = boardSize / 8;
 
-    // Board options
+        let left = file * squareSize;
+        let top = (7 - rank) * squareSize;
+
+        if (state.boardOrientation === "black") {
+            left = (7 - file) * squareSize;
+            top = rank * squareSize;
+        }
+
+        let offsetX = 0.65 * squareSize;
+        let offsetY = 0.3125 * squareSize;
+        
+        if (corner === "top-right") {
+            offsetX = squareSize - iconSize - 0.1 * squareSize;
+            offsetY = 0.125 * squareSize;
+        } else if (corner === "bottom-left") {
+            offsetX = 0.15 * squareSize;
+            offsetY = squareSize - iconSize - 0.125 * squareSize;
+        } else if (corner === "bottom-right") {
+            offsetX = squareSize - iconSize - 0.1 * squareSize;
+            offsetY = squareSize - iconSize - 0.125 * squareSize;
+        }
+        
+        return { left: left + offsetX, top: top + offsetY };
+    }
+
+    currentpv = pvfen[state.pvindex - 1] || [];
+    const safeCount = Math.min(Math.max(state.Count, 0), fens.length - 1);
+    const evaled = state.Count > 1 ? Math.floor((state.Count - 1)) : -1;
+
     const options = {
         position: fens[safeCount],
         id: "board",
-        arrows,
-        boardOrientation: boardOrientation
+        arrows: state.arrows,
+        boardOrientation: state.boardOrientation
     };
 
     const pvoptions = {
-        position: pvtrying && currentpv ? currentpv[pvframe] || new Chess().fen() : new Chess().fen(),
-        boardOrientation: boardOrientation
+        position: state.pvtrying && currentpv ? currentpv[state.pvframe] || new Chess().fen() : new Chess().fen(),
+        boardOrientation: state.boardOrientation
     };
 
     return (
-        <div key={`analytics-root-${key}`} className="analytics-root">
-            {windowWidth > 768 ? (<Sidebars />) : (<UniqueSidebars />)}
+        <div key={`analytics-root-${sessionKey}`} className="analytics-root">
+            {state.windowWidth > 768 ? (<Sidebars />) : (<UniqueSidebars />)}
 
             <div className="boardplusside">
                 <div className="boardpluseval">
                     <div className="analytics-evalbar">
                         <Evalbar cp={userwinpercents[evaled] ?? 53} />
                     </div>
-                    <div className={`analytics-board-container${mainboard === "none" ? " analytics-board-hidden" : ""}`} ref={boardRef}>
+                    <div className={`analytics-board-container${state.mainboard === "none" ? " analytics-board-hidden" : ""}`} ref={boardRef}>
                         <div className="analytics-board-header">
-                            <header>{blackuname}</header>
+                            <header>{state.blackuname}</header>
                         </div>
                         <Chessboard options={options} />
                         <div className="analytics-board-footer">
-                            <footer>{whiteuname}</footer>
+                            <footer>{state.whiteuname}</footer>
                         </div>
-                        {Count > 1 && (() => {
-                            const moveindex = Count - 1;
+                        {state.Count > 1 && (() => {
+                            const moveindex = state.Count - 1;
                             if (moveindex < 0) return null;
                             const square = toSquare[moveindex];
                             const grade = grading[moveindex - 1];
                             const Icon = iconMap[grade];
-                            if (pvtrying) return null;
+                            if (state.pvtrying) return null;
                             if (!square || !Icon) return null;
-                            const iconSize = 0.05 * boardSize;
-                            const { left, top } = squareCornerPosition(square, boardSize, iconSize, "top-left");
+                            const iconSize = 0.05 * state.boardSize;
+                            const { left, top } = squareCornerPosition(square, state.boardSize, iconSize, "top-left");
                             return (
                                 <div
+                                    key={`icon-${moveindex}-${sessionKey}`}
                                     className="analytics-icon-container"
                                     style={{
                                         left: left,
@@ -392,7 +376,7 @@ const Analytics = () => {
                                         height: iconSize
                                     }}
                                 >
-                                    {showIcon && (
+                                    {state.showIcon && (
                                         <Icon className="analytics-move-icon-svg" style={{ width: iconSize, height: iconSize }} />
                                     )}
                                 </div>
@@ -400,31 +384,31 @@ const Analytics = () => {
                         })()}
                     </div>
 
-                    {pvtrying && (
+                    {state.pvtrying && (
                         <div className="analytics-board-container">
                             <div className="analytics-board-header">
-                                <header>{blackuname}</header>
+                                <header>{state.blackuname}</header>
                             </div>
                             <Chessboard options={pvoptions} />
                             <div className="analytics-board-footer">
-                                <footer>{whiteuname}</footer>
+                                <footer>{state.whiteuname}</footer>
                             </div>
                         </div>
                     )}
                 </div>
                 <div className="anbar">
-                    {windowWidth > 768 ? (
+                    {state.windowWidth > 768 ? (
                         <Ansidebar
                             onIncrease={increase}
                             onDecrease={decrease}
                             onReset={reset}
                             movelist={moves}
                             pgn={pgn}
-                            counting={Count}
-                            display={displyansidebar}
+                            counting={state.Count}
+                            display={state.displyansidebar}
                             onflip={flipboard}
                             showtactic={showtactic}
-                            pvtrying={pvtrying}
+                            pvtrying={state.pvtrying}
                             booknames={booknames}
                             handlecount={handlecount}
                         />
@@ -435,18 +419,18 @@ const Analytics = () => {
                             onReset={reset}
                             movelist={moves}
                             pgn={pgn}
-                            counting={Count}
-                            display={displyansidebar}
+                            counting={state.Count}
+                            display={state.displyansidebar}
                             onflip={flipboard}
                             showtactic={showtactic}
-                            pvtrying={pvtrying}
+                            pvtrying={state.pvtrying}
                             booknames={booknames}
                             handlecount={handlecount}
                         />
                     )}
                 </div>
             </div>
-            {!reviewStarted && (
+            {!state.reviewStarted && (
                 <div className="gamebox">      
                     <GameSummaryBox 
                         white={{ 

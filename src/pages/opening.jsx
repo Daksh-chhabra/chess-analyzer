@@ -11,17 +11,14 @@ const Opening = ({ username: propUsername }) => {
   const [openings, setOpenings] = useState([]);
   const [selectedOpening, setSelectedOpening] = useState(null);
 
-  // UI state
   const [activeFilter, setActiveFilter] = useState('winRate');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Loading/error
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // StrictMode double-call guard (dev only)
   const didRunRef = useRef(false);
 
   const username =  localStorage.getItem('currentUser');
@@ -29,7 +26,6 @@ const Opening = ({ username: propUsername }) => {
   useEffect(() => {
     if (didRunRef.current) return;
     didRunRef.current = true;
-
 
     let mounted = true;
     (async () => {
@@ -65,15 +61,28 @@ const Opening = ({ username: propUsername }) => {
 
   const topFive = useMemo(() => {
     const list = openings || [];
-    const sorted = [...list].sort((a, b) => {
+    const minGamesThreshold = 5;
+    
+    const reliable = list.filter(opening => opening.games >= minGamesThreshold);
+    const unreliable = list.filter(opening => opening.games < minGamesThreshold);
+    
+    const sortFunction = (a, b) => {
       if (activeFilter === 'accuracy') return (b.accuracy ?? 0) - (a.accuracy ?? 0);
-      if (activeFilter === 'blunders') return (b.blunders ?? 0) - (a.blunders ?? 0);
+      if (activeFilter === 'blunders') return (b.blunders ?? Infinity) - (a.blunders ?? Infinity);
       if (activeFilter === 'games') return (b.games ?? 0) - (a.games ?? 0);
       return (b.winRate ?? 0) - (a.winRate ?? 0);
-    });
-    return sorted.slice(0, 5);
+    };
+    
+    const sortedReliable = [...reliable].sort(sortFunction);
+    const sortedUnreliable = [...unreliable].sort(sortFunction);
+    
+    const result = [
+      ...sortedReliable.slice(0, 5),
+      ...sortedUnreliable.slice(0, Math.max(0, 5 - sortedReliable.length))
+    ];
+    
+    return result;
   }, [openings, activeFilter]);
-
 
   const handleSearchInput = (e) => {
     const query = e.target.value;

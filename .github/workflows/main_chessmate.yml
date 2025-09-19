@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -28,7 +28,7 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
-      
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -51,13 +51,13 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D7B2FC4A08DE436D8AF1F7F4E5831565 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_4EE453DDFCAF485AB63C030543073A69 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4091FF9CD05C49A6992F24CACB857EF3 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4DC3088BC34542179FADEC749FC98C31 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_73CCAD8BB72E42FA9E6387A7C9E88BF2 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_3D70594D43D342409FBCD25D3EC1221A }}
 
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
         with:
           app-name: 'ChessMate'
           slot-name: 'Production'

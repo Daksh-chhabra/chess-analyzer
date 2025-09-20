@@ -156,34 +156,6 @@
     }
     res.json(data);
     }); */
-
-
-
-
-
-
-
-
-    function waitForMovesArray(sessionUser, intervalMs = 50, timeoutMs = 10000) {
-  return new Promise((resolve, reject) => {
-    const start = Date.now();
-    const check = () => {
-      if (Array.isArray(sessionUser.mArray) && sessionUser.mArray.length > 0) {
-        return resolve();
-      }
-      if (Date.now() - start > timeoutMs) {
-        return reject(new Error("Timed out waiting for moves array"));
-      }
-      setTimeout(check, intervalMs);
-    };
-    check();
-  });
-}
-
-
-
-
-
     app.post("/pgn",async (req,res) =>
     {
         const { username, pgn } = req.body;
@@ -212,7 +184,6 @@
         movesarray(username);
         try{
         //console.log('sessionuser.marray',sessionUser.mArray);
-        await waitForMovesArray(sessionUser);
             const bestmoved = await handlemovelist(sessionUser.mArray,username ,sessionUser);
             sessionUser.cachedPGNData = { pgn : sessionUser.npg,
                 moves: sessionUser.mArray,

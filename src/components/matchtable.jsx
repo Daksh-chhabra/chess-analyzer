@@ -107,8 +107,6 @@ function Matchtable({ rf }) {
       });
       if (!resp.ok) throw new Error();
       const dataweget = await resp.json();
-      const analysisKey = Date.now().toString();
-      sessionStorage.setItem("analysisKey", analysisKey);
       navigate("/analysis", {
         state: {
           key: Date.now() + Math.random(),

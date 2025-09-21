@@ -19,13 +19,15 @@ export const getEngineWorker = (enginePath) => {
   return engineWorker;
 };
 
-export const sendCommandsToWorker = async (worker, commands, finalMessage, onNewMessage) => {
+export const sendCommandsToWorker = (worker, commands, finalMessage, onNewMessage) => {
   return new Promise((resolve) => {
     const messages = [];
 
     worker.listen = (data) => {
       const line = typeof data === "string" ? data : data?.data ?? "";
-      console.log("STOCKFISH OUTPUT:", line);
+
+      //console.log("STOCKFISH OUTPUT:", line);
+
       messages.push(line);
       onNewMessage?.(messages);
 
@@ -34,32 +36,12 @@ export const sendCommandsToWorker = async (worker, commands, finalMessage, onNew
       }
     };
 
-    (async () => {
-      for (const command of commands) {
-        worker.uci(command);
-        // if sending position, wait for readyok first
-        if (command.startsWith("position")) {
-          await new Promise((r) => {
-            const handler = (data) => {
-              if ((typeof data === "string" ? data : data?.data ?? "").startsWith("readyok")) {
-                worker.listen = worker.listen; 
-                r();
-              }
-            };
-            worker.listen = handler;
-          });
-        }
-      }
-    })();
+    for (const command of commands) {
+      //console.log("Sending command to Stockfish:", command);
+      worker.uci(command);
+    }
   });
 };
-
-
-
-
-
-
-
 export const getRecommendedWorkersNb = () => {
   const maxWorkersNbFromThreads = Math.max(
     1,

@@ -46,7 +46,9 @@ const AnalyticsCore = ({ gameData }) => {
         userrating, opprating, userusername, oppusername, whiteacpl,
         blackacpl, isWhite
     } = gameData;
-    console.log("gamedata in analyse page is ",gameData);
+    useEffect(() => {
+  console.log("gamedata in analyse page is ", gameData);
+}, [gameData.key]);
 
     const [Count, setCount] = useState(0);
     const [arrows, setarrows] = useState([]);

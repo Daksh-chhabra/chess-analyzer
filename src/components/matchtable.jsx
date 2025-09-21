@@ -96,20 +96,48 @@ function Matchtable({ rf }) {
     const userusername = isWhite ? game.white.username : game.black.username;
     const oppusername = isWhite ? game.black.username : game.white.username;
 
-    const analysisKey = Date.now().toString();
-    sessionStorage.setItem("analysisKey", analysisKey);
-    navigate("/analysis", {
-      state: {
-        key: Date.now() + Math.random(),
-        pgn: game.pgn,
-        userrating: userrated,
-        opprating: opprated,
-        userusername,
-        oppusername,
-        isWhite,
-        currentUser
-      },
-    });
+    NProgress.start();
+    setLoading(true);
+    try {
+      const pgn = game.pgn;
+      const resp = await fetch(`${API_URL}/pgn`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pgn, username: currentUser }),
+      });
+      if (!resp.ok) throw new Error();
+      const dataweget = await resp.json();
+      const analysisKey = Date.now().toString();
+      sessionStorage.setItem("analysisKey", analysisKey);
+      navigate("/analysis", {
+        state: {
+          key: Date.now() + Math.random(),
+          pgn,
+            moves: dataweget.moves,
+            bestmoves: dataweget.bestmoves,
+            userrating: userrated,
+            grading: dataweget.grades,
+            opprating: opprated,
+            evalbar: dataweget.cpforevalbar,
+            cpbar: dataweget.cpbar,
+            userevalrating: isWhite ? dataweget.whiterating : dataweget.blackrating,
+            oppevalrating: isWhite ? dataweget.blackrating : dataweget.whiterating,
+            userusername,
+            oppusername,
+            whiteacpl: dataweget.whiteacpl,
+            blackacpl: dataweget.blackacpl,
+            grademovenumber: dataweget.grademovenumber,
+            userwinpercents: dataweget.userwinpercents,
+            blackgradeno: dataweget.blackgradeno,
+            pvfen: dataweget.pvfen,
+            isWhite,
+        },
+      });
+    } catch {
+    } finally {
+      NProgress.done();
+      setLoading(false);
+    }
   };
 
   const columns = useMemo(

@@ -96,46 +96,20 @@ function Matchtable({ rf }) {
     const userusername = isWhite ? game.white.username : game.black.username;
     const oppusername = isWhite ? game.black.username : game.white.username;
 
-    NProgress.start();
-    setLoading(true);
-    try {
-      const pgn = game.pgn;
-      const resp = await fetch(`${API_URL}/pgn`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pgn, username: currentUser }),
-      });
-      if (!resp.ok) throw new Error();
-      const dataweget = await resp.json();
-      navigate("/analysis", {
-        state: {
-          key: Date.now(),
-          pgn,
-            moves: dataweget.moves,
-            bestmoves: dataweget.bestmoves,
-            userrating: userrated,
-            grading: dataweget.grades,
-            opprating: opprated,
-            evalbar: dataweget.cpforevalbar,
-            cpbar: dataweget.cpbar,
-            userevalrating: isWhite ? dataweget.whiterating : dataweget.blackrating,
-            oppevalrating: isWhite ? dataweget.blackrating : dataweget.whiterating,
-            userusername,
-            oppusername,
-            whiteacpl: dataweget.whiteacpl,
-            blackacpl: dataweget.blackacpl,
-            grademovenumber: dataweget.grademovenumber,
-            userwinpercents: dataweget.userwinpercents,
-            blackgradeno: dataweget.blackgradeno,
-            pvfen: dataweget.pvfen,
-            isWhite,
-        },
-      });
-    } catch {
-    } finally {
-      NProgress.done();
-      setLoading(false);
-    }
+    const analysisKey = Date.now().toString();
+    sessionStorage.setItem("analysisKey", analysisKey);
+    navigate("/analysis", {
+      state: {
+        key: Date.now() + Math.random(),
+        pgn: game.pgn,
+        userrating: userrated,
+        opprating: opprated,
+        userusername,
+        oppusername,
+        isWhite,
+        currentUser
+      },
+    });
   };
 
   const columns = useMemo(
@@ -297,80 +271,8 @@ function Matchtable({ rf }) {
         </div>
       )}
 
-      <table className="main-table header-table" border="0">
-        <colgroup>
-          <col className="w-date" />
-          <col className="w-players" />
-          <col className="w-result" />
-          <col className="w-rating" />
-          <col className="w-link" />
-          <col className="w-time" />
-          <col className="w-analyse" />
-        </colgroup>
-        <thead>
-          {tableInstance.getHeaderGroups().map(hg => (
-            <tr key={hg.id}>
-              {hg.headers.map(header => (
-                <th key={header.id} className={header.column.columnDef.meta?.className}>
-                  {header.id === "players" && playerFilterActive ? (
-                    <div className="player-filter-container">
-                      <input
-                        className="player-filter-input"
-                        type="text"
-                        placeholder="Search"
-                        value={pendingPlayerSearchTerm}
-                        onChange={(e) => setPendingPlayerSearchTerm(e.target.value)}
-                      />
-                      <button className="player-filter-go" onClick={handlePlayerSearch}>Go</button>
-                    </div>
-                  ) : header.id === "result" && resultFilterActive ? (
-                    <div className="dropdown dropdown-small">
-                      <select
-                        value={resultFilter}
-                        onChange={(e) => {
-                          setResultFilter(e.target.value);
-                          setResultFilterActive(false);
-                        }}
-                      >
-                        <option value="">All</option>
-                        <option value="win">Win</option>
-                        <option value="loss">Loss</option>
-                        <option value="draw">Draw</option>
-                        <option value="resigned">Resigned</option>
-                        <option value="checkmated">Checkmated</option>
-                        <option value="timeout">Timeout</option>
-                        <option value="insufficient">Insufficient</option>
-                        <option value="repetition">Repetition</option>
-                      </select>
-                    </div>
-                  ) : header.id === "timecontrol" && timeControlFilterActive ? (
-                    <div className="dropdown dropdown-small">
-                      <select
-                        value={timeControlFilter}
-                        onChange={(e) => {
-                          setTimeControlFilter(e.target.value);
-                          setTimeControlFilterActive(false);
-                        }}
-                      >
-                        <option value="">All</option>
-                        <option value="bullet">Bullet</option>
-                        <option value="blitz">Blitz</option>
-                        <option value="rapid">Rapid</option>
-                        <option value="classical">Classical</option>
-                      </select>
-                    </div>
-                  ) : (
-                    flexRender(header.column.columnDef.header, header.getContext())
-                  )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-      </table>
-
-      <div className="table-body-scroll">
-        <table className="main-table body-table" border="0">
+      <div className="table-scroll">
+        <table className="main-table" border="0">
           <colgroup>
             <col className="w-date" />
             <col className="w-players" />
@@ -380,6 +282,66 @@ function Matchtable({ rf }) {
             <col className="w-time" />
             <col className="w-analyse" />
           </colgroup>
+          <thead>
+            {tableInstance.getHeaderGroups().map(hg => (
+              <tr key={hg.id}>
+                {hg.headers.map(header => (
+                  <th key={header.id} className={header.column.columnDef.meta?.className}>
+                    {header.id === "players" && playerFilterActive ? (
+                      <div className="player-filter-container">
+                        <input
+                          className="player-filter-input"
+                          type="text"
+                          placeholder="Search"
+                          value={pendingPlayerSearchTerm}
+                          onChange={(e) => setPendingPlayerSearchTerm(e.target.value)}
+                        />
+                        <button className="player-filter-go" onClick={handlePlayerSearch}>Go</button>
+                      </div>
+                    ) : header.id === "result" && resultFilterActive ? (
+                      <div className="dropdown dropdown-small">
+                        <select
+                          value={resultFilter}
+                          onChange={(e) => {
+                            setResultFilter(e.target.value);
+                            setResultFilterActive(false);
+                          }}
+                        >
+                          <option value="">All</option>
+                          <option value="win">Win</option>
+                          <option value="loss">Loss</option>
+                          <option value="draw">Draw</option>
+                          <option value="resigned">Resigned</option>
+                          <option value="checkmated">Checkmated</option>
+                          <option value="timeout">Timeout</option>
+                          <option value="insufficient">Insufficient</option>
+                          <option value="repetition">Repetition</option>
+                        </select>
+                      </div>
+                    ) : header.id === "timecontrol" && timeControlFilterActive ? (
+                      <div className="dropdown dropdown-small">
+                        <select
+                          value={timeControlFilter}
+                          onChange={(e) => {
+                            setTimeControlFilter(e.target.value);
+                            setTimeControlFilterActive(false);
+                          }}
+                        >
+                          <option value="">All</option>
+                          <option value="bullet">Bullet</option>
+                          <option value="blitz">Blitz</option>
+                          <option value="rapid">Rapid</option>
+                          <option value="classical">Classical</option>
+                        </select>
+                      </div>
+                    ) : (
+                      flexRender(header.column.columnDef.header, header.getContext())
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
           <tbody>
             {paginatedRows.map((row, idx) => (
               <tr key={idx}>

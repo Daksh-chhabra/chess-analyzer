@@ -109,6 +109,7 @@ function Matchtable({ rf }) {
       const dataweget = await resp.json();
       const analysisKey = Date.now().toString();
       sessionStorage.setItem("analysisKey", analysisKey);
+      console.log("dataweget in matchtable is ",dataweget);
       navigate("/analysis", {
         state: {
           key: Date.now() + Math.random(),

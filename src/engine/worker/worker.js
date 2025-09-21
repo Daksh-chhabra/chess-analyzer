@@ -37,7 +37,7 @@ export const sendCommandsToWorker = (worker, commands, finalMessage, onNewMessag
     };
 
     for (const command of commands) {
-      console.log("Sending command to Stockfish:", command);
+      //console.log("Sending command to Stockfish:", command);
       worker.uci(command);
     }
   });

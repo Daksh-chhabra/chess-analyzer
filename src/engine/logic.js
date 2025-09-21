@@ -17,7 +17,9 @@ export class UciEngine {
     const nb = Math.min(workersNb, getRecommendedWorkersNb());
     for (let i = 0; i < nb; i++) {
       const worker = getEngineWorker(this.enginePath);
-      await sendCommandsToWorker(worker, ["uci", "isready"], "readyok");
+      await sendCommandsToWorker(worker, ["uci"], "uciok");
+      await sendCommandsToWorker(worker, ["isready"], "readyok");
+      await sendCommandsToWorker(worker, ["ucinewgame", "isready"], "readyok");
       worker.isReady = true;
       this.workers.push(worker);
     }

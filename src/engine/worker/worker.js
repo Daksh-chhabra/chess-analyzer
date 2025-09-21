@@ -26,8 +26,6 @@ export const sendCommandsToWorker = (worker, commands, finalMessage, onNewMessag
     worker.listen = (data) => {
       const line = typeof data === "string" ? data : data?.data ?? "";
 
-      //console.log("STOCKFISH OUTPUT:", line);
-
       messages.push(line);
       onNewMessage?.(messages);
 
@@ -36,12 +34,30 @@ export const sendCommandsToWorker = (worker, commands, finalMessage, onNewMessag
       }
     };
 
-    for (const command of commands) {
-      //console.log("Sending command to Stockfish:", command);
-      worker.uci(command);
-    }
+    const sendCommands = async () => {
+      await sendCommandsToWorker(worker, ["isready"], "readyok");
+      
+      for (const command of commands) {
+        worker.uci(command);
+      }
+    };
+
+    sendCommands();
   });
 };
+
+export const analyzePosition = async (worker, fen, depth = 15, onNewMessage) => {
+  await sendCommandsToWorker(worker, ["isready"], "readyok");
+  
+  const commands = [
+    "ucinewgame",
+    `position fen ${fen}`,
+    `go depth ${depth}`
+  ];
+  
+  return await sendCommandsToWorker(worker, commands, "bestmove", onNewMessage);
+};
+
 export const getRecommendedWorkersNb = () => {
   const maxWorkersNbFromThreads = Math.max(
     1,

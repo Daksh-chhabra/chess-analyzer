@@ -26,7 +26,7 @@ export const sendCommandsToWorker = (worker, commands, finalMessage, onNewMessag
     worker.listen = (data) => {
       const line = typeof data === "string" ? data : data?.data ?? "";
 
-      console.log("STOCKFISH OUTPUT:", line);
+      //console.log("STOCKFISH OUTPUT:", line);
 
       messages.push(line);
       onNewMessage?.(messages);

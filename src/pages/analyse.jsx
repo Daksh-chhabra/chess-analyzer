@@ -10,21 +10,20 @@ import GameSummaryBox from "../components/startingevals.jsx";
 import "./pages-css/analyse.css"; 
 import AnsidebarHorizontal from "../components/horizontalansidebar.jsx";
 import UniqueSidebars from "../components/verticalsidebar.jsx";
-import { API_URL } from "../pathconfig";
 
 const Analytics = () => {
     const location = useLocation();
     const gameDataRef = useRef(null);
     
-    const basicGameData = useMemo(() => {
+    const gameData = useMemo(() => {
         const state = location.state;
-        if (!state?.key || !state?.pgn) {
+        if (!state?.key || !state?.moves?.length || !state?.pgn) {
             return null;
         }
         return state;
     }, [location.state]);
 
-    if (!basicGameData) {
+    if (!gameData) {
         return (
             <div className="analytics-loading-container">
                 <div className="analytics-loading-text">Loading analysis...</div>
@@ -32,91 +31,15 @@ const Analytics = () => {
         );
     }
 
-    if (gameDataRef.current?.key !== basicGameData.key) {
-        gameDataRef.current = basicGameData;
-        return <AnalyticsCore key={basicGameData.key} basicGameData={basicGameData} />;
+    if (gameDataRef.current?.key !== gameData.key) {
+        gameDataRef.current = gameData;
+        return <AnalyticsCore key={gameData.key} gameData={gameData} />;
     }
 
-    return <AnalyticsCore key={basicGameData.key} basicGameData={basicGameData} />;
+    return <AnalyticsCore key={gameData.key} gameData={gameData} />;
 };
 
-const AnalyticsCore = ({ basicGameData }) => {
-    const [gameData, setGameData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const fetchAnalysisData = async () => {
-            try {
-                setLoading(true);
-                const resp = await fetch(`${API_URL}/pgn`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        pgn: basicGameData.pgn, 
-                        username: basicGameData.currentUser 
-                    }),
-                });
-
-                if (!resp.ok) throw new Error('Failed to fetch analysis data');
-
-                const dataweget = await resp.json();
-                
-                setGameData({
-                    ...basicGameData,
-                    moves: dataweget.moves,
-                    bestmoves: dataweget.bestmoves,
-                    grading: dataweget.grades,
-                    evalbar: dataweget.cpforevalbar,
-                    cpbar: dataweget.cpbar,
-                    userevalrating: basicGameData.isWhite ? dataweget.whiterating : dataweget.blackrating,
-                    oppevalrating: basicGameData.isWhite ? dataweget.blackrating : dataweget.whiterating,
-                    whiteacpl: dataweget.whiteacpl,
-                    blackacpl: dataweget.blackacpl,
-                    grademovenumber: dataweget.grademovenumber,
-                    userwinpercents: dataweget.userwinpercents,
-                    blackgradeno: dataweget.blackgradeno,
-                    pvfen: dataweget.pvfen,
-                    booknames: dataweget.booknames || []
-                });
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchAnalysisData();
-    }, [basicGameData]);
-
-    if (loading) {
-        return (
-            <div className="analytics-loading-container">
-                <div className="analytics-loading-text">Analyzing with Stockfish... Please wait.</div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="analytics-loading-container">
-                <div className="analytics-loading-text">Error loading analysis: {error}</div>
-            </div>
-        );
-    }
-
-    if (!gameData) {
-        return (
-            <div className="analytics-loading-container">
-                <div className="analytics-loading-text">No analysis data available</div>
-            </div>
-        );
-    }
-
-    return <AnalyticsDisplay gameData={gameData} />;
-};
-
-const AnalyticsDisplay = ({ gameData }) => {
+const AnalyticsCore = ({ gameData }) => {
     const {
         pgn, moves, bestmoves, grading, userwinpercents, grademovenumber,
         blackgradeno, pvfen, booknames, userevalrating, oppevalrating,

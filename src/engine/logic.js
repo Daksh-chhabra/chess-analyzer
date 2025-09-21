@@ -16,11 +16,17 @@ export class UciEngine {
   async init(workersNb = 1) {
     const nb = Math.min(workersNb, getRecommendedWorkersNb());
     for (let i = 0; i < nb; i++) {
-      const worker = getEngineWorker(this.enginePath);
-      await sendCommandsToWorker(worker, ["uci", "isready"], "readyok");
-      worker.isReady = true;
-      this.workers.push(worker);
+      await this.spawnWorker();
     }
+  }
+
+  async spawnWorker() {
+    const worker = getEngineWorker(this.enginePath);
+    await sendCommandsToWorker(worker, ["uci"], "uciok");
+    await sendCommandsToWorker(worker, ["isready"], "readyok");
+    await sendCommandsToWorker(worker, ["ucinewgame", "isready"], "readyok");
+    worker.isReady = true;
+    this.workers.push(worker);
   }
 
   acquireWorker() {
@@ -34,38 +40,67 @@ export class UciEngine {
   }
 
   async releaseWorker(worker) {
-    const nextJob = this.workerQueue.shift();
-    if (!nextJob) {
-      worker.isReady = true;
-      return;
+    while (true) {
+      const nextJob = this.workerQueue.shift();
+      if (!nextJob) {
+        worker.isReady = true;
+        return;
+      }
+      let res;
+      try {
+        res = await sendCommandsToWorker(
+          worker,
+          nextJob.commands,
+          nextJob.finalMessage,
+          nextJob.onNewMessage
+        );
+      } catch (e) {
+        nextJob.resolve(null);
+        continue;
+      }
+      nextJob.resolve(this.parseResult(res));
     }
-    const res = await sendCommandsToWorker(
-      worker,
-      nextJob.commands,
-      nextJob.finalMessage,
-      nextJob.onNewMessage
-    );
-    nextJob.resolve(res);
-    this.releaseWorker(worker);
+  }
+
+  parseResult(results) {
+    if (!results) return null;
+    let bestmove = null;
+    let pvhistory = [];
+    let evalCp = null;
+    for (const line of results) {
+      if (line.includes("score mate")) {
+        const m = line.match(/score mate (-?\d+)/);
+        if (m) evalCp = { type: "mate", value: parseInt(m[1], 10) };
+      } else if (line.includes("score cp")) {
+        const m = line.match(/score cp (-?\d+)/);
+        if (m) evalCp = { type: "cp", value: parseInt(m[1], 10) };
+      }
+      if (line.includes(" pv ")) {
+        pvhistory = line.split(" pv ")[1].trim().split(" ");
+      }
+      if (line.startsWith("bestmove")) {
+        bestmove = line.split(" ")[1];
+      }
+    }
+    if (!bestmove) return null;
+    return { bestmove, pvhistory, evalCp };
   }
 
   async analyzeFen(fen, { movetime = 2000, depth = null, retries = 3 } = {}) {
     for (let attempt = 1; attempt <= retries; attempt++) {
       const worker = this.acquireWorker();
-
-      let commands;
-      if (depth) {
-        commands = [`position fen ${fen}`, `go depth ${depth}`];
-      } else {
-        commands = [`position fen ${fen}`, `go movetime ${movetime}`];
-      }
-
+      const commands = depth
+        ? [`position fen ${fen}`, `go depth ${depth}`]
+        : [`position fen ${fen}`, `go movetime ${movetime}`];
       const finalMessage = "bestmove";
 
       if (!worker) {
-        // Queue the job if no worker is ready
         return new Promise((resolve) => {
-          this.workerQueue.push({ commands, finalMessage, resolve });
+          this.workerQueue.push({
+            commands,
+            finalMessage,
+            resolve: (res) => resolve(res),
+          });
         });
       }
 
@@ -73,45 +108,33 @@ export class UciEngine {
       try {
         results = await sendCommandsToWorker(worker, commands, finalMessage);
       } catch (err) {
-        console.warn(`Stockfish crashed (attempt ${attempt}) for FEN: ${fen}`, err);
-        this.releaseWorker(worker);
-        if (attempt === retries) return null;
-        continue; // retry the same FEN
+        this.terminateWorker(worker);
+        await this.spawnWorker();
+        if (attempt === retries) {
+          return null;
+        }
+        continue;
       }
 
-      let bestmove = null;
-      let pvhistory = [];
-      let evalCp = null;
-
-      for (const line of results) {
-        if (line.includes("score mate")) {
-          const match = line.match(/score mate (-?\d+)/);
-          if (match) evalCp = `mate in ${parseInt(match[1], 10)}`;
-        } else if (line.includes("score cp")) {
-          const match = line.match(/score cp (-?\d+)/);
-          if (match) evalCp = parseInt(match[1], 10);
-        }
-        if (line.includes(" pv ")) {
-          pvhistory = line.split(" pv ")[1].trim().split(" ");
-        }
-        if (line.startsWith("bestmove")) {
-          bestmove = line.split(" ")[1];
-        }
-      }
-
-      this.releaseWorker(worker);
-
-      if (bestmove) {
-        return { bestmove, pvhistory, evalCp };
-      } else {
-        console.warn(`No bestmove found (attempt ${attempt}) for FEN: ${fen}`);
-        if (attempt === retries) return null; // push null after max retries
-      }
+      const parsed = this.parseResult(results);
+      await this.releaseWorker(worker);
+      if (parsed) return parsed;
+      if (attempt === retries) return null;
     }
   }
 
+  terminateWorker(worker) {
+    try {
+      worker.uci("quit");
+    } catch (e) {}
+    try {
+      worker.terminate();
+    } catch (e) {}
+    this.workers = this.workers.filter((w) => w !== worker);
+  }
+
   terminate() {
-    for (const w of this.workers) w.terminate();
+    for (const w of this.workers) this.terminateWorker(w);
     this.workers = [];
     this.workerQueue = [];
   }

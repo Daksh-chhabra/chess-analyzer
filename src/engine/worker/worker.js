@@ -26,7 +26,7 @@ export const sendCommandsToWorker = (worker, commands, finalMessage, onNewMessag
     worker.listen = (data) => {
       const line = typeof data === "string" ? data : data?.data ?? "";
 
-      //console.log("STOCKFISH OUTPUT:", line);
+      console.log("STOCKFISH OUTPUT:", line);
 
       messages.push(line);
       onNewMessage?.(messages);
@@ -37,7 +37,7 @@ export const sendCommandsToWorker = (worker, commands, finalMessage, onNewMessag
     };
 
     for (const command of commands) {
-      //console.log("Sending command to Stockfish:", command);
+      console.log("Sending command to Stockfish:", command);
       worker.uci(command);
     }
   });

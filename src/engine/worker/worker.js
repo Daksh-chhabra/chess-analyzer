@@ -34,28 +34,27 @@ export const sendCommandsToWorker = (worker, commands, finalMessage, onNewMessag
       }
     };
 
-    const sendCommands = async () => {
-      await sendCommandsToWorker(worker, ["isready"], "readyok");
+    worker.uci("isready");
+    
+    worker.listen = (data) => {
+      const line = typeof data === "string" ? data : data?.data ?? "";
       
-      for (const command of commands) {
-        worker.uci(command);
+      if (line.startsWith("readyok")) {
+        worker.listen = (data) => {
+          const line = typeof data === "string" ? data : data?.data ?? "";
+          messages.push(line);
+          onNewMessage?.(messages);
+          if (line.startsWith(finalMessage)) {
+            resolve(messages);
+          }
+        };
+        
+        for (const command of commands) {
+          worker.uci(command);
+        }
       }
     };
-
-    sendCommands();
   });
-};
-
-export const analyzePosition = async (worker, fen, depth = 15, onNewMessage) => {
-  await sendCommandsToWorker(worker, ["isready"], "readyok");
-  
-  const commands = [
-    "ucinewgame",
-    `position fen ${fen}`,
-    `go depth ${depth}`
-  ];
-  
-  return await sendCommandsToWorker(worker, commands, "bestmove", onNewMessage);
 };
 
 export const getRecommendedWorkersNb = () => {

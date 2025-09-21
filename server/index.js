@@ -249,6 +249,7 @@
     }
     }
     res.json({fens});
+            console.log("fens in backend are",fens);
     });
 
 

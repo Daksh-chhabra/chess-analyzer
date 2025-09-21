@@ -43,6 +43,7 @@ async function analyte() {
 
         stockfishService = await prewarmStockfish();
         const { fens } = data;
+        console.log("fens",data);
 
         let recommendedWorkers = getRecommendedWorkersNb();
         if (fens.length > 100) {

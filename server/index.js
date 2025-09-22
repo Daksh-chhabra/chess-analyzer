@@ -28,7 +28,7 @@
 
 
     const app = express();
-    const PORT = 5000;
+    const PORT = process.env.PORT || 5000;
 
     app.use((req, res, next) => {
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
@@ -156,102 +156,156 @@
     }
     res.json(data);
     }); */
-    app.post("/pgn",async (req,res) =>
-    {
-        const { username, pgn } = req.body;
-            if (!username || !pgn) {
-        throw new Error("Missing username or PGN");
-        }
-        console.log("username:", username);
-        const sessionUser = getUserSession(username);
-        if(typeof pgn !== "string" || !pgn.trim()) {
-            return res.status(403).send("Missing or invalid PGN");
-        }
-
-        sessionUser.npg = {pgn};
-        //console.log("pgn receive",sessionUser.npg);
-        
-        if(pgn)
-        {
-            //res.status(200).send("PGN received succesfully");
-            sessionUser.cachedPGNData = null;
-    sessionUser.mArray = [];
-    sessionUser.storedanalysis = [];
-            //console.log(sessionUser.npg)
-            if (!sessionUser.npg /*|| !sessionUser.npg.pgn*/) {
-            return res.status(400).json({ error: "No PGN data provided yet." });
-        }
-        movesarray(username);
-        try{
-        //console.log('sessionuser.marray',sessionUser.mArray);
-            const bestmoved = await handlemovelist(sessionUser.mArray,username ,sessionUser);
-            sessionUser.cachedPGNData = { pgn : sessionUser.npg,
-                moves: sessionUser.mArray,
-                bestmoves :bestmoved.bestMoves,
-                whiteacpl: bestmoved.whiteACPL,
-                blackacpl: bestmoved.blackACPL,
-                blackrating :bestmoved.blackrating,
-                whiterating : bestmoved.whiterating,
-                grades : bestmoved.actualgrading,
-                cpforevalbar :bestmoved.userevals,
-                cpbar :bestmoved.diffed,
-                grademovenumber : bestmoved.grademovenumbers,
-                userwinpercents : bestmoved.userwinpercents,
-                blackgradeno : bestmoved.blackgradeno,
-                pvfen : bestmoved.pvfen}
-
-            res.status(200).json(
-            sessionUser.cachedPGNData);
-            //console.log("session user cached pgndata",sessionUser.cachedPGNData)
-                          try {
-                await stats(username, sessionUser);
-                } catch (err) {
-                    console.error("Error running stats:", err);
-                  }
-        }
-        catch(err)
-        {
-            sessionUser.cachedPGNData = null;
-            console.log("couldnt get best moves",err);
-        }
-        
-
-
-            //console.log("PGN received",JSON.stringify(pgn, null, 2));
-            //movesarray();
-        }
-        else
-        {
-                console.error("Error in /pgn endpoint:", err); 
-        res.status(500).json({ error: err.message });  
-        }
-    });
 
 
 
 
 
-    app.post("/analyzewithstockfish",async (req,res) =>
-    {
-        const { username } = req.body;
-        const sessionUser = getUserSession(username);
-    sessionUser.storedanalysis = [];
-    console.log("POST /analyzewithstockfish hit");
-    const chess = new Chess();
-    const fens = [];
-    for (const move of sessionUser.mArray) {
-    try {
-    chess.move(move);
-    fens.push(chess.fen());
-    } catch (err) {
-    console.warn("Invalid move:", move, err.message);
-    fens.push(null);
+
+
+
+    function waitForMovesArray(sessionUser, intervalMs = 50, timeoutMs = 10000) {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const check = () => {
+      if (Array.isArray(sessionUser.mArray) && sessionUser.mArray.length > 0) {
+        return resolve();
+      }
+      if (Date.now() - start > timeoutMs) {
+        return reject(new Error("Timed out waiting for moves array"));
+      }
+      setTimeout(check, intervalMs);
+    };
+    check();
+  });
+}
+
+
+
+
+
+app.post("/pgn",async (req,res) =>
+{
+    const { username, pgn } = req.body;
+        if (!username || !pgn) {
+    throw new Error("Missing username or PGN");
     }
+    console.log("username:", username);
+    const sessionUser = getUserSession(username);
+    
+    sessionUser.isProcessingPGN = true;
+    sessionUser.pgnProcessingComplete = false;
+    
+    if(typeof pgn !== "string" || !pgn.trim()) {
+        sessionUser.isProcessingPGN = false;
+        sessionUser.pgnProcessingComplete = false;
+        return res.status(403).send("Missing or invalid PGN");
     }
-    res.json({fens});
-            console.log("fens in backend are",fens);
-    });
 
+
+    sessionUser.npg = {pgn};
+    //console.log("pgn receive",sessionUser.npg);
+    
+    if(pgn)
+    {
+        //res.status(200).send("PGN received succesfully");
+        sessionUser.cachedPGNData = null;
+        sessionUser.mArray = [];
+        sessionUser.pgnProcessingComplete = true;
+        sessionUser.isProcessingPGN = false;
+        sessionUser.storedanalysis = [];
+        //console.log(sessionUser.npg)
+        if (!sessionUser.npg /*|| !sessionUser.npg.pgn*/) {
+        return res.status(400).json({ error: "No PGN data provided yet." });
+    }
+    movesarray(username);
+    try{
+    //console.log('sessionuser.marray',sessionUser.mArray);
+    await waitForMovesArray(sessionUser);
+        const bestmoved = await handlemovelist(sessionUser.mArray,username ,sessionUser);
+        sessionUser.cachedPGNData = { pgn : sessionUser.npg,
+            moves: sessionUser.mArray,
+            bestmoves :bestmoved.bestMoves,
+            whiteacpl: bestmoved.whiteACPL,
+            blackacpl: bestmoved.blackACPL,
+            blackrating :bestmoved.blackrating,
+            whiterating : bestmoved.whiterating,
+            grades : bestmoved.actualgrading,
+            cpforevalbar :bestmoved.userevals,
+            cpbar :bestmoved.diffed,
+            grademovenumber : bestmoved.grademovenumbers,
+            userwinpercents : bestmoved.userwinpercents,
+            blackgradeno : bestmoved.blackgradeno,
+            pvfen : bestmoved.pvfen}
+
+
+
+        res.status(200).json(
+        sessionUser.cachedPGNData);
+        //console.log("session user cached pgndata",sessionUser.cachedPGNData)
+                      try {
+            await stats(username, sessionUser);
+            } catch (err) {
+                console.error("Error running stats:", err);
+              }
+    }
+    catch(err)
+    {
+        sessionUser.isProcessingPGN = false;
+        sessionUser.pgnProcessingComplete = false;
+        sessionUser.cachedPGNData = null;
+        console.log("couldnt get best moves",err);
+        res.status(500).json({ error: err.message });
+    }
+    
+
+
+
+        //console.log("PGN received",JSON.stringify(pgn, null, 2));
+        //movesarray();
+    }
+    else
+    {
+        sessionUser.isProcessingPGN = false;
+        sessionUser.pgnProcessingComplete = false;
+        res.status(500).json({ error: "PGN processing failed" });
+    }
+});
+
+function waitForPGNProcessing(sessionUser, intervalMs = 500) {
+    return new Promise((resolve) => {
+        const check = () => {
+            if (sessionUser.pgnProcessingComplete && !sessionUser.isProcessingPGN) {
+                return resolve();
+            }
+            setTimeout(check, intervalMs);
+        };
+        check();
+    });
+}
+
+app.post("/analyzewithstockfish",async (req,res) =>
+{
+    const { username } = req.body;
+    const sessionUser = getUserSession(username);
+
+    await waitForPGNProcessing(sessionUser);
+sessionUser.storedanalysis = [];
+console.log("POST /analyzewithstockfish hit");
+const chess = new Chess();
+const fens = [];
+for (const move of sessionUser.mArray) {
+try {
+chess.move(move);
+fens.push(chess.fen());
+} catch (err) {
+console.warn("Invalid move:", move, err.message);
+fens.push(null);
+}
+}
+res.json({fens});
+console.log("fens in backend are",fens);
+});
 
     app.post("/wasmresults",async (req,res) =>
     {

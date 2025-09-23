@@ -164,7 +164,7 @@
 
 
 
-function waitForMovesArray(sessionUser, intervalMs = 50, timeoutMs = 10000) {
+    function waitForMovesArray(sessionUser, intervalMs = 50, timeoutMs = 10000) {
   return new Promise((resolve, reject) => {
     const start = Date.now();
     const check = () => {
@@ -179,6 +179,7 @@ function waitForMovesArray(sessionUser, intervalMs = 50, timeoutMs = 10000) {
     check();
   });
 }
+
 
 
 
@@ -211,15 +212,7 @@ function waitForMovesArray(sessionUser, intervalMs = 50, timeoutMs = 10000) {
         movesarray(username);
         try{
         //console.log('sessionuser.marray',sessionUser.mArray);
-            await waitForMovesArray(sessionUser);
-            
-
-
-
-
-
-
-
+        await waitForMovesArray(sessionUser);
             const bestmoved = await handlemovelist(sessionUser.mArray,username ,sessionUser);
             sessionUser.cachedPGNData = { pgn : sessionUser.npg,
                 moves: sessionUser.mArray,
@@ -271,7 +264,6 @@ function waitForMovesArray(sessionUser, intervalMs = 50, timeoutMs = 10000) {
     {
         const { username } = req.body;
         const sessionUser = getUserSession(username);
-        await waitForMovesArray(sessionUser, 100, 10000);
     sessionUser.storedanalysis = [];
     console.log("POST /analyzewithstockfish hit");
     const chess = new Chess();

@@ -280,6 +280,7 @@
 
     app.post("/analyzewithstockfish",async (req,res) =>
     {
+        await new Promise(resolve => setTimeout(resolve, 500));
         const { username } = req.body;
         const sessionUser = getUserSession(username);
     sessionUser.storedanalysis = [];
@@ -296,6 +297,7 @@
     }
     }
     res.json({fens});
+    console.log("fens in backend are",fens);
     });
 
 

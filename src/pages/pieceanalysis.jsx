@@ -292,7 +292,7 @@ const Piece = () => {
       <div className="chess-analytics-metrics-container">
         <div className="chess-analytics-piece-overview-section">
           <h2 className="chess-analytics-section-title">Piece Performance Overview</h2>
-          <p className="chess-analytics-instruction-text">Click on any piece to view detailed Stockfish-level analysis</p>
+          <p className="chess-analytics-instruction-text">Click on any piece to view detailed  analysis</p>
 
           <div className="chess-analytics-piece-cards-grid">
             {pieceTypes.map(piece => {

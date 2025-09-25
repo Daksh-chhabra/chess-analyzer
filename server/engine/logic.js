@@ -429,6 +429,13 @@ for (let i = actualgrading.length - 1; i >= 0; i--) {
   }
 }
 
+for (let i = actualgrading.length - 1; i >= 0; i--) {
+  if (actualgrading[i] === "Book") {
+    bookAhead = true;
+  } else if (bookAhead) {
+    actualgrading[i] = "Book";
+  }
+}
 
   let whiteCP = 0, blackCP = 0, whitemoves = 1, blackmoves = 0;
 

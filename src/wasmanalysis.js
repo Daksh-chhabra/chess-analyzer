@@ -30,13 +30,12 @@ export const prewarmStockfish = () => {
 
 async function analyte() {
     const username = localStorage.getItem("currentUser");
-    const analysisKey = sessionStorage.getItem("analysisKey");
     let stockfishService;
     try {
         const response = await fetch(`${API_URL}/analyzewithstockfish`, {
             method: "POST",
             headers: { 'Content-Type': "application/json" },
-            body: JSON.stringify({ username, analysisKey })
+            body: JSON.stringify({ username })
         });
 
         if (!response.ok) throw new Error(`HTTP error ${response.status}`);
@@ -44,6 +43,7 @@ async function analyte() {
 
         stockfishService = await prewarmStockfish();
         const { fens } = data;
+        console.log("fens",data);
 
         let recommendedWorkers = getRecommendedWorkersNb();
         if (fens.length > 100) {
@@ -87,7 +87,7 @@ async function analyte() {
             return { fen: bestfen, analysis: bestanalysis };
         });
 
-        const payload = { fens, results, bestfens, bestresults, username, analysisKey };
+        const payload = { fens, results, bestfens, bestresults, username };
 
         console.log(
             "Payload size (MB):",
@@ -102,18 +102,14 @@ async function analyte() {
                 results,
                 bestfens,
                 bestresults,
-                username,
-                analysisKey
+                username
             }),
         });
-
-        sessionStorage.removeItem("analysisKey");
 
         //console.log("All WASM results sent to backend");
 
     } catch (err) {
         console.error("Error in analyte():", err);
-        sessionStorage.removeItem("analysisKey");
     } finally {
         console.log("Analysis finished (no quit available on stockfishService).");
     }

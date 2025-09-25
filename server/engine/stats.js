@@ -1040,6 +1040,40 @@ const dataextraction = async(username, sessionUser) => {
     const moves = statsweget.cachedPGNData.moves;
     const grades = statsweget.cachedPGNData.grades;
     const cploss = statsweget.cachedPGNData.cpbar;
+    const evals = statsweget.cachedPGNData.cpforevalbar;
+
+
+function getWinPercentageFromCp(cp) {
+  if (typeof cp === "string" && cp.startsWith("mate in")) {
+    const mateValue = parseInt(cp.split(" ")[2], 10);
+    return mateValue > 0 ? 100 : 0;
+  }
+  const clamped = Math.max(-1000, Math.min(1000, cp));
+  const MULTIPLIER = -0.00368208;
+  const winChances = 2 / (1 + Math.exp(MULTIPLIER * clamped)) - 1;
+  return 50 + 50 * winChances;
+}
+
+
+
+  const userwinpercents = evals.map(cp => {
+    if (typeof cp === "number") return getWinPercentageFromCp(cp);
+    if (typeof cp === "string" && cp.startsWith("mate in")) {
+      const mateValue = parseInt(cp.split(" ")[2], 10);
+      return mateValue > 0 ? 100 : 0;
+    }
+    return null;
+  });
+
+  for (let i = 0; i < userwinpercents.length - 1; i++) {
+    if (userwinpercents[i] !== null) {
+      if (i % 2 === 0) userwinpercents[i] = 100 - userwinpercents[i];
+    } else if (i % 2 === 1) userwinpercents[i] = 100;
+    else userwinpercents[i] = 0;
+  }
+
+
+
     
     let captures = [];
     const chess = new Chess();
@@ -1434,7 +1468,356 @@ try {
 
 
 
+const calculatePhaseAggregatedStats = (moves, grades, cploss, evals, isWhite,userwinpercents) => {
+    const boundaries = getGamePhaseBoundaries(moves);
+
+    // This sub-function is where the fix is applied.
+    const getUserMovesInPhases = (moves, grades, cploss, captures, evals, isWhite) => {
+        const boundaries = getGamePhaseBoundaries(moves);
+        const phases = { opening: [], middlegame: [], endgame: [] };
+        const startIndex = isWhite ? 0 : 1;
+
+        for (let i = startIndex; i < moves.length; i += 2) {
+            const moveData = {
+                move: moves[i],
+                grade: grades[i - 1] || 'Good',
+                index: i,
+                cpLoss: Math.abs(cploss[i] || 0),
+                evalBefore: evals && evals[i] !== undefined ? evals[i] : 0, 
+            };
+
+            if (i <= boundaries.openingEnd) {
+                phases.opening.push(moveData);
+            } else if (i <= boundaries.middlegameEnd) {
+                phases.middlegame.push(moveData);
+            } else {
+                phases.endgame.push(moveData);
+            }
+        }
+        return phases;
+    };
+
+    const userPhases = getUserMovesInPhases(moves, grades, cploss, [], evals, isWhite,userwinpercents);
+    
+    const calculatePhaseStats = (phaseMoves, phaseName) => {
+        if (phaseMoves.length === 0) {
+            return {
+                accuracy: 50, averageGrade: 70, blunders: 0, mistakes: 0, inaccuracies: 0, excellent: 0, good: 0, tacticalMoves: 0, developmentMoves: 0, endgameTechnique: 0,
+                advantageConversionAccuracy: 75, defensiveHoldAccuracy: 75, equalPositionAccuracy: 75, unforcedErrors: 0, initiativeScore: 0
+            };
+        }
+
+        let totalCpLoss = 0;
+        let totalGradeValue = 0;
+        let blunders = 0, mistakes = 0, inaccuracies = 0, excellent = 0, good = 0;
+
+        let winningMoves = [], losingMoves = [], equalMoves = [];
+        let unforcedErrors = 0;
+        let proactiveMoves = 0;
+
+        phaseMoves.forEach(moveData => {
+            totalCpLoss += Math.abs(moveData.cpLoss || 0);
+            
+            const gradeValues = { 'Brilliant': 100, 'Great': 95, 'Best': 90, 'Good': 80, 'Book': 75, 'Okay': 65, 'Inaccuracy': 40, 'Mistake': 20, 'Blunder': 10 };
+            totalGradeValue += gradeValues[moveData.grade] || 70;
+
+            if (moveData.grade === 'Blunder') blunders++;
+            else if (moveData.grade === 'Mistake') mistakes++;
+            else if (moveData.grade === 'Inaccuracy') inaccuracies++;
+            else if (['Brilliant', 'Great', 'Best'].includes(moveData.grade)) excellent++;
+            else if (['Good', 'Book', 'Okay'].includes(moveData.grade)) good++;
+
+
+            const winPercentForWhite = userwinpercents[moveData.index];
+             const winPercentForUser = isWhite ? winPercentForWhite : 100 - winPercentForWhite;
+
+            if (winPercentForUser > 70) {
+                winningMoves.push(moveData);
+            } else if (winPercentForUser < 30) {
+                losingMoves.push(moveData);
+            } else {
+                equalMoves.push(moveData);
+            }
+
+            const isMajorError = ['Blunder', 'Mistake'].includes(moveData.grade);
+            if (isMajorError && winPercentForUser >= 40) {
+                unforcedErrors++;
+            }
+
+            const move = moveData.move;
+            const isForcing = move.includes('x') || move.includes('+') || move.includes('#');
+            const isStrongPositional = ['Brilliant', 'Great', 'Best'].includes(moveData.grade);
+            if (isForcing || isStrongPositional) {
+                proactiveMoves++;
+            }
+        });
+
+        const avgCpLoss = totalCpLoss / phaseMoves.length;
+
+        function acplToAccuracy(acpl) {
+            const k = 0.004;
+            let acc = 100 * Math.exp(-k * acpl);
+            return parseFloat(acc.toFixed(2));
+        }
+
+        const calculateSubsetAccuracy = (subset) => {
+            if (subset.length === 0) return 75;
+            const totalSubsetCpLoss = subset.reduce((sum, move) => sum + Math.abs(move.cpLoss || 0), 0);
+            return acplToAccuracy(totalSubsetCpLoss / subset.length);
+        };
+
+        const accuracy = acplToAccuracy(avgCpLoss);
+        const averageGrade = totalGradeValue / phaseMoves.length;
+        
+        const advantageConversionAccuracy = calculateSubsetAccuracy(winningMoves);
+        const defensiveHoldAccuracy = calculateSubsetAccuracy(losingMoves);
+        const equalPositionAccuracy = calculateSubsetAccuracy(equalMoves);
+        const initiativeScore = phaseMoves.length > 0 ? Math.round((proactiveMoves / phaseMoves.length) * 100) : 0;
+        
+        const tacticalMoves = phaseName === 'middlegame' ? 
+            phaseMoves.filter(moveData => {
+                const move = moveData.move;
+                const grade = moveData.grade;
+                const cpLoss = moveData.cpLoss;
+                
+                const isCapture = move.includes('x');
+                const isCheck = move.includes('+') || move.includes('#');
+                const isExcellentGrade = ['Brilliant', 'Great', 'Best'].includes(grade);
+                const hasLowCpLoss = cpLoss < 15;
+                
+                return (isCapture && isExcellentGrade && hasLowCpLoss) ||
+                       (isCheck && isExcellentGrade && hasLowCpLoss) ||
+                       (grade === 'Brilliant') ||
+                       (isExcellentGrade && cpLoss === 0);
+            }).length : 0;
+        
+        const developmentMoves = phaseName === 'opening' ? 
+            phaseMoves.filter(moveData => {
+                const move = moveData.move;
+                const grade = moveData.grade;
+                
+                const isKnightDev = move.startsWith('N') && !move.includes('x') && ['Good', 'Best', 'Great', 'Brilliant','Book'].includes(grade);
+                const isBishopDev = move.startsWith('B') && !move.includes('x') && ['Good', 'Best', 'Great', 'Brilliant','Book'].includes(grade);
+                const isCastling = move === 'O-O' || move === 'O-O-O';
+                const isCentralPawn = (move.startsWith('e') || move.startsWith('d')) && 
+                                      (move.includes('4') || move.includes('5')) && 
+                                      !move.includes('x') &&
+                                      ['Good', 'Best', 'Great', 'Book'].includes(grade);
+                
+                return isKnightDev || isBishopDev || isCastling || isCentralPawn;
+            }).length : 0;
+            
+        const endgameTechnique = phaseName === 'endgame' ? (() => {
+            if (phaseMoves.length <= 8) return 0;
+            
+            let techniqueScore = 0;
+            let maxScore = 0;
+            
+            phaseMoves.forEach(moveData => {
+                const move = moveData.move;
+                const grade = moveData.grade;
+                const cpLoss = moveData.cpLoss;
+                
+                maxScore += 10;
+                
+                if (grade === 'Brilliant') techniqueScore += 10;
+                else if (grade === 'Great') techniqueScore += 10;
+                else if (grade === 'Best') techniqueScore += 10;
+                else if (grade === 'Good' && cpLoss < 10) techniqueScore += 8;
+                else if (grade === 'Okay') techniqueScore += 6;
+                else if (cpLoss < 45) techniqueScore += 3;
+                
+                if (move.startsWith('K') && ['Good', 'Best', 'Great', 'Brilliant'].includes(grade)) {
+                    techniqueScore += 2;
+                }
+                if (move.includes('=') || (move.match(/[a-h][67]/))) {
+                    techniqueScore += 3;
+                }
+            });
+            
+            return Math.min(100, Math.round((techniqueScore / maxScore) * 100));
+        })() : 0;
+
+
+        return {
+            accuracy: Math.round(accuracy * 10) / 10,
+            averageGrade: Math.round(averageGrade * 10) / 10,
+            moveCount: phaseMoves.length,
+            blunders,
+            mistakes,
+            inaccuracies,
+            excellent,
+            good,
+            blunderPercent: Math.round((blunders / phaseMoves.length) * 1000) / 10,
+            tacticalMoves,
+            developmentMoves,
+            endgameTechnique,
+            advantageConversionAccuracy: Math.round(advantageConversionAccuracy),
+            defensiveHoldAccuracy: Math.round(defensiveHoldAccuracy),
+            equalPositionAccuracy: Math.round(equalPositionAccuracy),
+            unforcedErrors,
+            initiativeScore
+        };
+    };
+
+    return {
+        opening: calculatePhaseStats(userPhases.opening, 'opening'),
+        middlegame: calculatePhaseStats(userPhases.middlegame, 'middlegame'),
+        endgame: calculatePhaseStats(userPhases.endgame, 'endgame'),
+        totalMoves: moves.length
+    };
+};
+
+const pushUserPhaseStats = async (username, phaseStats, gameInfo) => {
+    try {
+        await setUserContext(username);
+        const { data: existing, error: fetchError } = await supabase
+            .from('user_phase_stats')
+            .select('*')
+            .eq('username', username)
+            .single();
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            throw fetchError;
+        }
+        let updatedStats;
+        const hasEndgame = phaseStats.endgame.moveCount > 8;
+        if (existing) {
+            const totalGames = existing.total_games + 1;
+            const newEndgameGamesCount = existing.endgame_games_count + (hasEndgame ? 1 : 0);
+            let newEndgameAccuracy, newEndgameAvgGrade, newEndgameTechniqueScore, newEndgameAdvantageConversionAccuracy, newEndgameDefensiveHoldAccuracy, newEndgameEqualPositionAccuracy, newEndgameInitiativeScore;
+            if (hasEndgame && newEndgameGamesCount > 0) {
+                newEndgameAccuracy = ((existing.endgame_accuracy * existing.endgame_games_count) + phaseStats.endgame.accuracy) / newEndgameGamesCount;
+                newEndgameAvgGrade = ((existing.endgame_avg_grade * existing.endgame_games_count) + phaseStats.endgame.averageGrade) / newEndgameGamesCount;
+                newEndgameTechniqueScore = ((existing.endgame_technique_score * existing.endgame_games_count) + phaseStats.endgame.endgameTechnique) / newEndgameGamesCount;
+                newEndgameAdvantageConversionAccuracy = ((existing.endgame_advantage_conversion_accuracy * existing.endgame_games_count) + phaseStats.endgame.advantageConversionAccuracy) / newEndgameGamesCount;
+                newEndgameDefensiveHoldAccuracy = ((existing.endgame_defensive_hold_accuracy * existing.endgame_games_count) + phaseStats.endgame.defensiveHoldAccuracy) / newEndgameGamesCount;
+                newEndgameEqualPositionAccuracy = ((existing.endgame_equal_position_accuracy * existing.endgame_games_count) + phaseStats.endgame.equalPositionAccuracy) / newEndgameGamesCount;
+                newEndgameInitiativeScore = ((existing.endgame_initiative_score * existing.endgame_games_count) + phaseStats.endgame.initiativeScore) / newEndgameGamesCount;
+            } else {
+                newEndgameAccuracy = existing.endgame_accuracy;
+                newEndgameAvgGrade = existing.endgame_avg_grade;
+                newEndgameTechniqueScore = existing.endgame_technique_score;
+                newEndgameAdvantageConversionAccuracy = existing.endgame_advantage_conversion_accuracy;
+                newEndgameDefensiveHoldAccuracy = existing.endgame_defensive_hold_accuracy;
+                newEndgameEqualPositionAccuracy = existing.endgame_equal_position_accuracy;
+                newEndgameInitiativeScore = existing.endgame_initiative_score;
+            }
+            updatedStats = {
+                username: username,
+                total_games: totalGames,
+                wins: existing.wins + (gameInfo.result === 'win' ? 1 : 0),
+                losses: existing.losses + (gameInfo.result === 'loss' ? 1 : 0),
+                draws: existing.draws + (gameInfo.result === 'draw' ? 1 : 0),
+                avg_game_length: ((existing.avg_game_length * existing.total_games) + phaseStats.totalMoves) / totalGames,
+                opening_accuracy: ((existing.opening_accuracy * existing.total_games) + phaseStats.opening.accuracy) / totalGames,
+                opening_avg_grade: ((existing.opening_avg_grade * existing.total_games) + phaseStats.opening.averageGrade) / totalGames,
+                opening_total_moves: existing.opening_total_moves + phaseStats.opening.moveCount,
+                opening_blunders: existing.opening_blunders + phaseStats.opening.blunders,
+                opening_mistakes: existing.opening_mistakes + phaseStats.opening.mistakes,
+                opening_excellent: existing.opening_excellent + phaseStats.opening.excellent,
+                opening_development_moves: existing.opening_development_moves + phaseStats.opening.developmentMoves,
+                opening_advantage_conversion_accuracy: ((existing.opening_advantage_conversion_accuracy * existing.total_games) + phaseStats.opening.advantageConversionAccuracy) / totalGames,
+                opening_defensive_hold_accuracy: ((existing.opening_defensive_hold_accuracy * existing.total_games) + phaseStats.opening.defensiveHoldAccuracy) / totalGames,
+                opening_equal_position_accuracy: ((existing.opening_equal_position_accuracy * existing.total_games) + phaseStats.opening.equalPositionAccuracy) / totalGames,
+                opening_unforced_errors: existing.opening_unforced_errors + phaseStats.opening.unforcedErrors,
+                opening_initiative_score: ((existing.opening_initiative_score * existing.total_games) + phaseStats.opening.initiativeScore) / totalGames,
+                middlegame_accuracy: ((existing.middlegame_accuracy * existing.total_games) + phaseStats.middlegame.accuracy) / totalGames,
+                middlegame_avg_grade: ((existing.middlegame_avg_grade * existing.total_games) + phaseStats.middlegame.averageGrade) / totalGames,
+                middlegame_total_moves: existing.middlegame_total_moves + phaseStats.middlegame.moveCount,
+                middlegame_blunders: existing.middlegame_blunders + phaseStats.middlegame.blunders,
+                middlegame_mistakes: existing.middlegame_mistakes + phaseStats.middlegame.mistakes,
+                middlegame_excellent: existing.middlegame_excellent + phaseStats.middlegame.excellent,
+                middlegame_tactical_moves: existing.middlegame_tactical_moves + phaseStats.middlegame.tacticalMoves,
+                middlegame_advantage_conversion_accuracy: ((existing.middlegame_advantage_conversion_accuracy * existing.total_games) + phaseStats.middlegame.advantageConversionAccuracy) / totalGames,
+                middlegame_defensive_hold_accuracy: ((existing.middlegame_defensive_hold_accuracy * existing.total_games) + phaseStats.middlegame.defensiveHoldAccuracy) / totalGames,
+                middlegame_equal_position_accuracy: ((existing.middlegame_equal_position_accuracy * existing.total_games) + phaseStats.middlegame.equalPositionAccuracy) / totalGames,
+                middlegame_unforced_errors: existing.middlegame_unforced_errors + phaseStats.middlegame.unforcedErrors,
+                middlegame_initiative_score: ((existing.middlegame_initiative_score * existing.total_games) + phaseStats.middlegame.initiativeScore) / totalGames,
+                endgame_accuracy: newEndgameAccuracy,
+                endgame_avg_grade: newEndgameAvgGrade,
+                endgame_total_moves: existing.endgame_total_moves + phaseStats.endgame.moveCount,
+                endgame_blunders: existing.endgame_blunders + phaseStats.endgame.blunders,
+                endgame_mistakes: existing.endgame_mistakes + phaseStats.endgame.mistakes,
+                endgame_excellent: existing.endgame_excellent + phaseStats.endgame.excellent,
+                endgame_technique_score: newEndgameTechniqueScore,
+                endgame_advantage_conversion_accuracy: newEndgameAdvantageConversionAccuracy,
+                endgame_defensive_hold_accuracy: newEndgameDefensiveHoldAccuracy,
+                endgame_equal_position_accuracy: newEndgameEqualPositionAccuracy,
+                endgame_unforced_errors: existing.endgame_unforced_errors + phaseStats.endgame.unforcedErrors,
+                endgame_initiative_score: newEndgameInitiativeScore,
+                endgame_games_count: newEndgameGamesCount,
+                last_updated: new Date().toISOString()
+            };
+        } else {
+            updatedStats = {
+                username: username,
+                total_games: 1,
+                wins: (gameInfo.result === 'win' ? 1 : 0),
+                losses: (gameInfo.result === 'loss' ? 1 : 0),
+                draws: (gameInfo.result === 'draw' ? 1 : 0),
+                avg_game_length: phaseStats.totalMoves,
+                opening_accuracy: phaseStats.opening.accuracy,
+                opening_avg_grade: phaseStats.opening.averageGrade,
+                opening_total_moves: phaseStats.opening.moveCount,
+                opening_blunders: phaseStats.opening.blunders,
+                opening_mistakes: phaseStats.opening.mistakes,
+                opening_excellent: phaseStats.opening.excellent,
+                opening_development_moves: phaseStats.opening.developmentMoves,
+                opening_advantage_conversion_accuracy: phaseStats.opening.advantageConversionAccuracy,
+                opening_defensive_hold_accuracy: phaseStats.opening.defensiveHoldAccuracy,
+                opening_equal_position_accuracy: phaseStats.opening.equalPositionAccuracy,
+                opening_unforced_errors: phaseStats.opening.unforcedErrors,
+                opening_initiative_score: phaseStats.opening.initiativeScore,
+                middlegame_accuracy: phaseStats.middlegame.accuracy,
+                middlegame_avg_grade: phaseStats.middlegame.averageGrade,
+                middlegame_total_moves: phaseStats.middlegame.moveCount,
+                middlegame_blunders: phaseStats.middlegame.blunders,
+                middlegame_mistakes: phaseStats.middlegame.mistakes,
+                middlegame_excellent: phaseStats.middlegame.excellent,
+                middlegame_tactical_moves: phaseStats.middlegame.tacticalMoves,
+                middlegame_advantage_conversion_accuracy: phaseStats.middlegame.advantageConversionAccuracy,
+                middlegame_defensive_hold_accuracy: phaseStats.middlegame.defensiveHoldAccuracy,
+                middlegame_equal_position_accuracy: phaseStats.middlegame.equalPositionAccuracy,
+                middlegame_unforced_errors: phaseStats.middlegame.unforcedErrors,
+                middlegame_initiative_score: phaseStats.middlegame.initiativeScore,
+                endgame_accuracy: hasEndgame ? phaseStats.endgame.accuracy : 0,
+                endgame_avg_grade: hasEndgame ? phaseStats.endgame.averageGrade : 0,
+                endgame_total_moves: phaseStats.endgame.moveCount,
+                endgame_blunders: phaseStats.endgame.blunders,
+                endgame_mistakes: phaseStats.endgame.mistakes,
+                endgame_excellent: phaseStats.endgame.excellent,
+                endgame_technique_score: hasEndgame ? phaseStats.endgame.endgameTechnique : 0,
+                endgame_advantage_conversion_accuracy: hasEndgame ? phaseStats.endgame.advantageConversionAccuracy : 75,
+                endgame_defensive_hold_accuracy: hasEndgame ? phaseStats.endgame.defensiveHoldAccuracy : 75,
+                endgame_equal_position_accuracy: hasEndgame ? phaseStats.endgame.equalPositionAccuracy : 75,
+                endgame_unforced_errors: phaseStats.endgame.unforcedErrors,
+                endgame_initiative_score: hasEndgame ? phaseStats.endgame.initiativeScore : 0,
+                endgame_games_count: hasEndgame ? 1 : 0,
+                created_at: new Date().toISOString(),
+                last_updated: new Date().toISOString()
+            };
+        }
+        const { data, error } = await supabase
+            .from('user_phase_stats')
+            .upsert(updatedStats, { onConflict: 'username' })
+            .select();
+        if (error) throw error;
+        return { success: true, data: data[0] };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+};
+
+const phaseStats = calculatePhaseAggregatedStats(moves, grades, cploss, isWhite,evals,userwinpercents);
+const phaseResult = await pushUserPhaseStats(username, phaseStats, gameInfo)
+if (phaseResult.success) {
+    console.log(`Phase stats updated for ${username}`)
+}
+
     return analyticsData;
+
+
+
 }
 
 export default stats;

@@ -52,12 +52,12 @@ export class UciEngine {
   async analyzeFen(fen, { movetime = 2000, depth = null, retries = 3 } = {}) {
     for (let attempt = 1; attempt <= retries; attempt++) {
       const worker = this.acquireWorker();
-
+      const setHashCommand = "setoption name Hash value 128";
       let commands;
       if (depth) {
-        commands = [`position fen ${fen}`, `go depth ${depth}`];
+        commands = [setHashCommand,`position fen ${fen}`, `go depth ${depth}`];
       } else {
-        commands = [`position fen ${fen}`, `go movetime ${movetime}`];
+        commands = [setHashCommand,`position fen ${fen}`, `go movetime ${movetime}`];
       }
 
       const finalMessage = "bestmove";

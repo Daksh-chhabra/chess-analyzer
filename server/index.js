@@ -191,14 +191,30 @@
         throw new Error("Missing username or PGN");
         }
         console.log("username:", username);
-        const sessionUser = getUserSession(username);
+        const sessionUser = getUserSession(username);  
         if(typeof pgn !== "string" || !pgn.trim()) {
             return res.status(403).send("Missing or invalid PGN");
         }
 
         sessionUser.npg = {pgn};
         //console.log("pgn receive",sessionUser.npg);
-        
+
+
+
+    const clkRegex = /\[%clk\s+([\d:\.]+)\]/g;
+    const matches = [...pgn.matchAll(clkRegex)];
+    
+    const whiteTimeStrings = [];
+    const blackTimeStrings = [];
+    
+    matches.forEach((match, index) => {
+        if (index % 2 === 0) {
+            whiteTimeStrings.push(match[1]);
+        } else {
+            blackTimeStrings.push(match[1]);
+        }
+    });
+
         if(pgn)
         {
             //res.status(200).send("PGN received succesfully");
@@ -227,7 +243,9 @@
                 grademovenumber : bestmoved.grademovenumbers,
                 userwinpercents : bestmoved.userwinpercents,
                 blackgradeno : bestmoved.blackgradeno,
-                pvfen : bestmoved.pvfen}
+                pvfen : bestmoved.pvfen,
+                whitetime :whiteTimeStrings,
+                blacktime: blackTimeStrings}
 
             res.status(200).json(
             sessionUser.cachedPGNData);

@@ -1,5 +1,6 @@
 import { Chess } from "chess.js";
 import { openings } from "./openings.js";
+import {openings1} from "./opening1.js";
 import dotenv from 'dotenv'
 dotenv.config({ path: '../server/backend.env'});
 
@@ -405,7 +406,7 @@ if ((actualgrading[i] === 'Blunder' || actualgrading[i] === "Mate" || actualgrad
   }
 
   const bookfens = openings.map(o => o.fen);
-  const openingname = openings.map(o => o.name);
+  const openingname = openings1.map(o => o.name);
   const booknames = [];
 
   for (let i = 0; i < fens.length; i++) {
@@ -418,11 +419,15 @@ if ((actualgrading[i] === 'Blunder' || actualgrading[i] === "Mate" || actualgrad
   }
 
 
-     for (let i = 0; i < actualgrading.length - 1; i++) {
-    if (actualgrading[i+1] === "Book") {
-      actualgrading[i] = "Book";
-    }
+let bookAhead = false;
+
+for (let i = actualgrading.length - 1; i >= 0; i--) {
+  if (actualgrading[i] === "Book") {
+    bookAhead = true;
+  } else if (bookAhead) {
+    actualgrading[i] = "Book";
   }
+}
 
 
   let whiteCP = 0, blackCP = 0, whitemoves = 1, blackmoves = 0;
